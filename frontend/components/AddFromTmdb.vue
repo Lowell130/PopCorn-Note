@@ -123,12 +123,13 @@ async function pick (movie) {
       director,
       cast,
       runtime: details?.runtime || null,
-      tmdb_id: details?.id || movie.id
+      tmdb_id: details?.id || movie.id,
+      overview: details?.overview || null        // 👈 AGGIUNTO: trama IT da TMDb
     }
 
     emit('prefill', payload)
 
-    // 👇 CHIUDI LA LISTA + PULISCI LA RICERCA
+    // chiudi lista e pulisci
     showResults.value = false
     results.value = []
     q.value = ''
