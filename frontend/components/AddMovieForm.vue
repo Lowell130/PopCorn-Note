@@ -5,7 +5,9 @@
     <!-- Titolo + Poster -->
     <div class="grid md:grid-cols-3 gap-3">
       <div class="md:col-span-2">
-        <label class="block mb-1 text-sm font-medium">Titolo <span class="text-red-600">*</span></label>
+        <label class="block mb-1 text-sm font-medium">
+          Titolo <span class="text-red-600">*</span>
+        </label>
         <input v-model.trim="form.title" type="text" class="w-full border rounded-lg p-2" required />
       </div>
       <div class="flex items-end">
@@ -52,7 +54,7 @@
       </div>
       <div>
         <label class="block mb-1 text-sm font-medium">Durata (min.)</label>
-        <input v-model.number="form.runtime" type="number" class="w-full border rounded-lg p-2" placeholder="Es. 148" />
+        <input v-model.number="form.runtime" type="number" min="1" class="w-full border rounded-lg p-2" placeholder="Es. 148" />
       </div>
     </div>
 
@@ -67,6 +69,17 @@
       </div>
     </div>
 
+    <!-- Trama (overview) -->
+    <div>
+      <label class="block mb-1 text-sm font-medium">Trama (da TMDb, opzionale)</label>
+      <textarea
+        v-model.trim="form.overview"
+        rows="4"
+        class="w-full border rounded-lg p-2 resize-y"
+        placeholder="Descrizione del film in italiano"
+      />
+    </div>
+
     <!-- Nota -->
     <div>
       <label class="block mb-1 text-sm font-medium">Nota</label>
@@ -75,8 +88,14 @@
 
     <!-- Azioni -->
     <div class="flex items-center justify-end gap-2">
-      <button type="button" class="px-4 py-2 rounded border" @click="reset" :disabled="loading">Reset</button>
-      <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 rounded px-4 py-2" :disabled="loading || !form.title">
+      <button type="button" class="px-4 py-2 rounded border" @click="reset" :disabled="loading">
+        Reset
+      </button>
+      <button
+        type="submit"
+        class="text-white bg-blue-700 hover:bg-blue-800 rounded px-4 py-2"
+        :disabled="loading || !form.title"
+      >
         <span v-if="!loading">Salva</span>
         <span v-else>Salvataggio…</span>
       </button>
@@ -90,7 +109,7 @@ const { apiFetch } = useApi()
 
 const props = defineProps({
   initialTitle: { type: String, default: '' },
-  initialData: { type: Object, default: null } // per prefill completo da TMDb
+  initialData: { type: Object, default: () => ({}) } // titolo/poster/overview ecc.
 })
 
 const statuses = [
@@ -114,6 +133,7 @@ const form = reactive({
   score: null,
   liked: null,
   note: '',
+  overview: '',            // 👈 campo overview
 
   // nuovi campi
   release_year: null,
@@ -124,6 +144,7 @@ const form = reactive({
   runtime: null,
   tmdb_id: null
 })
+
 const castInput = computed({
   get: () => (form.cast || []).join(', '),
   set: (v) => { form.cast = v ? v.split(',').map(s => s.trim()).filter(Boolean) : [] }
@@ -131,17 +152,19 @@ const castInput = computed({
 
 const loading = ref(false)
 
+// Prefill iniziale (titolo + dati TMDb inclusa overview)
 watch(() => props.initialTitle, (v) => { if (v) form.title = v }, { immediate: true })
 watch(() => props.initialData, (d) => {
   if (!d) return
-  form.title = d.title || form.title
-  form.release_year = d.release_year ?? form.release_year
-  form.release_date = d.release_date ?? form.release_date
-  form.poster_url = d.poster_url ?? form.poster_url
-  form.director = d.director ?? form.director
-  form.cast = Array.isArray(d.cast) ? d.cast : form.cast
-  form.runtime = d.runtime ?? form.runtime
-  form.tmdb_id = d.tmdb_id ?? form.tmdb_id
+  if (d.title)        form.title = d.title
+  if (d.overview)     form.overview = d.overview          // 👈 prefill overview
+  if (d.release_year !== undefined) form.release_year = d.release_year
+  if (d.release_date !== undefined) form.release_date = d.release_date
+  if (d.poster_url !== undefined)   form.poster_url = d.poster_url
+  if (d.director !== undefined)     form.director = d.director
+  if (Array.isArray(d.cast))        form.cast = d.cast
+  if (d.runtime !== undefined)      form.runtime = d.runtime
+  if (d.tmdb_id !== undefined)      form.tmdb_id = d.tmdb_id
 }, { immediate: true })
 
 function reset () {
@@ -150,6 +173,7 @@ function reset () {
   form.score = null
   form.liked = null
   form.note = ''
+  form.overview = ''               // 👈 reset overview
 
   form.release_year = null
   form.release_date = ''
@@ -171,6 +195,7 @@ async function submit () {
         score: form.score ?? null,
         liked: form.liked ?? null,
         note: form.note || null,
+        overview: form.overview || null,               // 👈 INVIA overview
 
         release_year: form.release_year ?? null,
         release_date: form.release_date || null,
@@ -178,7 +203,7 @@ async function submit () {
         director: form.director || null,
         cast: form.cast?.length ? form.cast : null,
         runtime: form.runtime ?? null,
-        tmdb_id: form.tmdb_id ?? null,
+        tmdb_id: form.tmdb_id ?? null
       }
     })
     reset()
