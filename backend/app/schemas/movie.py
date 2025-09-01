@@ -4,7 +4,7 @@ from typing import Optional, Literal, List
 from datetime import datetime
 import re
 
-Status = Literal["watched", "to_watch", "upcoming"]
+Status = Literal["watched", "to_watch", "upcoming", "watching"]
 Liked = Literal["loved", "liked", "okay", "disliked", "terrible"]
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
