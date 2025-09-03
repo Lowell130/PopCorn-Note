@@ -55,7 +55,14 @@
       </select>
       <button @click="resetFilters" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Reset</button>
     </div>
-
+<!-- pages/index.vue -->
+<MovieRowCard
+  v-for="m in movies"
+  :key="m.id"
+  :movie="m"
+  @updated="onUpdated"
+  @deleted="onDeleted"
+/>
   
     <!-- Empty state -->
     <div v-if="!loading && movies.length === 0" class="text-center opacity-80 py-12">
@@ -63,8 +70,10 @@
       <div class="text-lg">Nessun film ancora. Aggiungine uno!</div>
     </div>
 
+    
+
     <!-- Lista -->
-    <div v-else class="grid md:grid-cols-2 gap-4">
+    <!-- <div v-else class="grid md:grid-cols-2 gap-4">
       <MovieCard
         v-for="m in movies"
         :key="m.id"
@@ -72,7 +81,7 @@
         @updated="onUpdated"
         @deleted="onDeleted"
       />
-    </div>
+    </div> -->
 
     <!-- Loader + sentinel per infinite scroll -->
     <div ref="sentinel" class="h-10"></div>
