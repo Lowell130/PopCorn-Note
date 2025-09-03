@@ -115,7 +115,9 @@ const props = defineProps({
 const statuses = [
   { value: 'to_watch', label: 'Da vedere' },
   { value: 'watched', label: 'Visto' },
-  { value: 'upcoming', label: 'In uscita' }
+  { value: 'upcoming', label: 'In uscita' },
+   { value: 'watching', label: 'In visione' }
+  
 ]
 const likedOptions = [
   { value: 'loved', label: 'Mi è piaciuto molto' },
