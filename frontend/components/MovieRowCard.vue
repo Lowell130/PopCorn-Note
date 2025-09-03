@@ -44,7 +44,7 @@
         </div>
       </div>
 
-      <h3 class="text-xl md:text-2xl font-semibold leading-snug break-words text-black">
+      <h3 class="text-xl md:text-2xl font-semibold leading-snug break-words dark:text-white text-black">
         <NuxtLink
           v-if="movie.id"
           :to="`/movies/${movie.id}`"
