@@ -10,7 +10,8 @@ router = APIRouter(prefix="/movies", tags=["Movies"])
 
 @router.post("/")
 async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
-    movie_dict = movie.dict()
+    movie_dict = movie.dict(exclude_unset=True)
+    movie_dict["kind"] = movie_dict.get("kind") or "movie"   # 👈 default sicuro
     movie_dict["user_id"] = str(user["_id"])
     # timestamps
     now = datetime.utcnow()
@@ -41,12 +42,23 @@ async def list_movies(
     # opzionale: parametri per estensioni future
     status: str | None = None,
     q: str | None = None,
+     kind: str | None = None,   # 🔽 NUOVO
     limit: int = Query(100, le=1000),
     skip: int = 0,
 ):
     filt = {"user_id": str(user["_id"])}
     if status:
         filt["status"] = status
+    if kind in ("movie", "tv"):   # 🔽 NUOVO
+        if kind == "movie":
+            # 👇 include anche i record storici senza 'kind'
+            filt["$or"] = [
+                {"kind": "movie"},
+                {"kind": {"$exists": False}},
+            ]
+        else:
+            filt["kind"] = "tv"
+
     if q:
         filt["$or"] = [
             {"title": {"$regex": q, "$options": "i"}},

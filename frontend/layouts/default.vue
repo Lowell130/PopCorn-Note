@@ -4,7 +4,7 @@
     <main class="max-w-5xl mx-auto px-4 py-6">
       <slot />
     </main>
-
+<AppFooter />
     <!-- Toast globale -->
     <ClientOnly>
       <Teleport to="body">

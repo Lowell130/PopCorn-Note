@@ -1,8 +1,12 @@
 <template>
-  <div class="grid sm:grid-cols-3 gap-3 mb-6">
+  <div class="grid sm:grid-cols-4 gap-3 mb-6">
     <div class="bg-white text-black rounded-xl p-4 shadow">
       <div class="text-sm opacity-70">Totale film</div>
-      <div class="text-2xl font-semibold">{{ total }}</div>
+      <div class="text-2xl font-semibold">{{ totalMovies }}</div>
+    </div>
+    <div class="bg-white text-black rounded-xl p-4 shadow">
+      <div class="text-sm opacity-70">Totale serie</div>
+      <div class="text-2xl font-semibold">{{ totalSeries }}</div>
     </div>
     <div class="bg-white text-black rounded-xl p-4 shadow">
       <div class="text-sm opacity-70">Visti</div>
@@ -21,9 +25,13 @@
 
 <script setup>
 const props = defineProps({ movies: { type: Array, required: true } })
-const total = computed(() => props.movies.length)
+
+const totalMovies = computed(() => props.movies.filter(m => m.kind === 'movie').length)
+const totalSeries = computed(() => props.movies.filter(m => m.kind === 'tv').length)
+
 const watched = computed(() => props.movies.filter(m => m.status === 'watched').length)
 const to_watch = computed(() => props.movies.filter(m => m.status === 'to_watch').length)
+
 const avgScore = computed(() => {
   const arr = props.movies.map(m => m.score).filter(n => typeof n === 'number')
   if (!arr.length) return '—'

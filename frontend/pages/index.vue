@@ -40,22 +40,53 @@
     <!-- Stats -->
     <DashboardStats :movies="movies" />
     <!-- Barra strumenti -->
-    <div class="bg-white text-black rounded-xl p-3 shadow mb-4 flex flex-wrap gap-2">
-      <input v-model="q" placeholder="Cerca titolo o nota…" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-      <select v-model="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <option value="">Tutti</option>
-        <option value="to_watch">Da vedere</option>
-        <option value="watched">Visto</option>
-        <option value="upcoming">In uscita</option>
-         <option value="watching">In visione</option>
-      </select>
-      <select v-model="sortBy" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <option value="created_at_desc">Recenti</option>
-        <option value="title_asc">Titolo A→Z</option>
-        <option value="score_desc">Score alto</option>
-      </select>
-      <button @click="resetFilters" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Reset</button>
-    </div>
+  <!-- Barra strumenti -->
+<div class="bg-white text-black rounded-xl p-3 shadow mb-4 flex flex-wrap gap-2">
+  <input
+    v-model="q"
+    placeholder="Cerca titolo o nota…"
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+  />
+
+  <!-- 🔽 NUOVO: filtro tipo -->
+  <select
+    v-model="kind"
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    title="Tipo"
+  >
+    <option value="">Tutti</option>
+    <option value="movie">Solo film</option>
+    <option value="tv">Solo serie</option>
+  </select>
+
+  <select
+    v-model="status"
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+  >
+    <option value="">Tutti gli stati</option>
+    <option value="to_watch">Da vedere</option>
+    <option value="watched">Visto</option>
+    <option value="upcoming">In uscita</option>
+    <option value="watching">In visione</option>
+  </select>
+
+  <select
+    v-model="sortBy"
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+  >
+    <option value="created_at_desc">Recenti</option>
+    <option value="title_asc">Titolo A→Z</option>
+    <option value="score_desc">Score alto</option>
+  </select>
+
+  <button
+    @click="resetFilters"
+    class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+  >
+    Reset
+  </button>
+</div>
+
 <!-- pages/index.vue -->
 <MovieRowCard
   v-for="m in movies"
@@ -92,14 +123,14 @@
     </div>
 
   <!-- (1) NUOVO: Film in uscita da TMDb -->
-    <UpcomingMovies
+    <!-- <UpcomingMovies
       class="mb-6"
       :months="3"
       region="IT"
       language="it-IT"
       @prefill="onPrefill"
     />
-   
+    -->
 
   </div>
 
@@ -132,6 +163,7 @@ const showForm = ref(false)
 const q = ref('')
 const status = ref('')
 const sortBy = ref('created_at_desc')
+const kind = ref('') // 🔽 NUOVO: '' | 'movie' | 'tv'
 
 const limit = 20
 let skip = 0
@@ -154,6 +186,7 @@ async function fetchMovies({ reset = false } = {}) {
     params.set('skip', String(skip))
     if (status.value) params.set('status', status.value)
     if (q.value.trim()) params.set('q', q.value.trim())
+    if (kind.value) params.set('kind', kind.value) // 🔽 NUOVO
 
     // ordinamento: backend già sort per created_at desc; per altri tipi gestiamo client-side dopo
     const page = await apiFetch(`/movies/?${params.toString()}`)
@@ -177,7 +210,7 @@ function sortClient(arr, key) {
 }
 
 // Watch filtri & ricerca → refetch
-watch([q, status, sortBy], () => fetchMovies({ reset: true }))
+watch([q, status, sortBy, kind], () => fetchMovies({ reset: true })) // 🔽 aggiunto kind
 
 onMounted(() => {
   fetchMovies({ reset: true })
@@ -198,6 +231,8 @@ function resetFilters() {
   q.value = ''
   status.value = ''
   sortBy.value = 'created_at_desc'
+    kind.value = ''              // 🔽 reset tipo
+ 
 }
 
 function onAdded(newMovie) {

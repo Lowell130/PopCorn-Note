@@ -3,37 +3,30 @@
   <article
     class="relative group flex w-full flex-col md:flex-row items-stretch bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 overflow-hidden transition mb-6"
   >
-  <StatusBadge :status="movie.status" />
-  <!-- Poster -->
-
-<!-- Poster -->
-<div>
-  <img
-    v-if="movie.poster_url"
-    :src="movie.poster_url"
-    alt=""
-    class="w-full h-64 md:h-72 md:w-48 object-cover rounded"
-    loading="lazy"
-    decoding="async"
-  />
-  <div
-    v-else
-    class="w-full h-64 md:h-72 md:w-48 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-xs rounded"
-  >
-    Nessun poster
-  </div>
-</div>
-
-
-
-
+    <!-- Poster -->
+    <div>
+      <img
+        v-if="movie.poster_url"
+        :src="movie.poster_url"
+        alt=""
+        class="w-full h-64 md:h-72 md:w-48 object-cover rounded"
+        loading="lazy"
+        decoding="async"
+      />
+      <div
+        v-else
+        class="w-full h-64 md:h-72 md:w-48 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-xs rounded"
+      >
+        Nessun poster
+      </div>
+    </div>
 
     <!-- Contenuto -->
     <div class="flex-1 p-4 flex flex-col gap-3">
       <!-- Stato + Titolo -->
       <div class="flex items-start justify-between gap-3">
         <StatusBadge :status="movie.status" />
-        <!-- Pills compatte (score/liked) su desktop le spostiamo in basso, su mobile possono stare qui -->
+        <!-- Pills compatte (score/liked) visibili solo su mobile -->
         <div class="flex md:hidden items-center gap-2 shrink-0">
           <span v-if="movie.score" class="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs">
             Score: <strong>{{ movie.score }}/10</strong>
@@ -44,28 +37,50 @@
         </div>
       </div>
 
-      <h3 class="text-xl md:text-2xl font-semibold leading-snug break-words dark:text-white text-black">
-        <NuxtLink
-          v-if="movie.id"
-          :to="`/movies/${movie.id}`"
-          class="hover:underline focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-sm"
-        >
-          {{ movie.title }}
-        </NuxtLink>
-        <template v-else>{{ movie.title }}</template>
-      </h3>
+      <!-- Titolo + etichetta FILM/SERIE -->
+   <!-- Titolo + etichetta FILM/SERIE -->
+<h3 class="text-xl md:text-2xl font-semibold leading-snug break-words dark:text-white text-black">
+  <div class="flex items-center gap-2">
+    <span
+      v-if="movie.kind"
+      :class="kindChipClass"
+    >
+      {{ kindLabel }}
+    </span>
+    <NuxtLink
+      v-if="movie.id"
+      :to="movie.kind === 'tv' ? `/tv/${movie.id}` : `/movies/${movie.id}`"
+      class="hover:underline focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-sm"
+    >
+      {{ shortTitle }}
+    </NuxtLink>
+    <template v-else>{{ shortTitle }}</template>
+  </div>
+</h3>
 
-      <!-- Overview (troncata a 3 righe se presente) -->
-      <p v-if="movie.overview" class="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
-        {{ movie.overview }}
+      <!-- Overview (max 20 caratteri) -->
+      <p v-if="movie.overview" class="text-sm text-gray-700 dark:text-gray-300">
+        {{ shortOverview }}
       </p>
 
       <!-- Meta -->
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 text-sm text-gray-600 dark:text-gray-300">
-        <div v-if="movie.release_year"><span class="text-gray-500 dark:text-gray-400">Anno:</span> <span class="font-medium text-gray-900 dark:text-white">{{ movie.release_year }}</span></div>
-        <div v-if="movie.release_date"><span class="text-gray-500 dark:text-gray-400">Uscita:</span> <span class="font-medium text-gray-900 dark:text-white">{{ movie.release_date }}</span></div>
-        <div v-if="movie.runtime"><span class="text-gray-500 dark:text-gray-400">Durata:</span> <span class="font-medium text-gray-900 dark:text-white">{{ movie.runtime }} min</span></div>
-        <div v-if="movie.director"><span class="text-gray-500 dark:text-gray-400">Regia:</span> <span class="font-medium text-gray-900 dark:text-white">{{ movie.director }}</span></div>
+        <div v-if="movie.release_year">
+          <span class="text-gray-500 dark:text-gray-400">Anno:</span>
+          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.release_year }}</span>
+        </div>
+        <div v-if="movie.release_date">
+          <span class="text-gray-500 dark:text-gray-400">Uscita:</span>
+          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.release_date }}</span>
+        </div>
+        <div v-if="movie.runtime">
+          <span class="text-gray-500 dark:text-gray-400">Durata:</span>
+          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.runtime }} min</span>
+        </div>
+        <div v-if="movie.director">
+          <span class="text-gray-500 dark:text-gray-400">Regia:</span>
+          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.director }}</span>
+        </div>
         <div v-if="movie.cast?.length" class="col-span-2">
           <span class="text-gray-500 dark:text-gray-400">Cast:</span>
           <span class="font-medium text-gray-900 dark:text-white">{{ movie.cast.slice(0,3).join(', ') }}</span>
@@ -73,7 +88,7 @@
         <div v-if="movie.tmdb_id" class="col-span-2">
           <span class="text-gray-500 dark:text-gray-400">TMDb:</span>
           <a
-            :href="`https://www.themoviedb.org/movie/${movie.tmdb_id}`"
+            :href="`https://www.themoviedb.org/${movie.kind === 'tv' ? 'tv' : 'movie'}/${movie.tmdb_id}`"
             target="_blank"
             rel="noopener"
             class="text-blue-600 dark:text-blue-400 hover:underline"
@@ -226,6 +241,18 @@ function likedLabel(val) {
   return likedOptions.find(l => l.value === val)?.label || val
 }
 
+const shortOverview = computed(() => {
+  const t = props.movie.overview || ''
+  return t.length > 110 ? t.slice(0, 110) + '…' : t
+})
+
+const kindLabel = computed(() => props.movie.kind === 'tv' ? 'SERIE' : 'FILM')
+const kindChipClass = computed(() =>
+  props.movie.kind === 'tv'
+    ? 'bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300'
+    : 'bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300'
+)
+
 function toggleEdit() {
   editing.value = !editing.value
   if (editing.value) {
@@ -313,14 +340,15 @@ async function remove() {
     loading.value = false
   }
 }
+
+// Titolo abbreviato (max 40 caratteri)
+const shortTitle = computed(() => {
+  const t = props.movie.title || ''
+  return t.length > 40 ? t.slice(0, 40) + '…' : t
+})
+
 </script>
 
 <style scoped>
-/* Fallback se non hai il plugin line-clamp di Tailwind */
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+/* Fallback per line-clamp non più usato qui */
 </style>

@@ -128,6 +128,7 @@ const likedOptions = [
 ]
 
 const form = reactive({
+kind: 'movie',   // 👈 nuovo
   title: '',
   status: 'to_watch',
   score: null,
@@ -156,6 +157,7 @@ const loading = ref(false)
 watch(() => props.initialTitle, (v) => { if (v) form.title = v }, { immediate: true })
 watch(() => props.initialData, (d) => {
   if (!d) return
+  if (d.kind)        form.kind = d.kind || form.kind              // 👈 prefill kind
   if (d.title)        form.title = d.title
   if (d.overview)     form.overview = d.overview          // 👈 prefill overview
   if (d.release_year !== undefined) form.release_year = d.release_year
@@ -168,6 +170,7 @@ watch(() => props.initialData, (d) => {
 }, { immediate: true })
 
 function reset () {
+   form.kind = 'movie'
   form.title = ''
   form.status = 'to_watch'
   form.score = null
@@ -190,6 +193,7 @@ async function submit () {
     const created = await apiFetch('/movies/', {
       method: 'POST',
       body: {
+         kind: form.kind,               // 👈 nuovo
         title: form.title,
         status: form.status,
         score: form.score ?? null,
