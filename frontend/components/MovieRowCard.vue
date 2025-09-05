@@ -1,21 +1,32 @@
 <!-- components/MovieRowCard.vue -->
+<!-- components/MovieRowCard.vue -->
 <template>
-  <article
-    class="relative group flex w-full flex-col md:flex-row items-stretch bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 overflow-hidden transition mb-6"
-  >
+  <article :class="cardClasses">
+    <!-- ribbon 'VISTO' -->
+    <div
+      v-if="isWatched"
+      class="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-full bg-purple-600/90 text-white text-[11px] font-medium px-2.5 py-0.5 shadow"
+      aria-label="Visto"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0l-3-3a1 1 0 1 1 1.414-1.414l2.293 2.293 6.543-6.543a1 1 0 0 1 1.414 0z" clip-rule="evenodd"/>
+      </svg>
+      VISTO
+    </div>
+
     <!-- Poster -->
     <div>
       <img
         v-if="movie.poster_url"
         :src="movie.poster_url"
         alt=""
-        class="w-full h-64 md:h-72 md:w-48 object-cover rounded"
+        class="w-full h-56 md:h-64 md:w-40 object-cover rounded"
         loading="lazy"
         decoding="async"
       />
       <div
         v-else
-        class="w-full h-64 md:h-72 md:w-48 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 text-xs rounded"
+        class="w-full h-56 md:h-64 md:w-40 flex items-center justify-center bg-gray-100 text-gray-500 text-xs rounded"
       >
         Nessun poster
       </div>
@@ -26,7 +37,7 @@
       <!-- Stato + Titolo -->
       <div class="flex items-start justify-between gap-3">
         <StatusBadge :status="movie.status" />
-        <!-- Pills compatte (score/liked) visibili solo su mobile -->
+        <!-- Pills compatte (solo mobile) -->
         <div class="flex md:hidden items-center gap-2 shrink-0">
           <span v-if="movie.score" class="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs">
             Score: <strong>{{ movie.score }}/10</strong>
@@ -38,60 +49,53 @@
       </div>
 
       <!-- Titolo + etichetta FILM/SERIE -->
-   <!-- Titolo + etichetta FILM/SERIE -->
-<h3 class="text-xl md:text-2xl font-semibold leading-snug break-words dark:text-white text-black">
-  <div class="flex items-center gap-2">
-    <span
-      v-if="movie.kind"
-      :class="kindChipClass"
-    >
-      {{ kindLabel }}
-    </span>
-    <NuxtLink
-      v-if="movie.id"
-      :to="movie.kind === 'tv' ? `/tv/${movie.id}` : `/movies/${movie.id}`"
-      class="hover:underline focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-sm"
-    >
-      {{ shortTitle }}
-    </NuxtLink>
-    <template v-else>{{ shortTitle }}</template>
-  </div>
-</h3>
+      <h3 class="text-xl md:text-2xl font-semibold leading-snug break-words text-black">
+        <div class="flex items-center gap-2">
+          <span v-if="movie.kind" :class="kindChipClass">{{ kindLabel }}</span>
+          <NuxtLink
+            v-if="movie.id"
+            :to="movie.kind === 'tv' ? `/tv/${movie.id}` : `/movies/${movie.id}`"
+            class="hover:underline focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-sm"
+          >
+            {{ shortTitle }}
+          </NuxtLink>
+          <template v-else>{{ shortTitle }}</template>
+        </div>
+      </h3>
 
-      <!-- Overview (max 20 caratteri) -->
-      <p v-if="movie.overview" class="text-sm text-gray-700 dark:text-gray-300">
+      <!-- Overview (max 110 caratteri) -->
+      <p v-if="movie.overview" class="text-sm text-gray-700">
         {{ shortOverview }}
       </p>
 
       <!-- Meta -->
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 text-sm text-gray-600 dark:text-gray-300">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 text-sm text-gray-600">
         <div v-if="movie.release_year">
-          <span class="text-gray-500 dark:text-gray-400">Anno:</span>
-          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.release_year }}</span>
+          <span class="text-gray-500">Anno:</span>
+          <span class="font-medium text-gray-900"> {{ movie.release_year }}</span>
         </div>
         <div v-if="movie.release_date">
-          <span class="text-gray-500 dark:text-gray-400">Uscita:</span>
-          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.release_date }}</span>
+          <span class="text-gray-500">Uscita:</span>
+          <span class="font-medium text-gray-900"> {{ movie.release_date }}</span>
         </div>
         <div v-if="movie.runtime">
-          <span class="text-gray-500 dark:text-gray-400">Durata:</span>
-          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.runtime }} min</span>
+          <span class="text-gray-500">Durata:</span>
+          <span class="font-medium text-gray-900"> {{ movie.runtime }} min</span>
         </div>
         <div v-if="movie.director">
-          <span class="text-gray-500 dark:text-gray-400">Regia:</span>
-          <span class="font-medium text-gray-900 dark:text-white"> {{ movie.director }}</span>
+          <span class="text-gray-500">Regia:</span>
+          <span class="font-medium text-gray-900"> {{ movie.director }}</span>
         </div>
         <div v-if="movie.cast?.length" class="col-span-2">
-          <span class="text-gray-500 dark:text-gray-400">Cast:</span>
-          <span class="font-medium text-gray-900 dark:text-white">{{ movie.cast.slice(0,3).join(', ') }}</span>
+          <span class="text-gray-500">Cast:</span>
+          <span class="font-medium text-gray-900">{{ movie.cast.slice(0,3).join(', ') }}</span>
         </div>
         <div v-if="movie.tmdb_id" class="col-span-2">
-          <span class="text-gray-500 dark:text-gray-400">TMDb:</span>
+          <span class="text-gray-500">TMDb:</span>
           <a
             :href="`https://www.themoviedb.org/${movie.kind === 'tv' ? 'tv' : 'movie'}/${movie.tmdb_id}`"
-            target="_blank"
-            rel="noopener"
-            class="text-blue-600 dark:text-blue-400 hover:underline"
+            target="_blank" rel="noopener"
+            class="text-blue-600 hover:underline"
           >
             #{{ movie.tmdb_id }}
           </a>
@@ -99,26 +103,69 @@
       </div>
 
       <!-- Nota -->
-      <div v-if="movie.note" class="text-sm text-gray-700 dark:text-gray-300">
-        <span class="text-gray-500 dark:text-gray-400">Nota: </span>{{ movie.note }}
+      <div v-if="movie.note" class="text-sm text-gray-700">
+        <span class="text-gray-500">Nota: </span>{{ movie.note }}
       </div>
 
-      <!-- Pills (desktop) -->
-      <div class="hidden md:flex flex-wrap gap-2 mt-1 uppercase">
-        <span v-if="movie.score" class="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs">
-          Score: <strong>{{ movie.score }}/10</strong>
-        </span>
-        <span v-if="movie.liked" class="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs">
-          {{ likedLabel(movie.liked) }}
-        </span>
+      <!-- BOTTOM BAR: pills + azioni (desktop) -->
+      <div class="mt-auto pt-2">
+        <div class="hidden md:flex items-center justify-between gap-2 flex-wrap">
+          <!-- Pills a sinistra -->
+          <div class="flex flex-wrap gap-2 uppercase">
+            <span v-if="movie.score" class="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs">
+              Score: <strong>{{ movie.score }}/10</strong>
+            </span>
+            <span v-if="movie.liked" class="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs">
+              {{ likedLabel(movie.liked) }}
+            </span>
+          </div>
+
+          <!-- Azioni a destra -->
+          <div class="flex items-center gap-2">
+            <button
+              @click.stop="toggleEdit"
+              :disabled="loading"
+              class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
+            >
+              {{ editing ? 'Annulla' : 'Modifica' }}
+            </button>
+
+            <button
+              @click.stop="remove"
+              :disabled="loading"
+              class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
+            >
+              Elimina
+            </button>
+          </div>
+        </div>
+
+        <!-- Variante mobile: solo azioni (le pills restano in alto) -->
+        <div class="md:hidden flex flex-wrap items-center justify-end gap-2">
+          <button
+            @click.stop="toggleEdit"
+            :disabled="loading"
+            class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
+          >
+            {{ editing ? 'Annulla' : 'Modifica' }}
+          </button>
+
+          <button
+            @click.stop="remove"
+            :disabled="loading"
+            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
+          >
+            Elimina
+          </button>
+        </div>
       </div>
 
       <!-- Edit form (inline) -->
-      <div v-if="editing" class="pt-3 border-t border-gray-200 dark:border-gray-700 mt-2 space-y-3 text-gray-500">
+      <div v-if="editing" class="pt-3 border-t border-gray-200 mt-2 space-y-3 text-gray-500">
         <div class="grid md:grid-cols-4 gap-3">
           <div class="md:col-span-1">
             <label class="block text-xs font-medium mb-1">Stato</label>
-            <select v-model="draft.status" class="w-full border rounded-lg p-2 bg-white dark:bg-gray-800 dark:border-gray-600">
+            <select v-model="draft.status" class="w-full border rounded-lg p-2 bg-white">
               <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
             </select>
           </div>
@@ -129,12 +176,12 @@
               type="number"
               min="1"
               max="10"
-              class="w-full border rounded-lg p-2 bg-white dark:bg-gray-800 dark:border-gray-600"
+              class="w-full border rounded-lg p-2 bg-white"
             />
           </div>
           <div>
             <label class="block text-xs font-medium mb-1">Gradimento</label>
-            <select v-model="draft.liked" class="w-full border rounded-lg p-2 bg-white dark:bg-gray-800 dark:border-gray-600">
+            <select v-model="draft.liked" class="w-full border rounded-lg p-2 bg-white">
               <option :value="null">-</option>
               <option v-for="l in likedOptions" :key="l.value" :value="l.value">{{ l.label }}</option>
             </select>
@@ -145,7 +192,7 @@
             <textarea
               v-model="draft.note"
               rows="3"
-              class="w-full border rounded-lg p-2 resize-y bg-white dark:bg-gray-800 dark:border-gray-600"
+              class="w-full border rounded-lg p-2 resize-y bg-white"
             ></textarea>
           </div>
         </div>
@@ -160,46 +207,10 @@
           </button>
         </div>
       </div>
-
-      <!-- Footer azioni -->
-      <div class="mt-auto pt-2">
-        <div class="flex flex-wrap items-center justify-end gap-2">
-          <button
-            @click.stop="completeFromTmdb"
-            :disabled="loading"
-            class="text-blue-700 dark:text-blue-400 hover:text-white dark:hover:text-white border border-blue-700 dark:border-blue-500 hover:bg-blue-800 dark:hover:bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
-            title="Completa informazioni da TMDb"
-          >
-            <span v-if="!loading">Completa con TMDb</span>
-            <span v-else class="inline-flex items-center gap-2">
-              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"/>
-              </svg>
-              Carico…
-            </span>
-          </button>
-
-          <button
-            @click.stop="toggleEdit"
-            :disabled="loading"
-            class="text-green-700 dark:text-green-400 hover:text-white dark:hover:text-white border border-green-700 dark:border-green-500 hover:bg-green-800 dark:hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
-          >
-            {{ editing ? 'Annulla' : 'Modifica' }}
-          </button>
-
-          <button
-            @click.stop="remove"
-            :disabled="loading"
-            class="text-red-700 dark:text-red-400 hover:text-white dark:hover:text-white border border-red-700 dark:border-red-500 hover:bg-red-800 dark:hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
-          >
-            Elimina
-          </button>
-        </div>
-      </div>
     </div>
   </article>
 </template>
+
 
 <script setup>
 import StatusBadge from '@/components/StatusBadge.vue'
@@ -249,9 +260,19 @@ const shortOverview = computed(() => {
 const kindLabel = computed(() => props.movie.kind === 'tv' ? 'SERIE' : 'FILM')
 const kindChipClass = computed(() =>
   props.movie.kind === 'tv'
-    ? 'bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300'
-    : 'bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300'
+    ? 'bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm'
+    : 'bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm'
 )
+
+// 👇 nuovo: stile “visto”
+const isWatched = computed(() => props.movie.status === 'watched')
+const cardClasses = computed(() => [
+  'relative group flex w-full flex-col md:flex-row items-stretch bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 overflow-hidden transition mb-6',
+  // quando visto: spegni colori e abbassa opacità, ripristina al hover
+  isWatched.value
+    ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100'
+    : ''
+])
 
 function toggleEdit() {
   editing.value = !editing.value

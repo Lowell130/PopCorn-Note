@@ -29,4 +29,7 @@ function onPrefill(data){
 function onAdded(){
   showForm.value = false
 }
+definePageMeta({
+  layout: 'wide'
+})
 </script>

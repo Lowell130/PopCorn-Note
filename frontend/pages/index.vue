@@ -40,18 +40,18 @@
     <!-- Stats -->
     <DashboardStats :movies="movies" />
     <!-- Barra strumenti -->
-  <!-- Barra strumenti -->
 <div class="bg-white text-black rounded-xl p-3 shadow mb-4 flex flex-wrap gap-2">
+  <!-- Campo di ricerca: occupa tutto lo spazio -->
   <input
     v-model="q"
     placeholder="Cerca titolo o nota…"
-    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    class="flex-1 min-w-[200px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
   />
 
-  <!-- 🔽 NUOVO: filtro tipo -->
+  <!-- 🔽 Filtro tipo -->
   <select
     v-model="kind"
-    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
     title="Tipo"
   >
     <option value="">Tutti</option>
@@ -59,9 +59,10 @@
     <option value="tv">Solo serie</option>
   </select>
 
+  <!-- Stato -->
   <select
     v-model="status"
-    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
   >
     <option value="">Tutti gli stati</option>
     <option value="to_watch">Da vedere</option>
@@ -70,22 +71,25 @@
     <option value="watching">In visione</option>
   </select>
 
+  <!-- Ordinamento -->
   <select
     v-model="sortBy"
-    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
   >
     <option value="created_at_desc">Recenti</option>
     <option value="title_asc">Titolo A→Z</option>
     <option value="score_desc">Score alto</option>
   </select>
 
+  <!-- Reset -->
   <button
     @click="resetFilters"
-    class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+    class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
   >
     Reset
   </button>
 </div>
+
 
 <!-- pages/index.vue -->
 <MovieRowCard
