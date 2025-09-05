@@ -82,10 +82,25 @@
           <span class="text-gray-500">Durata:</span>
           <span class="font-medium text-gray-900"> {{ movie.runtime }} min</span>
         </div>
-        <div v-if="movie.director">
-          <span class="text-gray-500">Regia:</span>
-          <span class="font-medium text-gray-900"> {{ movie.director }}</span>
-        </div>
+
+
+
+       <div v-if="movie.director">
+  <span class="text-gray-500">Regia:</span>
+  <a
+    :href="directorUrl"
+    target="_blank"
+    rel="noopener"
+    class="font-medium text-blue-700 hover:underline"
+    :title="`Apri ${movie.director} su TMDb`"
+  >
+    {{ movie.director }}
+  </a>
+</div>
+
+
+
+
         <div v-if="movie.cast?.length" class="col-span-2">
           <span class="text-gray-500">Cast:</span>
           <span class="font-medium text-gray-900">{{ movie.cast.slice(0,3).join(', ') }}</span>
@@ -214,6 +229,17 @@
 
 <script setup>
 import StatusBadge from '@/components/StatusBadge.vue'
+
+
+const directorUrl = computed(() => {
+  const name = props.movie.director
+  const id = props.movie.director_id   // se in futuro lo salvi nel DB
+  if (id) return `https://www.themoviedb.org/person/${id}`
+  // fallback: ricerca generale su TMDb
+  const q = encodeURIComponent(name || '')
+  return `https://www.themoviedb.org/search?query=${q}`
+})
+
 
 const props = defineProps({
   movie: { type: Object, required: true }
