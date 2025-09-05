@@ -206,3 +206,100 @@ async def tmdb_tv_episodes(tmdb_id: int, season_number: int, user=Depends(get_cu
         })
     eps.sort(key=lambda x: x["episode_number"])
     return eps
+
+
+# --- TRENDING / POPOLARI -----------------------------------------
+@router.get("/trending")
+async def tmdb_trending(
+    media: str = Query("all", pattern="^(all|movie|tv)$"),
+    window: str = Query("day", pattern="^(day|week)$"),
+    language: str = Query("it-IT"),
+    page: int = Query(1, ge=1, le=10),
+    user=Depends(get_current_user)
+):
+    """
+    Trending TMDb: /trending/{media}/{window}
+    media: all|movie|tv
+    window: day|week
+    """
+    ensure_api_key()
+    url = f"{BASE}/trending/{media}/{window}"
+    params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.get(url, params=params)
+        if r.status_code != 200:
+            raise HTTPException(status_code=502, detail="TMDb upstream error")
+        data = r.json()
+
+    base_img = "https://image.tmdb.org/t/p/w500"
+    items = []
+    for m in data.get("results", []):
+        mtype = m.get("media_type") or ("movie" if "title" in m else "tv")
+        title = m.get("title") or m.get("name")
+        release_date = m.get("release_date") or m.get("first_air_date")
+        items.append({
+            "id": m.get("id"),
+            "kind": "movie" if mtype == "movie" else ("tv" if mtype == "tv" else None),
+            "title": title,
+            "release_date": release_date,
+            "release_year": int(release_date[:4]) if release_date else None,
+            "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
+            "overview": m.get("overview") or None,
+            "vote_average": m.get("vote_average"),
+            "vote_count": m.get("vote_count"),
+            "popularity": m.get("popularity"),
+            "tmdb_id": m.get("id"),
+        })
+
+    return {
+        "page": data.get("page", 1),
+        "total_pages": data.get("total_pages", 1),
+        "results": items,
+    }
+
+
+@router.get("/popular")
+async def tmdb_popular(
+    media: str = Query("movie", pattern="^(movie|tv)$"),
+    language: str = Query("it-IT"),
+    page: int = Query(1, ge=1, le=10),
+    user=Depends(get_current_user)
+):
+    """
+    Popolari TMDb: /movie/popular o /tv/popular
+    """
+    ensure_api_key()
+    url = f"{BASE}/{media}/popular"
+    params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.get(url, params=params)
+        if r.status_code != 200:
+            raise HTTPException(status_code=502, detail="TMDb upstream error")
+        data = r.json()
+
+    base_img = "https://image.tmdb.org/t/p/w500"
+    items = []
+    for m in data.get("results", []):
+        title = m.get("title") or m.get("name")
+        release_date = m.get("release_date") or m.get("first_air_date")
+        items.append({
+            "id": m.get("id"),
+            "kind": "movie" if media == "movie" else "tv",
+            "title": title,
+            "release_date": release_date,
+            "release_year": int(release_date[:4]) if release_date else None,
+            "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
+            "overview": m.get("overview") or None,
+            "vote_average": m.get("vote_average"),
+            "vote_count": m.get("vote_count"),
+            "popularity": m.get("popularity"),
+            "tmdb_id": m.get("id"),
+        })
+
+    return {
+        "page": data.get("page", 1),
+        "total_pages": data.get("total_pages", 1),
+        "results": items,
+    }
