@@ -3,23 +3,37 @@
   <ClientOnly>
     <div class="bg-white text-black rounded-2xl p-5 shadow space-y-3">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold">Cerca e aggiungi da TMDb</h2>
+        <h2 class="text-lg font-semibold">Aggiungi</h2>
 
-        <!-- Toggle tipo -->
-        <div class="inline-flex rounded-lg border overflow-hidden">
-          <button
-            class="px-3 py-1 text-sm"
-            :class="searchType==='movie' ? 'bg-purple-600 text-white' : 'bg-white text-black'"
-            @click="setType('movie')"
-            type="button"
-          >Film</button>
-          <button
-            class="px-3 py-1 text-sm border-l"
-            :class="searchType==='tv' ? 'bg-purple-600 text-white' : 'bg-white text-black'"
-            @click="setType('tv')"
-            type="button"
-          >Serie</button>
-        </div>
+       <!-- Toggle tipo -->
+<!-- Toggle tipo -->
+<div class="inline-flex rounded-md shadow-xs" role="group">
+  <!-- Film -->
+  <button
+    type="button"
+    class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-s-lg focus:z-10 focus:ring-2 dark:border-gray-700"
+    :class="searchType==='movie'
+      ? 'text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700'
+      : 'text-gray-900 bg-white hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
+    @click="setType('movie')"
+  >
+    Film
+  </button>
+
+  <!-- Serie -->
+  <button
+    type="button"
+    class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-e-lg focus:z-10 focus:ring-2 dark:border-gray-700"
+    :class="searchType==='tv'
+      ? 'text-white bg-blue-700 hover:bg-blue-800 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700'
+      : 'text-gray-900 bg-white hover:bg-gray-100 hover:text-blue-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700'"
+    @click="setType('tv')"
+  >
+    Serie
+  </button>
+</div>
+
+
       </div>
 
       <div class="flex gap-2">

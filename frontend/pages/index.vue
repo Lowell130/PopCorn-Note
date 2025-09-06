@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="flex items-center justify-between mb-4">
-      <h1 class="text-2xl font-semibold">La tua Dashboard</h1>
-      <div class="flex gap-2">
+      <h1 class="text-2xl font-semibold text-black">La tua Dashboard</h1>
+      <!-- <div class="flex gap-2">
         <button
           class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
           @click="showForm = !showForm"
         >
           + Aggiungi film
         </button>
-      </div>
+      </div> -->
     </div>
 
     <!-- Barra strumenti -->

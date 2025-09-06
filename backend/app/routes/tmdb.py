@@ -209,12 +209,14 @@ async def tmdb_tv_episodes(tmdb_id: int, season_number: int, user=Depends(get_cu
 
 
 # --- TRENDING / POPOLARI -----------------------------------------
+MAX_TMDB_PAGES = 1000
+
 @router.get("/trending")
 async def tmdb_trending(
     media: str = Query("all", pattern="^(all|movie|tv)$"),
     window: str = Query("day", pattern="^(day|week)$"),
     language: str = Query("it-IT"),
-    page: int = Query(1, ge=1, le=10),
+    page: int = Query(1, ge=1, le=MAX_TMDB_PAGES),
     user=Depends(get_current_user)
 ):
     """
@@ -254,7 +256,7 @@ async def tmdb_trending(
 
     return {
         "page": data.get("page", 1),
-        "total_pages": data.get("total_pages", 1),
+        "total_pages": min(data.get("total_pages", 1), MAX_TMDB_PAGES),
         "results": items,
     }
 
@@ -263,7 +265,7 @@ async def tmdb_trending(
 async def tmdb_popular(
     media: str = Query("movie", pattern="^(movie|tv)$"),
     language: str = Query("it-IT"),
-    page: int = Query(1, ge=1, le=10),
+    page: int = Query(1, ge=1, le=MAX_TMDB_PAGES),
     user=Depends(get_current_user)
 ):
     """
@@ -300,6 +302,6 @@ async def tmdb_popular(
 
     return {
         "page": data.get("page", 1),
-        "total_pages": data.get("total_pages", 1),
+        "total_pages": min(data.get("total_pages", 1), MAX_TMDB_PAGES),
         "results": items,
     }
