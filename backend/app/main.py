@@ -9,7 +9,10 @@ app = FastAPI(title="PopCornNote API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",              # sviluppo locale
+        "https://pop-corn-note.vercel.app",   # produzione su Vercel (nota https:// e non http://)
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
