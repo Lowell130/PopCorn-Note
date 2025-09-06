@@ -1,25 +1,12 @@
 <template>
-  <div class="grid sm:grid-cols-4 gap-3 mb-6">
-    <div class="bg-white text-black rounded-xl p-4 shadow">
-      <div class="text-sm opacity-70">Totale film</div>
-      <div class="text-2xl font-semibold">{{ totalMovies }}</div>
-    </div>
-    <div class="bg-white text-black rounded-xl p-4 shadow">
-      <div class="text-sm opacity-70">Totale serie</div>
-      <div class="text-2xl font-semibold">{{ totalSeries }}</div>
-    </div>
-    <div class="bg-white text-black rounded-xl p-4 shadow">
-      <div class="text-sm opacity-70">Visti</div>
-      <div class="text-2xl font-semibold">{{ watched }}</div>
-    </div>
-    <div class="bg-white text-black rounded-xl p-4 shadow">
-      <div class="text-sm opacity-70">Da vedere</div>
-      <div class="text-2xl font-semibold">{{ to_watch }}</div>
-    </div>
-    <!-- <div class="bg-white text-black rounded-xl p-4 shadow">
-      <div class="text-sm opacity-70">Media score</div>
-      <div class="text-2xl font-semibold">{{ avgScore }}</div>
-    </div> -->
+  <div class="bg-white text-black rounded-xl p-4 shadow text-sm mb-4">
+    <p class="flex flex-wrap gap-x-4 gap-y-2">
+      <span><span class="font-semibold">{{ totalMovies }}</span> film</span>
+      <span><span class="font-semibold">{{ totalSeries }}</span> serie</span>
+      <span><span class="font-semibold">{{ watched }}</span> visti</span>
+      <span><span class="font-semibold">{{ to_watch }}</span> da vedere</span>
+      <span><span class="font-semibold">{{ avgScore }}</span> score medio</span>
+    </p>
   </div>
 </template>
 
@@ -35,7 +22,6 @@ const to_watch = computed(() => props.movies.filter(m => m.status === 'to_watch'
 const avgScore = computed(() => {
   const arr = props.movies.map(m => m.score).filter(n => typeof n === 'number')
   if (!arr.length) return '—'
-  const v = arr.reduce((a,b)=>a+b,0)/arr.length
-  return v.toFixed(1)
+  return (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1)
 })
 </script>
