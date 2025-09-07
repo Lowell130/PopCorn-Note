@@ -27,3 +27,10 @@ async def create_indexes():
     await db["movies"].create_index("user_id")
     await db["movies"].create_index([("user_id", 1), ("created_at", -1)])
     await db["movies"].create_index([("user_id", 1), ("title", 1)])
+   # 👇 nuovo: evita duplicati per utente, se tmdb_id esiste
+    await db["movies"].create_index(
+        [("user_id", 1), ("tmdb_id", 1), ("kind", 1)],
+        unique=True,
+        sparse=True,
+        name="uq_user_tmdb_kind"
+    )
