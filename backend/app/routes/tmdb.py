@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from app.config import settings
 from app.dependencies import get_current_user
 import httpx
+import asyncio
 
 router = APIRouter(prefix="/tmdb", tags=["TMDb"])
 BASE = "https://api.themoviedb.org/3"
@@ -18,41 +19,93 @@ def ensure_api_key():
 async def tmdb_search(
     q: str = Query(..., min_length=1),
     type: str = Query("movie", pattern="^(movie|tv)$"),
+    page: int = Query(1, ge=1, le=50),
     user=Depends(get_current_user)
 ):
+    """
+    Ricerca TMDb con paginazione e arricchimento risultati:
+    - page / total_pages
+    - per ciascun item: poster_url (w92), overview, release_year, vote_average, director/showrunner
+    """
     ensure_api_key()
-    endpoint = f"{BASE}/search/{type}"
+
+    search_endpoint = f"{BASE}/search/{type}"
     params = {
         "api_key": settings.TMDB_API_KEY,
         "query": q,
         "language": "it-IT",
         "include_adult": "false",
-        "page": 1,
+        "page": page,
     }
-    async with httpx.AsyncClient(timeout=10) as client:
-        r = await client.get(endpoint, params=params)
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.get(search_endpoint, params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
         data = r.json()
 
-    results = []
-    for item in (data.get("results") or [])[:10]:
-        if not item.get("id"):
-            continue
-        if type == "movie":
-            title = item.get("title")
-            date_ = item.get("release_date")
-        else:
-            title = item.get("name")
-            date_ = item.get("first_air_date")
-        results.append({
-            "id": item["id"],
-            "title": title,
-            "release_date": date_,
-            "kind": type
-        })
-    return results
+        raw_results = data.get("results") or []
 
+        async def enrich(item):
+            try:
+                tmdb_id = item.get("id")
+                if not tmdb_id:
+                    return None
+
+                if type == "movie":
+                    title = item.get("title")
+                    date_ = item.get("release_date")
+                    details_url = f"{BASE}/movie/{tmdb_id}"
+                else:
+                    title = item.get("name")
+                    date_ = item.get("first_air_date")
+                    details_url = f"{BASE}/tv/{tmdb_id}"
+
+                release_year = int(date_[:4]) if date_ and len(date_) >= 4 else None
+                poster_url = f"https://image.tmdb.org/t/p/w92{item['poster_path']}" if item.get("poster_path") else None
+
+                # prendo credits per ricavare director/showrunner
+                details_params = {
+                    "api_key": settings.TMDB_API_KEY,
+                    "language": "it-IT",
+                    "append_to_response": "credits"
+                }
+                dr = await client.get(details_url, params=details_params)
+
+                director = None
+                if dr.status_code == 200:
+                    dd = dr.json()
+                    if type == "movie":
+                        crew = (dd.get("credits", {}) or {}).get("crew") or []
+                        director = next((c.get("name") for c in crew if c.get("job") == "Director"), None)
+                    else:
+                        created_by = dd.get("created_by") or []
+                        if created_by:
+                            director = created_by[0].get("name")
+
+                return {
+                    "id": tmdb_id,
+                    "kind": type,
+                    "title": title,
+                    "release_date": date_,
+                    "release_year": release_year,
+                    "poster_url": poster_url,
+                    "overview": item.get("overview") or None,
+                    "vote_average": item.get("vote_average"),
+                    "tmdb_id": tmdb_id,
+                    "director": director,
+                }
+            except Exception:
+                return None
+
+        # enrichment in parallelo per gli item della pagina
+        results = await asyncio.gather(*[enrich(it) for it in raw_results])
+
+    return {
+        "page": data.get("page", 1),
+        "total_pages": data.get("total_pages", 1),
+        "results": [x for x in results if x],
+    }
 # -------------------------
 # DETAILS FILM
 # -------------------------

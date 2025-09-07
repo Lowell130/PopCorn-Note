@@ -1,3 +1,5 @@
+
+<!-- pages/index.vue -->
 <template>
   <div>
     <div class="flex items-center justify-between mb-4">
@@ -32,9 +34,28 @@
   
 
 <!-- TMDb picker + form -->
+<!-- Toggle per aprire/chiudere il picker -->
+<div class="flex items-center justify-end mb-3">
+  <button
+    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
+    @click="showPicker = !showPicker"
+  >
+    {{ showPicker ? 'Chiudi ricerca TMDb' : '+ Aggiungi da TMDb' }}
+  </button>
+</div>
+
+<!-- TMDb picker + form -->
 <div class="gap-4 mb-6">
-  <AddFromTmdb v-if="hasTmdb" @prefill="onPrefill" />
-  <AddMovieForm v-if="showForm" :initial-data="prefillData" @added="onAdded" />
+  <AddFromTmdb
+    v-if="hasTmdb && showPicker"
+    @prefill="onPrefill"
+    @close="showPicker = false"
+  />
+  <AddMovieForm
+    v-if="showForm"
+    :initial-data="prefillData"
+    @added="onAdded"
+  />
 </div>
 
     <!-- Stats -->
@@ -148,6 +169,7 @@ import AddFromTmdb from '@/components/AddFromTmdb.vue'
 import MovieCard from '@/components/MovieCard.vue'
 import UpcomingMovies from '@/components/UpcomingMovies.vue'  // (2) NUOVO import
 
+const showPicker = ref(false)
 
 
 const prefillData = ref(null)
