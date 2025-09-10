@@ -1,3 +1,4 @@
+<!-- pages/movies/[id].vue -->
 <template>
   <div>
     <div class="mb-4 flex items-center gap-2 text-sm">
@@ -92,6 +93,13 @@
   </div>
 </ClientOnly>
 
+  <!-- Correlati -->
+  <RelatedTmdb
+    v-if="tmdbIdNum"
+    :kind="'movie'"
+    :tmdb-id="tmdbIdNum"
+  />
+
   </div>
 
 
@@ -102,6 +110,7 @@
 
 <script setup>
 import StatusBadge from '@/components/StatusBadge.vue'
+import RelatedTmdb from '@/components/RelatedTmdb.vue'
 
 const route = useRoute()
 const { apiFetch } = useApi()
@@ -203,6 +212,9 @@ const playerUrl = computed(() => {
   return id ? `https://vixsrc.to/movie/${id}?lang=it` : null
 })
 
-
+const tmdbIdNum = computed(() => {
+  const x = movie.value?.tmdb_id
+  return typeof x === 'number' ? x : Number(x || 0)
+})
 </script>
 

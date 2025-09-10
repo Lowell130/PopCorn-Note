@@ -80,10 +80,18 @@
         </div>
       </div>
     </ClientOnly>
+
+      <!-- Correlati -->
+  <RelatedTmdb
+    v-if="tmdbIdNum"
+    :kind="'tv'"
+    :tmdb-id="tmdbIdNum"
+  />
   </div>
 </template>
 
 <script setup>
+import RelatedTmdb from '@/components/RelatedTmdb.vue'
 const route = useRoute()
 const { apiFetch } = useApi()
 
@@ -152,5 +160,10 @@ const playerUrl = computed(() => {
   return (id && s && e)
     ? `https://vixsrc.to/tv/${id}/${s}/${e}?lang=it&_=${Date.now()}`
     : null
+})
+
+const tmdbIdNum = computed(() => {
+  const x = item.value?.tmdb_id
+  return typeof x === 'number' ? x : Number(x || 0)
 })
 </script>

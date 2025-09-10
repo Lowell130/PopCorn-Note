@@ -358,3 +358,87 @@ async def tmdb_popular(
         "total_pages": min(data.get("total_pages", 1), MAX_TMDB_PAGES),
         "results": items,
     }
+
+
+# --- RECOMMENDATIONS / SIMILAR -----------------------------------
+
+@router.get("/movie/{tmdb_id}/recommendations")
+async def movie_recommendations(
+    tmdb_id: int,
+    language: str = Query("it-IT"),
+    page: int = Query(1, ge=1, le=MAX_TMDB_PAGES),
+    user=Depends(get_current_user)
+):
+    ensure_api_key()
+    url = f"{BASE}/movie/{tmdb_id}/recommendations"
+    params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.get(url, params=params)
+        if r.status_code != 200:
+            raise HTTPException(status_code=502, detail="TMDb upstream error")
+        data = r.json()
+
+    base_img = "https://image.tmdb.org/t/p/w500"
+    items = []
+    for m in data.get("results", []):
+        title = m.get("title")
+        release_date = m.get("release_date")
+        items.append({
+            "id": m.get("id"),
+            "kind": "movie",
+            "title": title,
+            "release_date": release_date,
+            "release_year": int(release_date[:4]) if release_date else None,
+            "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
+            "overview": m.get("overview") or None,
+            "vote_average": m.get("vote_average"),
+            "tmdb_id": m.get("id"),
+        })
+
+    return {
+        "page": data.get("page", 1),
+        "total_pages": min(data.get("total_pages", 1), MAX_TMDB_PAGES),
+        "results": items,
+    }
+
+
+@router.get("/tv/{tmdb_id}/recommendations")
+async def tv_recommendations(
+    tmdb_id: int,
+    language: str = Query("it-IT"),
+    page: int = Query(1, ge=1, le=MAX_TMDB_PAGES),
+    user=Depends(get_current_user)
+):
+    ensure_api_key()
+    url = f"{BASE}/tv/{tmdb_id}/recommendations"
+    params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.get(url, params=params)
+        if r.status_code != 200:
+            raise HTTPException(status_code=502, detail="TMDb upstream error")
+        data = r.json()
+
+    base_img = "https://image.tmdb.org/t/p/w500"
+    items = []
+    for m in data.get("results", []):
+        title = m.get("name")
+        first_air = m.get("first_air_date")
+        items.append({
+            "id": m.get("id"),
+            "kind": "tv",
+            "title": title,
+            "release_date": first_air,
+            "release_year": int(first_air[:4]) if first_air else None,
+            "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
+            "overview": m.get("overview") or None,
+            "vote_average": m.get("vote_average"),
+            "tmdb_id": m.get("id"),
+        })
+
+    return {
+        "page": data.get("page", 1),
+        "total_pages": min(data.get("total_pages", 1), MAX_TMDB_PAGES),
+        "results": items,
+    }
