@@ -111,7 +111,13 @@
 
       <!-- BOTTOM BAR: pills + azioni (desktop) -->
       <div class="mt-auto pt-2">
+
+
+
         <div class="hidden md:flex items-center justify-between gap-2 flex-wrap">
+
+
+          
           <!-- Pills a sinistra -->
           <div class="flex flex-wrap gap-2 uppercase">
             <span v-if="movie.score" class="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs">

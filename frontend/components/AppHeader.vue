@@ -13,6 +13,7 @@
         <!-- Se loggato -->
         <template v-else>
           <NuxtLink to="/" class="text-black text-sm hover:underline">Dashboard</NuxtLink>
+              <NuxtLink to="/test" class="text-black text-sm hover:underline">Dashboard 2</NuxtLink>
           <NuxtLink to="/news" class="text-black text-sm hover:underline">News</NuxtLink>
           <button class="text-black text-sm px-3 py-1 rounded bg-cinem" @click="onLogout">
             Logout
