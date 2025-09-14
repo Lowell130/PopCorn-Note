@@ -1,36 +1,16 @@
 
 <!-- pages/index.vue -->
 <template>
+
+
   
   <div>
     <div class="flex items-center justify-between mb-4">
-      <h1 class="text-2xl font-semibold text-black">La tua Dashboard</h1>
-      <!-- <div class="flex gap-2">
-        <button
-          class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
-          @click="showForm = !showForm"
-        >
-          + Aggiungi film
-        </button>
-      </div> -->
+      <h1 class="text-2xl font-semibold text-black">La tua Dashboard TEST</h1>
+     
     </div>
 
-    <!-- Barra strumenti -->
-    <!-- <div class="bg-white text-black rounded-xl p-3 shadow mb-4 flex flex-wrap gap-2">
-      <input v-model="q" placeholder="Cerca titolo o nota…" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-      <select v-model="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <option value="">Tutti</option>
-        <option value="to_watch">Da vedere</option>
-        <option value="watched">Visto</option>
-        <option value="upcoming">In uscita</option>
-      </select>
-      <select v-model="sortBy" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <option value="created_at_desc">Recenti</option>
-        <option value="title_asc">Titolo A→Z</option>
-        <option value="score_desc">Score alto</option>
-      </select>
-      <button @click="resetFilters" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Reset</button>
-    </div> -->
+ 
 
   
 
@@ -113,14 +93,15 @@
 </div>
 
 
-<!-- pages/index.vue -->
-<MovieRowCard
-  v-for="m in movies"
-  :key="m.id"
-  :movie="m"
-  @updated="onUpdated"
-  @deleted="onDeleted"
-/>
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+  <MovieCard
+    v-for="m in movies"
+    :key="m.id"
+    :movie="m"
+    @updated="onUpdated"
+    @deleted="onDeleted"
+  />
+</div>
   
     <!-- Empty state -->
     <div v-if="!loading && movies.length === 0" class="text-center opacity-80 py-12">
@@ -130,16 +111,7 @@
 
     
 
-    <!-- Lista -->
-    <!-- <div v-else class="grid md:grid-cols-2 gap-4">
-      <MovieCard
-        v-for="m in movies"
-        :key="m.id"
-        :movie="m"
-        @updated="onUpdated"
-        @deleted="onDeleted"
-      />
-    </div> -->
+    
 
     <!-- Loader + sentinel per infinite scroll -->
     <div ref="sentinel" class="h-10"></div>
@@ -148,15 +120,7 @@
       Fine elenco
     </div>
 
-  <!-- (1) NUOVO: Film in uscita da TMDb -->
-    <!-- <UpcomingMovies
-      class="mb-6"
-      :months="3"
-      region="IT"
-      language="it-IT"
-      @prefill="onPrefill"
-    />
-    -->
+
 
   </div>
 
@@ -168,8 +132,11 @@ import DashboardStats from '@/components/DashboardStats.vue'
 import AddMovieForm from '@/components/AddMovieForm.vue'
 import AddFromTmdb from '@/components/AddFromTmdb.vue'
 import MovieCard from '@/components/MovieCard.vue'
-import UpcomingMovies from '@/components/UpcomingMovies.vue'  // (2) NUOVO import
 
+
+definePageMeta({
+  layout: 'wide'
+})
 const showPicker = ref(false)
 
 

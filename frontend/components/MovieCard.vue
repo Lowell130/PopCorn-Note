@@ -1,171 +1,185 @@
-<!-- components/MovieCard.vue -->
+<!-- components/MovieRowCard.vue -->
 <template>
-  <div class="relative bg-white text-black rounded-2xl p-5 shadow space-y-4 ">
-     <StatusBadge :status="movie.status" />
-    <!-- Titolo -->
-    <h3 class="text-xl font-semibold break-words">
-      <NuxtLink v-if="movie.id" :to="`/movies/${movie.id}`" class="hover:underline">
-        {{ movie.title }}
-      </NuxtLink>
-      <template v-else>{{ movie.title }}</template>
-    </h3>
- <!-- <StatusBadge :status="movie.status" /> -->
-    <!-- Poster + meta -->
-    <div class="flex gap-4 items-start">
-      <img
-        v-if="movie.poster_url"
-        :src="movie.poster_url"
-        alt=""
-        class="w-24 h-36 rounded object-cover border"
-      />
-      <div class="text-sm text-gray-700 space-y-1 flex-1">
-        <div v-if="movie.release_year">
-          <span class="text-gray-500">Anno:</span>
-          <span class="text-black font-medium"> {{ movie.release_year }}</span>
-        </div>
-        <div v-if="movie.release_date">
-          <span class="text-gray-500">Uscita:</span>
-          <span class="text-black font-medium"> {{ movie.release_date }}</span>
-        </div>
-        <div v-if="movie.runtime">
-          <span class="text-gray-500">Durata:</span>
-          <span class="text-black font-medium"> {{ movie.runtime }} min</span>
-        </div>
-        <div v-if="movie.director">
-          <span class="text-gray-500">Regia:</span>
-          <span class="text-black font-medium"> {{ movie.director }}</span>
-        </div>
-        <div v-if="movie.cast?.length">
-          <span class="text-gray-500">Cast:</span>
-          <span class="text-gray-900">{{ movie.cast.slice(0, 3).join(', ') }}</span>
-        </div>
-        <div v-if="movie.tmdb_id">
-          <span class="text-gray-500">TMDb:</span>
-          <a
-            :href="`https://www.themoviedb.org/movie/${movie.tmdb_id}`"
-            target="_blank"
-            rel="noopener"
-            class="text-blue-600 hover:underline"
+  <article :class="cardClasses">
+    <div class="text-gray-800 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full">
+   <div class="w-full aspect-[2/3] overflow-hidden rounded">
+ 
+   <NuxtLink
+            v-if="movie.id"
+            :to="movie.kind === 'tv' ? `/tv/${movie.id}` : `/movies/${movie.id}`"
+            class="hover:underline focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-sm"
           >
-            #{{ movie.tmdb_id }}
-          </a>
+       
+        
+ 
+    <img
+    v-if="movie.poster_url"
+    :src="movie.poster_url"
+    alt=""
+    class="w-full h-full object-cover"
+    loading="lazy"
+    decoding="async"
+  />
+    </NuxtLink>
+  <div v-else class="w-full h-full flex items-center justify-center text-xs text-gray-500 bg-gray-100">
+    Nessun poster
+  </div>
+</div>
+
+      <div class="pt-4">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <span v-if="movie.kind" :class="kindChipClass">
+            {{ kindLabel }}
+          </span>
+          <StatusBadge :status="movie.status" />
+        </div>
+
+        <h3 class="text-lg font-semibold leading-snug break-words text-black">
+          <NuxtLink
+            v-if="movie.id"
+            :to="movie.kind === 'tv' ? `/tv/${movie.id}` : `/movies/${movie.id}`"
+            class="hover:underline focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-sm"
+          >
+            {{ shortTitle }}
+          </NuxtLink>
+          <template v-else>{{ shortTitle }}</template>
+        </h3>
+
+        <ul class="mt-3 flex items-center gap-4 text-sm text-gray-600">
+          <li v-if="movie.director" class="flex items-center gap-2">
+            <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 7h6l2 4m-8-4v8m0-8V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v9h2m8 0H9m4 0h2m4 0h2v-4m0 0h-5"/>
+            </svg>
+            <a :href="directorUrl" target="_blank" rel="noopener" class="font-medium text-blue-700 hover:underline">
+              {{ movie.director }}
+            </a>
+          </li>
+          <li v-if="movie.release_year" class="flex items-center gap-2">
+            <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+                    d="M8 7V6c0-.6.4-1 1-1h11c.6 0 1 .4 1 1v7c0 .6-.4 1-1 1h-1M3 18v-7c0-.6.4-1 1-1h11c.6 0 1 .4 1 1v7c0 .6-.4 1-1 1H4a1 1 0 0 1-1-1Z"/>
+            </svg>
+            {{ movie.release_year }}
+          </li>
+        </ul>
+
+        
+
+
+
+
+
+
+
+
+
+
+        
+
+        <div class="mt-4 flex items-center justify-between gap-4">
+          <button
+            @click.stop="toggleEdit"
+            :disabled="loading"
+            class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
+          >
+            {{ editing ? 'Annulla' : 'Modifica' }}
+          </button>
+
+          <button
+            @click.stop="remove"
+            :disabled="loading"
+            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
+          >
+            Elimina
+          </button>
         </div>
       </div>
-    </div>
-
-    <!-- Stato, Score, Gradimento -->
-    <div class="flex flex-wrap gap-3">
-      <!-- <StatusBadge :status="movie.status" /> -->
-      <span v-if="movie.score" class="px-2 py-1 rounded-full bg-gray-100 text-black">
-        Score: <strong>{{ movie.score }}/10</strong>
-      </span>
-      <span v-if="movie.liked" class="px-2 py-1 rounded-full bg-gray-100 text-black">
-        Gradimento: <strong>{{ likedLabel(movie.liked) }}</strong>
-      </span>
-    </div>
-
-    <!-- Nota -->
-    <div v-if="movie.note" class="text-sm text-gray-700">
-      <p>{{ movie.note }}</p>
-    </div>
-
-    <!-- Edit form -->
-    <div v-if="editing" class="pt-3 border-t mt-2 space-y-3">
+         <!-- Edit form (inline) -->
+ <Transition
+  enter-active-class="transition duration-200 ease-out"
+  enter-from-class="opacity-0 -translate-y-2"
+  enter-to-class="opacity-100 translate-y-0"
+  leave-active-class="transition duration-150 ease-in"
+  leave-from-class="opacity-100 translate-y-0"
+  leave-to-class="opacity-0 -translate-y-2"
+>
+  <div v-if="editing" class="mt-4 -mx-6 border-t border-gray-200">
+    <div class="bg-gray-50/80 backdrop-blur-sm px-6 py-4 space-y-3">
+      <!-- TUTTO A COLONNA -->
       <div>
-        <label for="status" class="block text-xs font-medium">Stato</label>
-        <select v-model="draft.status" class="w-full border rounded-lg p-2">
-          <option v-for="s in statuses" :key="s.value" :value="s.value">
-            {{ s.label }}
-          </option>
+        <label class="block text-xs font-medium mb-1 text-gray-600">Stato</label>
+        <select
+          v-model="draft.status"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
         </select>
       </div>
 
       <div>
-        <label for="score" class="block text-xs font-medium">Score (1–10)</label>
+        <label class="block text-xs font-medium mb-1 text-gray-600">Score (1–10)</label>
         <input
           v-model.number="draft.score"
           type="number"
           min="1"
           max="10"
-          class="w-full border rounded-lg p-2"
+          inputmode="numeric"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         />
       </div>
 
       <div>
-        <label for="liked" class="block text-xs font-medium">Gradimento</label>
-        <select v-model="draft.liked" class="w-full border rounded-lg p-2">
-          <option :value="null">-</option>
-          <option v-for="l in likedOptions" :key="l.value" :value="l.value">
-            {{ l.label }}
-          </option>
+        <label class="block text-xs font-medium mb-1 text-gray-600">Gradimento</label>
+        <select
+          v-model="draft.liked"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option :value="null">—</option>
+          <option v-for="l in likedOptions" :key="l.value" :value="l.value">{{ l.label }}</option>
         </select>
       </div>
 
       <div>
-        <label for="note" class="block text-xs font-medium">Nota</label>
+        <label class="block text-xs font-medium mb-1 text-gray-600">Nota</label>
         <textarea
           v-model="draft.note"
-          rows="3"
-          class="w-full border rounded-lg p-2 resize-y"
+          rows="4"
+               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-">Nota</label>
+
         ></textarea>
       </div>
 
-      <div class="flex justify-end">
+      <!-- Footer azioni -->
+      <div class="pt-1 flex justify-end gap-2">
         <button
-          @click="save"
-          class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5"
+          @click.stop="toggleEdit"
+          type="button"
+          class="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300"
+        >
+          Annulla
+        </button>
+        <button
+          @click.stop="save"
           :disabled="loading"
+          type="button"
+          class="px-4 py-2 text-sm font-medium rounded-lg text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-300 disabled:opacity-60"
         >
           Salva
         </button>
       </div>
     </div>
-
-    <!-- Azioni (footer centrato) -->
-    <div class="pt-3 border-t mt-1">
-      <div class="flex flex-wrap items-center justify-center gap-2">
-        <button
-          @click="completeFromTmdb"
-          class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-          :disabled="loading"
-          title="Completa informazioni (poster, anno, regista, cast) da TMDb"
-        >
-          <span v-if="!loading">Completa con TMDb</span>
-          <span v-else class="inline-flex items-center gap-1">
-            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a 8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"/>
-            </svg>
-            Carico…
-          </span>
-        </button>
-
-        <button
-          @click="toggleEdit"
-          class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
-          :disabled="loading"
-        >
-          {{ editing ? 'Annulla' : 'Modifica' }}
-        </button>
-
-        <button
-          @click="remove"
-         class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
-          :disabled="loading"
-        >
-          Elimina
-        </button>
-      </div>
-    </div>
   </div>
+</Transition>
+
+    </div>
+  </article>
 </template>
 
 <script setup>
 import StatusBadge from '@/components/StatusBadge.vue'
 
-const props = defineProps({
-  movie: { type: Object, required: true }
-})
+const props = defineProps({ movie: { type: Object, required: true } })
 const emit = defineEmits(['updated', 'deleted'])
 
 const { apiFetch } = useApi()
@@ -181,24 +195,40 @@ const draft = reactive({
   note: props.movie.note
 })
 
-const statuses = [
-  { value: 'to_watch', label: 'Da vedere' },
-  { value: 'watched', label: 'Visto' },
-  { value: 'upcoming', label: 'In uscita' },
-  { value: 'watching', label: 'In visione' }
-]
-
 const likedOptions = [
-  { value: 'loved', label: 'Mi è piaciuto molto' },
-  { value: 'liked', label: 'Mi è piaciuto' },
-  { value: 'okay', label: 'Carino' },
+  { value: 'loved',    label: 'Mi è piaciuto molto' },
+  { value: 'liked',    label: 'Mi è piaciuto' },
+  { value: 'okay',     label: 'Carino' },
   { value: 'disliked', label: 'Non mi è piaciuto' },
   { value: 'terrible', label: 'Pessimo' }
 ]
 
-function likedLabel(val) {
-  return likedOptions.find(l => l.value === val)?.label || val
-}
+const kindLabel = computed(() => props.movie.kind === 'tv' ? 'SERIE' : 'FILM')
+const kindChipClass = computed(() =>
+  props.movie.kind === 'tv'
+    ? 'bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded'
+    : 'bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded'
+)
+
+const isWatched = computed(() => props.movie.status === 'watched')
+const cardClasses = computed(() => [
+  // wrapper esterno (non grid)
+  'w-full',
+  isWatched.value ? 'grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition' : ''
+])
+
+const shortTitle = computed(() => {
+  const t = props.movie.title || ''
+  return t.length > 23 ? t.slice(0, 23) + '…' : t
+})
+
+const directorUrl = computed(() => {
+  const name = props.movie.director
+  const id = props.movie.director_id
+  if (id) return `https://www.themoviedb.org/person/${id}`
+  const q = encodeURIComponent(name || '')
+  return `https://www.themoviedb.org/search?query=${q}`
+})
 
 function toggleEdit() {
   editing.value = !editing.value
@@ -210,77 +240,6 @@ function toggleEdit() {
   }
 }
 
-async function save() {
-  const payload = {
-    status: draft.status,
-    score: draft.score ?? undefined,
-    liked: draft.liked ?? undefined,
-    note:  draft.note  ?? undefined
-  }
-  loading.value = true
-  try {
-    const updated = await apiFetch(`/movies/${props.movie.id}`, {
-      method: 'PUT',
-      body: payload
-    })
-    emit('updated', updated)
-    editing.value = false
-    toast.show('success', 'Film aggiornato!')
-  } catch (e) {
-    console.error('Errore aggiornamento film', e)
-    toast.show('error', 'Errore durante aggiornamento')
-  } finally {
-    loading.value = false
-  }
-}
-
-async function completeFromTmdb() {
-  loading.value = true
-  try {
-    let tmdbId = props.movie.tmdb_id
-
-    if (!tmdbId) {
-      const q = window.prompt('Cerca su TMDb:', props.movie.title || '')
-      if (!q || !q.trim()) { loading.value = false; return }
-      const results = await apiFetch('/tmdb/search', { query: { q: q.trim() } })
-      if (!Array.isArray(results) || results.length === 0) {
-        toast.show('error', 'Nessun risultato trovato su TMDb.')
-        return
-      }
-      const top = results[0]
-      const ok = window.confirm(`Usare "${top.title}" (${top.release_date || '—'})?`)
-      if (!ok) return
-      tmdbId = top.id
-    }
-
-    const details = await apiFetch(`/tmdb/details/${tmdbId}`)
-
-    const payload = {
-      tmdb_id: details.tmdb_id ?? tmdbId,
-      // title: details.title || undefined,  // scommenta se vuoi aggiornare il titolo
-      release_date: details.release_date || undefined,
-      release_year: details.release_year ?? undefined,
-      poster_url: details.poster_url || undefined,
-      director: details.director || undefined,
-      cast: Array.isArray(details.cast) ? details.cast : undefined,
-      runtime: details.runtime ?? undefined,
-      overview: details.overview || undefined,          // 👈 aggiunto
-    }
-
-    const updated = await apiFetch(`/movies/${props.movie.id}`, {
-      method: 'PUT',
-      body: payload
-    })
-    emit('updated', updated)
-    toast.show('success', 'Dati completati da TMDb.')
-  } catch (e) {
-    console.error('TMDb complete error:', e)
-    toast.show('error', 'Errore durante il completamento da TMDb.')
-  } finally {
-    loading.value = false
-  }
-}
-
 async function remove() {
   if (!confirm(`Vuoi davvero eliminare "${props.movie.title}"?`)) return
   loading.value = true
@@ -289,8 +248,48 @@ async function remove() {
     emit('deleted', props.movie.id)
     toast.show('success', 'Film eliminato')
   } catch (e) {
-    console.error('Errore eliminazione film', e)
+    console.error(e)
     toast.show('error', 'Errore durante l\'eliminazione')
+  } finally {
+    loading.value = false
+  }
+}
+
+// Opzioni "Stato" — MANCAVANO
+const statuses = [
+  { value: 'to_watch', label: 'Da vedere' },
+  { value: 'watched',  label: 'Visto' },
+  { value: 'upcoming', label: 'In uscita' },
+  { value: 'watching', label: 'In visione' },
+]
+
+// Salvataggio — MANCAVA
+async function save() {
+  // normalizza score ('' -> null) e liked (stringa o null)
+  const score =
+    draft.score === '' || draft.score == null
+      ? null
+      : Math.max(1, Math.min(10, Number(draft.score)))
+
+  const body = {
+    status: draft.status,
+    score:  score ?? undefined,          // undefined => non tocca il campo
+    liked:  draft.liked ?? undefined,
+    note:   (draft.note ?? '').trim() || undefined,
+  }
+
+  loading.value = true
+  try {
+    const updated = await apiFetch(`/movies/${props.movie.id}`, {
+      method: 'PUT',
+      body,
+    })
+    emit('updated', updated)
+    editing.value = false
+    toast.show?.('success', 'Salvato!')
+  } catch (e) {
+    console.error('save error', e)
+    toast.show?.('error', 'Errore durante il salvataggio')
   } finally {
     loading.value = false
   }

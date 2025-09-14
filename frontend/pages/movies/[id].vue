@@ -10,7 +10,10 @@
     <div v-else-if="!movie" class="opacity-70">Film non trovato.</div>
 
     <div v-else class="bg-white text-black rounded-2xl p-5 shadow space-y-4">
-      <h1 class="text-2xl font-semibold break-words">{{ movie.title }}</h1>
+      <h1 class="text-2xl font-semibold break-words">{{ movie.title }}
+                <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm">MOVIE</span>
+
+      </h1>
 
       <div class="flex flex-col md:flex-row gap-5">
         <img
@@ -21,7 +24,10 @@
         />
         <div class="space-y-2 text-sm">
           <div class="flex flex-wrap gap-2 items-center">
-            <StatusBadge :status="movie.status" />
+            
+            <!-- <StatusBadge :status="movie.status" /> -->
+
+
             <span v-if="movie.score" class="px-2 py-1 rounded-full bg-gray-100 text-black">
               Score: <strong>{{ movie.score }}/10</strong>
             </span>

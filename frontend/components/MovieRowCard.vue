@@ -1,20 +1,7 @@
 <!-- components/MovieRowCard.vue -->
-<!-- components/MovieRowCard.vue -->
 <template>
   <article :class="cardClasses">
-    <!-- ribbon 'VISTO' -->
-    <!-- <div
-      v-if="isWatched"
-      class="absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-full bg-purple-600/90 text-white text-[11px] font-medium px-2.5 py-0.5 shadow"
-      aria-label="Visto"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0l-3-3a1 1 0 1 1 1.414-1.414l2.293 2.293 6.543-6.543a1 1 0 0 1 1.414 0z" clip-rule="evenodd"/>
-      </svg>
-      VISTO
-    </div> -->
 
-    <!-- Poster -->
     <div>
       <img
         v-if="movie.poster_url"
