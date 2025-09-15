@@ -51,9 +51,9 @@
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M13 7h6l2 4m-8-4v8m0-8V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v9h2m8 0H9m4 0h2m4 0h2v-4m0 0h-5"/>
             </svg>
-            <a :href="directorUrl" target="_blank" rel="noopener" class="font-medium text-blue-700 hover:underline">
-              {{ movie.director }}
-            </a>
+           <a :href="directorUrl" class="font-medium text-blue-700 hover:underline">
+  {{ movie.director ? (movie.director.length > 10 ? movie.director.slice(0, 10) + '…' : movie.director) : '' }}
+</a>
           </li>
           <li v-if="movie.release_year" class="flex items-center gap-2">
             <svg class="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
