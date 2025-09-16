@@ -13,6 +13,8 @@ def _normalize(doc: dict) -> dict:
     doc = dict(doc)
     doc["id"] = str(doc["_id"])
     doc.pop("_id", None)
+    # rimuovo eventuale campo interno usato dalla pipeline
+    doc.pop("_prio", None)
     return doc
 
 @router.post("/", response_model=MovieResponse, status_code=201)
@@ -44,16 +46,17 @@ async def list_movies(
     limit: int = Query(100, le=1000),
     skip: int = Query(0, ge=0),
     sort: str = Query("created_at_desc"),
+    # priorità in alto (come già fatto)
+    priority_status: str | None = Query(None, regex="^(to_watch|watched|upcoming|watching)$"),
+    # 👇 NUOVO: spinge questo status in fondo
+    push_last_status: str | None = Query(None, regex="^(to_watch|watched|upcoming|watching)$"),
 ):
-    # costruiamo filtri componibili
     and_clauses = [{"user_id": str(user["_id"])}]
-
     if status:
         and_clauses.append({"status": status})
 
     if kind:
         if kind == "movie":
-            # include anche storici senza 'kind'
             and_clauses.append({"$or": [{"kind": "movie"}, {"kind": {"$exists": False}}]})
         else:
             and_clauses.append({"kind": "tv"})
@@ -64,17 +67,62 @@ async def list_movies(
 
     filt = {"$and": and_clauses} if len(and_clauses) > 1 else and_clauses[0]
 
-    # ordinamento
+    # ordinamento base
     if sort == "title_asc":
+        tail_sort = {"title": 1, "created_at": -1}
         sort_spec = [("title", 1)]
     elif sort == "score_desc":
+        tail_sort = {"score": -1, "created_at": -1}
         sort_spec = [("score", -1), ("created_at", -1)]
     else:
+        tail_sort = {"created_at": -1}
         sort_spec = [("created_at", -1)]
 
-    cursor = db["movies"].find(filt).sort(sort_spec).skip(skip).limit(limit)
-    docs = await cursor.to_list(length=limit)
-    return [_normalize(d) for d in docs]
+    need_pipeline = bool(priority_status or push_last_status)
+
+    if need_pipeline:
+        sort_stage = {}
+        # priorità in alto
+        if priority_status:
+            sort_stage["_head"] = 1  # 0 = priorità, 1 = resto
+        # push in fondo
+        if push_last_status:
+            sort_stage["_tail"] = 1  # 0 = non push-last, 1 = push-last
+
+        # aggiungo sort tail
+        sort_stage.update(tail_sort)
+
+        add_fields = {}
+        if priority_status:
+            add_fields["_head"] = {
+                "$cond": [{"$eq": ["$status", priority_status]}, 0, 1]
+            }
+        if push_last_status:
+            add_fields["_tail"] = {
+                "$cond": [{"$eq": ["$status", push_last_status]}, 1, 0]
+            }
+
+        pipeline = [
+            {"$match": filt},
+            {"$addFields": add_fields} if add_fields else {"$match": filt},
+            {"$sort": sort_stage},
+            {"$skip": skip},
+            {"$limit": limit},
+        ]
+        cursor = db["movies"].aggregate(pipeline)
+        docs = await cursor.to_list(length=limit)
+    else:
+        cursor = db["movies"].find(filt).sort(sort_spec).skip(skip).limit(limit)
+        docs = await cursor.to_list(length=limit)
+
+    # normalizza e rimuovi flag interni
+    out = []
+    for d in docs:
+        d.pop("_head", None)
+        d.pop("_tail", None)
+        out.append(_normalize(d))
+    return out
+
 
 @router.put("/{movie_id}", response_model=MovieResponse)
 async def update_movie(movie_id: str, movie: MovieUpdate, user=Depends(get_current_user)):

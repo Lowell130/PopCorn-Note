@@ -1,4 +1,4 @@
-<!-- components/MovieRowCard.vue -->
+<!-- components/MovieCard.vue -->
 <template>
   <article :class="cardClasses">
     <div class="text-gray-800 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full">
