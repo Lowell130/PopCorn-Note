@@ -1,6 +1,6 @@
 <template>
   <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky top-0 z-10">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
       <!-- Brand -->
       <NuxtLink to="/" class="flex items-center space-x-3 rtl:space-x-reverse">
         <span class="text-2xl">🍿</span>

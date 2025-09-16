@@ -30,6 +30,51 @@ async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
     new_movie = await db["movies"].find_one({"_id": result.inserted_id})
     return _normalize(new_movie)
 
+
+@router.get("/stats")
+async def movies_stats(user=Depends(get_current_user)):
+    """
+    Statistiche complete per l'utente corrente.
+    Calcolate a DB (no dipendenza dall'infinite scroll).
+    """
+    uid = str(user["_id"])
+
+    # counts per tipo
+    total_movies = await db["movies"].count_documents({
+        "user_id": uid,
+        "$or": [{"kind": "movie"}, {"kind": {"$exists": False}}]
+    })
+    total_series = await db["movies"].count_documents({"user_id": uid, "kind": "tv"})
+
+    # counts per stato
+    watched     = await db["movies"].count_documents({"user_id": uid, "status": "watched"})
+    to_watch    = await db["movies"].count_documents({"user_id": uid, "status": "to_watch"})
+    upcoming    = await db["movies"].count_documents({"user_id": uid, "status": "upcoming"})
+    watching    = await db["movies"].count_documents({"user_id": uid, "status": "watching"})
+
+    # media score (solo valori numerici validi 1..10)
+    pipeline = [
+        {"$match": {
+            "user_id": uid,
+            "score": {"$type": "number", "$gte": 1, "$lte": 10}
+        }},
+        {"$group": {"_id": None, "avg": {"$avg": "$score"}}}
+    ]
+    agg = await db["movies"].aggregate(pipeline).to_list(length=1)
+    avg_score = round(agg[0]["avg"], 1) if agg else None
+
+    return {
+        "total_movies": total_movies,
+        "total_series": total_series,
+        "watched": watched,
+        "to_watch": to_watch,
+        "upcoming": upcoming,
+        "watching": watching,
+        "avg_score": avg_score,  # può essere None se nessuno score
+    }
+
+
+
 @router.get("/{movie_id}", response_model=MovieResponse)
 async def get_movie(movie_id: str, user=Depends(get_current_user)):
     m = await db["movies"].find_one({"_id": ObjectId(movie_id), "user_id": str(user["_id"])})
@@ -145,3 +190,4 @@ async def delete_movie(movie_id: str, user=Depends(get_current_user)):
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Movie not found")
     return
+

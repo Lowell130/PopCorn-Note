@@ -30,7 +30,7 @@
     </div>
 
     <!-- Stats -->
-    <DashboardStats :movies="movies" />
+    <DashboardStats :stats="stats" />
 
     <!-- Toolbar -->
     <div class="bg-white text-black rounded-xl p-3 shadow mb-4 flex flex-wrap gap-2">
@@ -45,7 +45,7 @@
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
         title="Tipo"
       >
-        <option value="">Tutti</option>
+        <option value="">Tipo</option>
         <option value="movie">Solo film</option>
         <option value="tv">Solo serie</option>
       </select>
@@ -54,7 +54,7 @@
         v-model="status"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
       >
-        <option value="">Tutti gli stati</option>
+        <option value="">Stati</option>
         <option value="to_watch">Da vedere</option>
         <option value="watched">Visto</option>
         <option value="upcoming">In uscita</option>
@@ -104,6 +104,7 @@
   </div>
 </template>
 
+
 <script setup>
 import DashboardStats from '@/components/DashboardStats.vue'
 import AddMovieForm from '@/components/AddMovieForm.vue'
@@ -121,6 +122,18 @@ function onPrefill(data) {
 }
 
 const { apiFetch } = useApi()
+
+// --- Stats lato server
+const stats = ref(null)
+async function fetchStats() {
+  try {
+    stats.value = await apiFetch('/movies/stats')
+  } catch (e) {
+    console.error('stats error', e)
+    stats.value = null
+  }
+}
+
 const config = useRuntimeConfig()
 const hasTmdb = computed(() => !!config.public.tmdbApiKey)
 
@@ -139,31 +152,27 @@ const hasMore = ref(true)
 const sentinel = ref(null)
 let observer
 
-// ⬇️ ORDINAMENTO: "watching" in cima, poi il resto secondo sortBy
+// Ordinamento client opzionale (manteniamo per aggiornamenti locali)
 function sortClient(arr, key) {
   const a = [...arr]
   return a.sort((x, y) => {
-    // priorità: in visione prima
+    // 1) "In visione" prima
     const px = x.status === 'watching' ? 0 : 1
     const py = y.status === 'watching' ? 0 : 1
     if (px !== py) return px - py
 
-    // secondario: in base al sort selezionato
+    // 2) Ordinamento scelto
     if (key === 'title_asc') {
       return String(x.title || '').localeCompare(String(y.title || ''))
     }
     if (key === 'score_desc') {
       return (y.score || 0) - (x.score || 0)
     }
-    // default: created_at_desc -> lascia l'ordine del backend (già per created_at desc)
+    // default: lascia l'ordine backend
     return 0
   })
 }
 
-
-
-
-// Fetch con query param server-side
 // Fetch con query param server-side
 async function fetchMovies({ reset = false } = {}) {
   if (loading.value) return
@@ -180,16 +189,10 @@ async function fetchMovies({ reset = false } = {}) {
     if (status.value) params.set('status', status.value)
     if (q.value.trim()) params.set('q', q.value.trim())
     if (kind.value) params.set('kind', kind.value)
-
-    // 👇 NUOVO: se non sto filtrando per status, priorizza "watching"
-    if (!status.value) params.set('priority_status', 'watching')
-
-    // 👇 SEMPRE: spingi i "Visto" in fondo
-    params.set('push_last_status', 'watched')
+    if (!status.value) params.set('priority_status', 'watching') // priorità "watching" in cima
+    params.set('push_last_status', 'watched') // "watched" sempre in fondo
 
     const page = await apiFetch(`/movies/?${params.toString()}`)
-
-    // non serve più ri-ordinare sul client (puoi tenere la tua sortClient se vuoi)
     movies.value = reset ? page : [...movies.value, ...page]
     skip += page.length
     hasMore.value = page.length === limit
@@ -198,13 +201,12 @@ async function fetchMovies({ reset = false } = {}) {
   }
 }
 
-
-
 // Watch filtri & ricerca → refetch
 watch([q, status, sortBy, kind], () => fetchMovies({ reset: true }))
 
 onMounted(() => {
-  fetchMovies({ reset: true })
+  fetchStats()                 // carica subito le stats
+  fetchMovies({ reset: true }) // e la prima pagina
   observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting && hasMore.value && !loading.value) {
       fetchMovies()
@@ -225,9 +227,12 @@ function resetFilters() {
   fetchMovies({ reset: true })
 }
 
+// ---- Callbacks (uniche) ----
 function onAdded(newMovie) {
   showForm.value = false
+  // prepend e ri-ordina localmente se vuoi
   movies.value = sortClient([newMovie, ...movies.value], sortBy.value)
+  fetchStats()
 }
 
 function onUpdated(updatedMovie) {
@@ -237,9 +242,11 @@ function onUpdated(updatedMovie) {
     next[idx] = updatedMovie
     movies.value = sortClient(next, sortBy.value)
   }
+  fetchStats()
 }
 
 function onDeleted(id) {
   movies.value = movies.value.filter(m => m.id !== id)
+  fetchStats()
 }
 </script>
