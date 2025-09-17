@@ -87,6 +87,7 @@
                 News
               </NuxtLink>
             </li>
+            <li>  <NuxtLink v-if="isAdmin" to="/admin/users"  class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent">Admin</NuxtLink></li>
             <li class="md:pl-2">
               <button
                 class="w-full md:w-auto text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
@@ -104,6 +105,7 @@
 
 <script setup>
 const open = ref(false)
+const { isAdmin } = useAuth()
 
 const token = useCookie('token', { sameSite: 'lax', path: '/', watch: true })
 const isLoggedIn = computed(() => !!token.value)

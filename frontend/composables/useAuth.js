@@ -1,10 +1,19 @@
 // composables/useAuth.js
 export const useAuth = () => {
-  const user = useState('auth_user', () => null)
-  const token = useCookie('token', { sameSite: 'lax' })
+  // stato condiviso tra le pagine
+  const user  = useState('auth_user', () => null)
+
+  // cookie token (path / così vale per tutto il sito)
+  const token = useCookie('token', {
+    sameSite: 'lax',
+    path: '/',           // <— importante
+    // secure: process.client && location.protocol === 'https:' // opzionale in prod
+  })
+
   const { apiFetch } = useApi()
 
   const isLoggedIn = computed(() => !!token.value)
+  const isAdmin    = computed(() => !!user.value?.is_admin)   // <— AGGIUNTO
 
   async function register(payload) {
     return await apiFetch('/auth/register', { method: 'POST', body: payload })
@@ -16,11 +25,12 @@ export const useAuth = () => {
       body: { email, password }
     })
     token.value = res.access_token
-    // prendi user dal login se presente, altrimenti fai /auth/me
+
+    // se il backend restituisce già l’utente
     if (res.user) {
       user.value = res.user
     } else {
-      await fetchMe()
+      await fetchMe() // prende /auth/me
     }
     return res
   }
@@ -35,11 +45,13 @@ export const useAuth = () => {
       user.value = me
       return me
     } catch (e) {
+      // token non valido/expired → reset
       user.value = null
       return null
     }
   }
 
+  // da chiamare in layout/app mounted per ripristinare sessione
   async function init() {
     if (token.value && !user.value) {
       await fetchMe()
@@ -52,5 +64,5 @@ export const useAuth = () => {
     return navigateTo('/login')
   }
 
-  return { user, token, isLoggedIn, register, login, logout, init, fetchMe }
+  return { user, token, isLoggedIn, isAdmin, register, login, logout, init, fetchMe }
 }

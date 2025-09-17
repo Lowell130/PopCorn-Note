@@ -1,0 +1,60 @@
+# app/routes/admin.py
+from fastapi import APIRouter, Depends
+from app.db import db
+from app.dependencies import require_admin
+
+router = APIRouter(prefix="/admin", tags=["Admin"])
+
+@router.get("/users")
+async def list_users_with_stats(admin=Depends(require_admin)):
+    # prendi utenti
+    users_cur = db["users"].find({}, {"email": 1, "username": 1, "is_admin": 1})
+    users = await users_cur.to_list(length=10000)
+
+    # aggrega stats per user_id su movies
+    pipe = [
+        {"$group": {
+            "_id": "$user_id",
+            "total": {"$sum": 1},
+            "watched": {"$sum": {"$cond": [{"$eq": ["$status", "watched"]}, 1, 0]}},
+            "to_watch": {"$sum": {"$cond": [{"$eq": ["$status", "to_watch"]}, 1, 0]}},
+            "watching": {"$sum": {"$cond": [{"$eq": ["$status", "watching"]}, 1, 0]}},
+            "upcoming": {"$sum": {"$cond": [{"$eq": ["$status", "upcoming"]}, 1, 0]}},
+            "avg_score": {
+                "$avg": {
+                    "$cond": [
+                        {"$and": [
+                            {"$gte": ["$score", 1]},
+                            {"$lte": ["$score", 10]},
+                            {"$ne": ["$score", None]}
+                        ]},
+                        "$score",
+                        None
+                    ]
+                }
+            }
+        }}
+    ]
+    stats = await db["movies"].aggregate(pipe).to_list(length=10000)
+    stats_by_uid = {s["_id"]: s for s in stats}
+
+    out = []
+    for u in users:
+        uid = str(u.get("_id"))
+        s = stats_by_uid.get(uid, {})
+        out.append({
+            "id": uid,
+            "email": u.get("email"),
+            "username": u.get("username"),
+            "is_admin": bool(u.get("is_admin", False)),
+            "stats": {
+                "total": s.get("total", 0),
+                "watched": s.get("watched", 0),
+                "to_watch": s.get("to_watch", 0),
+                "watching": s.get("watching", 0),
+                "upcoming": s.get("upcoming", 0),
+                "avg_score": round(s["avg_score"], 1) if s.get("avg_score") is not None else None,
+            }
+        })
+
+    return out

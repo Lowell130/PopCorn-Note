@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes import auth, movies
 from app.routes import tmdb as tmdb_routes  # 👈 aggiunto
 from app.db import db
+from app.routes import admin as admin_routes
+
 
 
 app = FastAPI(title="PopCornNote API")
@@ -22,12 +24,15 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(movies.router)
 app.include_router(tmdb_routes.router)  # 👈 aggiunto
+app.include_router(admin_routes.router)
 
 @app.on_event("startup")
 async def create_indexes():
     await db["movies"].create_index("user_id")
     await db["movies"].create_index([("user_id", 1), ("created_at", -1)])
     await db["movies"].create_index([("user_id", 1), ("title", 1)])
+    await db["users"].create_index("email", unique=True)
+    await db["users"].create_index("created_at")
    # 👇 nuovo: evita duplicati per utente, se tmdb_id esiste
     await db["movies"].create_index(
         [("user_id", 1), ("tmdb_id", 1), ("kind", 1)],

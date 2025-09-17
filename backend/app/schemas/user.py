@@ -14,3 +14,9 @@ class UserResponse(BaseModel):
     id: str
     email: EmailStr
     username: str
+
+class UserOut(BaseModel):
+    id: str
+    email: EmailStr
+    username: str
+    is_admin: bool = False
