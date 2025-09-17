@@ -1,10 +1,15 @@
 // composables/useApi.js
 export const useApi = () => {
   const config = useRuntimeConfig()
-  const token = useCookie('token')
+  const token = useCookie('token', { sameSite: 'lax' })  // 👈 meglio specificare sameSite
   const router = useRouter()
 
   const apiFetch = async (path, opts = {}) => {
+    // 👇 se non hai il token e stai chiamando /auth/me → evita direttamente
+    if (!token.value && path === '/auth/me') {
+      return null
+    }
+
     try {
       return await $fetch(path, {
         baseURL: config.public.apiBase,
@@ -15,8 +20,8 @@ export const useApi = () => {
         ...opts,
       })
     } catch (err) {
-      // Se il token non è valido/scaduto → logout/redirect
-      if (err?.status === 401) {
+      // 👇 intercetta 401 solo se NON stai chiamando /auth/me
+      if (err?.status === 401 && path !== '/auth/me') {
         token.value = null
         router.push('/login')
       }
