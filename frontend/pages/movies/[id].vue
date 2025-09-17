@@ -9,83 +9,102 @@
     <div v-else-if="error" class="text-red-400">Errore: {{ error }}</div>
     <div v-else-if="!movie" class="opacity-70">Film non trovato.</div>
 
-    <div v-else class="bg-white text-black rounded-2xl p-5 shadow space-y-4">
-      <h1 class="text-2xl font-semibold break-words">{{ movie.title }}
-                <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm">MOVIE</span>
+   <div v-else class="relative rounded-2xl overflow-hidden shadow">
+  <!-- Poster come sfondo -->
+  <div
+    v-if="movie.poster_url"
+    class="absolute inset-0 bg-center bg-cover"
+    :style="{ backgroundImage: `url(${movie.poster_url})` }"
+  ></div>
 
-      </h1>
+  <!-- Overlay scuro -->
+  <div class="absolute inset-0 bg-black/70"></div>
 
-      <div class="flex flex-col md:flex-row gap-5">
-        <img
-          v-if="movie.poster_url"
-          :src="movie.poster_url"
-          alt=""
-          class="w-40 h-60 rounded object-cover border self-start"
-        />
-        <div class="space-y-2 text-sm">
-          <div class="flex flex-wrap gap-2 items-center">
-            
-            <!-- <StatusBadge :status="movie.status" /> -->
+  <!-- Contenuti -->
+  <div class="relative p-5 space-y-4 text-white">
+    <h1 class="text-2xl font-semibold break-words">
+      {{ movie.title }}
+      <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm">
+        MOVIE
+      </span>
+    </h1>
 
+    <div class="flex flex-col md:flex-row gap-5">
+      <!-- Poster piccolo a lato (opzionale) -->
+      <img
+        v-if="movie.poster_url"
+        :src="movie.poster_url"
+        alt=""
+        class="w-40 h-60 rounded object-cover border self-start"
+      />
 
-            <span v-if="movie.score" class="px-2 py-1 rounded-full bg-gray-100 text-black">
-              Score: <strong>{{ movie.score }}/10</strong>
-            </span>
-            <span v-if="movie.liked" class="px-2 py-1 rounded-full bg-gray-100 text-black">
-              Gradimento: <strong>{{ likedLabel(movie.liked) }}</strong>
-            </span>
+      <div class="space-y-2 text-sm">
+        <div class="flex flex-wrap gap-2 items-center">
+          <!-- <StatusBadge :status="movie.status" /> -->
+          <span v-if="movie.score" class="px-2 py-1 rounded-full bg-white/15 backdrop-blur text-white">
+            Score: <strong>{{ movie.score }}/10</strong>
+          </span>
+          <span v-if="movie.liked" class="px-2 py-1 rounded-full bg-white/15 backdrop-blur text-white">
+            Gradimento: <strong>{{ likedLabel(movie.liked) }}</strong>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
+          <div v-if="movie.release_year">
+            <span class="text-gray-300">Anno:</span>
+            <span class="font-medium">{{ movie.release_year }}</span>
           </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
-            <div v-if="movie.release_year"><span class="text-gray-500">Anno:</span> <span class="font-medium">{{ movie.release_year }}</span></div>
-            <div v-if="movie.release_date"><span class="text-gray-500">Uscita:</span> <span class="font-medium">{{ movie.release_date }}</span></div>
-            <div v-if="movie.runtime"><span class="text-gray-500">Durata:</span> <span class="font-medium">{{ movie.runtime }} min</span></div>
-            <div v-if="movie.director"><span class="text-gray-500">Regia:</span> <span class="font-medium">{{ movie.director }}</span></div>
-            <div v-if="movie.cast?.length" class="sm:col-span-2">
-              <span class="text-gray-500">Cast:</span> <span class="font-medium">{{ movie.cast.join(', ') }}</span>
-            </div>
-     
+          <div v-if="movie.release_date">
+            <span class="text-gray-300">Uscita:</span>
+            <span class="font-medium">{{ movie.release_date }}</span>
           </div>
-
-                 <!-- Trama -->
-<div v-if="movie.overview" class="text-sm text-gray-800 leading-6">
-  <div class="text-gray-500 mb-1">Trama: </div>
-  <p class="whitespace-pre-line">{{ movie.overview }}</p>
-</div>
-
-          <div v-if="movie.note" class="pt-2">
-            <div class="text-gray-500 mb-1">Nota</div>
-            <p class="text-gray-800 whitespace-pre-line">{{ movie.note }}</p>
+          <div v-if="movie.runtime">
+            <span class="text-gray-300">Durata:</span>
+            <span class="font-medium">{{ movie.runtime }} min</span>
+          </div>
+          <div v-if="movie.director">
+            <span class="text-gray-300">Regia:</span>
+            <span class="font-medium">{{ movie.director }}</span>
+          </div>
+          <div v-if="movie.cast?.length" class="sm:col-span-2">
+            <span class="text-gray-300">Cast:</span>
+            <span class="font-medium">{{ movie.cast.join(', ') }}</span>
           </div>
         </div>
 
+        <!-- Trama -->
+        <div v-if="movie.overview" class="text-sm leading-6">
+          <div class="text-gray-300 mb-1">Trama</div>
+          <p class="whitespace-pre-line">{{ movie.overview }}</p>
+        </div>
 
-
-
-
+        <div v-if="movie.note" class="pt-2">
+          <div class="text-gray-300 mb-1">Nota</div>
+          <p class="whitespace-pre-line">{{ movie.note }}</p>
+        </div>
       </div>
-
-      <!-- Azioni -->
-      <!-- <div class="pt-3 border-t mt-2 flex flex-wrap gap-2 justify-center">
-        <button @click="completeFromTmdb" class="px-3 py-1.5 text-sm rounded-lg border hover:bg-gray-50" :disabled="loadingAction">
-          <span v-if="!loadingAction">Completa con TMDb</span>
-          <span v-else class="inline-flex items-center gap-1">
-            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"/>
-            </svg>
-            Carico…
-          </span>
-        </button>
-        <NuxtLink :to="`/`" class="px-3 py-1.5 text-sm rounded-lg border hover:bg-gray-50">Torna</NuxtLink>
-      </div> -->
     </div>
+
+    <!-- Azioni (se vuoi riattivarle, mantengono lo stile scuro) -->
+    <!--
+    <div class="pt-3 border-t border-white/20 mt-2 flex flex-wrap gap-2 justify-center">
+      <button @click="completeFromTmdb" class="px-3 py-1.5 text-sm rounded-lg border border-white/30 bg-white/10 hover:bg-white/20" :disabled="loadingAction">
+        <span v-if="!loadingAction">Completa con TMDb</span>
+        <span v-else class="inline-flex items-center gap-1">
+          ...
+        </span>
+      </button>
+      <NuxtLink :to="`/`" class="px-3 py-1.5 text-sm rounded-lg border border-white/30 bg-white/10 hover:bg-white/20">Torna</NuxtLink>
+    </div>
+    -->
+  </div>
+</div>
 
 
 <!-- Player VixSRC (mostrato solo se c'è tmdb_id) -->
 <ClientOnly>
   <div v-if="playerUrl" class="mt-6">
-    <div class="text-sm opacity-70 mb-1">Player</div>
+    <h3 class=" text-black opacity-70 mb-1">Player</h3>
     <div class="rounded-xl overflow-hidden border border-white/10 bg-black/20">
       <iframe
         :src="playerUrl"
@@ -129,8 +148,10 @@ function isValidObjectId(id) {
 
 // Forza remount della pagina per ogni id (extra safety)
 definePageMeta({
-  key: r => r.params.id
+  layout: 'wide',
+  key: r => r.params.id, // forza remount quando cambia l'id
 })
+
 
 // useAsyncData si occupa di pending/error/data e si aggiorna quando cambia la chiave
 const movieId = computed(() => String(route.params.id || ''))
