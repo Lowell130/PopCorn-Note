@@ -1,8 +1,11 @@
-<!-- pages/test.vue -->
+<!-- pages/index.vue -->
 <template>
   <div>
-    <div class="flex items-center justify-between mb-4">
-      <h1 class="text-2xl font-semibold text-black">La tua Dashboard TEST</h1>
+     <span v-if="user" class="text-gray-500 text-left font-normal">Ciao, {{ user.username || user.email }}, ecco
+        </span>
+    <div>
+      <h1 class="text-2xl font-semibold text-black">la tua Dashboard</h1>
+      
     </div>
 
     <!-- Toggle TMDb picker -->
@@ -112,6 +115,9 @@ import AddFromTmdb from '@/components/AddFromTmdb.vue'
 import MovieCard from '@/components/MovieCard.vue'
 
 definePageMeta({ layout: 'wide' })
+
+const { user, isLoggedIn, init } = useAuth()   // 👈
+onMounted(() => { init() })        
 
 const showPicker = ref(false)
 

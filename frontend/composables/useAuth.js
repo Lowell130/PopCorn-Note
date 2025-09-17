@@ -1,49 +1,56 @@
 // composables/useAuth.js
 export const useAuth = () => {
-    const user = useState('auth_user', () => null)
-    const token = useCookie('token', { sameSite: 'lax' })
-    const { apiFetch } = useApi()
+  const user = useState('auth_user', () => null)
+  const token = useCookie('token', { sameSite: 'lax' })
+  const { apiFetch } = useApi()
 
+  const isLoggedIn = computed(() => !!token.value)
 
-    const isLoggedIn = computed(() => !!token.value)
+  async function register(payload) {
+    return await apiFetch('/auth/register', { method: 'POST', body: payload })
+  }
 
-
-    async function register(payload) {
-        // { email, username, password }
-        return await apiFetch('/auth/register', {
-            method: 'POST',
-            body: payload
-        })
+  async function login({ email, password }) {
+    const res = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: { email, password }
+    })
+    token.value = res.access_token
+    // prendi user dal login se presente, altrimenti fai /auth/me
+    if (res.user) {
+      user.value = res.user
+    } else {
+      await fetchMe()
     }
+    return res
+  }
 
-
-    async function login({ email, password }) {
-        const res = await apiFetch('/auth/login', {
-            method: 'POST',
-            body: { email, password }
-        })
-        token.value = res.access_token
-        // opzionale: recupero film/user subito dopo login
-        return res
+  async function fetchMe() {
+    if (!token.value) {
+      user.value = null
+      return null
     }
-
-
-    function logout() {
-        token.value = null
-        user.value = null
-        return navigateTo('/login')
+    try {
+      const me = await apiFetch('/auth/me')
+      user.value = me
+      return me
+    } catch (e) {
+      user.value = null
+      return null
     }
+  }
 
-
-    // opzionale: ping al backend per validare token, qui non esiste endpoint /me
-    async function init() {
-        // Se vuoi, qui potresti testare il token con una chiamata protetta.
-        // In questa versione ci affidiamo solo alla presenza del token.
-        if (!token.value) {
-            user.value = null
-        }
+  async function init() {
+    if (token.value && !user.value) {
+      await fetchMe()
     }
+  }
 
+  function logout() {
+    token.value = null
+    user.value = null
+    return navigateTo('/login')
+  }
 
-    return { user, token, isLoggedIn, register, login, logout, init }
+  return { user, token, isLoggedIn, register, login, logout, init, fetchMe }
 }

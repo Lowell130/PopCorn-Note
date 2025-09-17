@@ -5,6 +5,7 @@ from app.routes import auth, movies
 from app.routes import tmdb as tmdb_routes  # 👈 aggiunto
 from app.db import db
 
+
 app = FastAPI(title="PopCornNote API")
 
 app.add_middleware(

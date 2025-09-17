@@ -21,18 +21,67 @@
   ></div>
 
   <!-- Overlay scuro per leggibilità -->
-  <div class="absolute inset-0 bg-black/70"></div>
+  <div class="absolute inset-0 bg-black/80"></div>
 
   <!-- Contenuto sopra -->
-  <div class="relative p-5 space-y-4 text-white">
-    <h1 class="text-2xl font-semibold break-words">
-      {{ item.title }}
-      <span
-        class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm"
-      >
-        SERIE
-      </span>
-    </h1>
+  <div class="relative z-10 p-5 space-y-4 text-white">
+   <h1 class="text-2xl font-semibold break-words">
+  {{ item.title }}
+  <span
+    class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm"
+  >
+    SERIE
+  </span>
+
+  <!-- ✅ Badge Ultimo visto -->
+  <span
+    v-if="item?.last_watched"
+    class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-600/90 text-white align-middle"
+    :title="lastWatchedTooltip"
+  >
+    <!-- piccola iconcina -->
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
+    </svg>
+    Ultimo visto {{ lastWatchedLabel }}
+  </span>
+</h1>
+
+
+<!-- Dentro il blocco principale, sotto il titolo/infos, PRIMA dei selettori -->
+<!-- Barra progresso sempre visibile -->
+<div class="mt-2 flex flex-wrap items-center gap-2 text-sm">
+  <span class="inline-flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1">
+    <template v-if="item.last_watched">
+      Ultimo visto:
+      <strong>S{{ item.last_watched.season }} • E{{ item.last_watched.episode }}</strong>
+    </template>
+    <template v-else>
+      Nessun episodio segnato
+    </template>
+  </span>
+
+  <button
+    type="button"
+    class="px-3 py-1.5 rounded border border-white/30 bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+    :disabled="!item.last_watched"
+    @click="goToLastWatched()"
+    title="Vai all'ultimo episodio visto"
+  >
+    Vai
+  </button>
+
+  <button
+    type="button"
+    class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 transition text-white disabled:opacity-50 disabled:cursor-not-allowed"
+    @click="markCurrentAsWatched()"
+    :disabled="savingProgress"
+    title="Segna come visto l'episodio selezionato"
+  >
+    <span v-if="!savingProgress">Segna come visto</span>
+    <span v-else>Salvo…</span>
+  </button>
+</div>
 
     <div class="flex flex-col md:flex-row gap-5">
       <!-- Poster piccolo -->
@@ -146,6 +195,8 @@ import RelatedTmdb from '@/components/RelatedTmdb.vue'
 
 const route = useRoute()
 const { apiFetch } = useApi()
+const toast = useToast?.()
+const savingProgress = ref(false)
 
 function isValidObjectId(id) {
   return typeof id === 'string' && /^[a-f0-9]{24}$/i.test(id)
@@ -184,26 +235,72 @@ const episodes = ref([])
 const selectedSeason = ref(1)
 const selectedEpisode = ref(1)
 
-// appena ho l’item, carico stagioni
-watch(item, async (it) => {
-  if (!it?.tmdb_id) return
-  const list = await apiFetch(`/tmdb/tv/${it.tmdb_id}/seasons`)
-  seasons.value = list
-  // default: prima stagione reale
-  if (seasons.value.length) {
-    selectedSeason.value = seasons.value[0].season_number
-    await loadEpisodes()
-  }
-}, { immediate: true })
+const lastWatchedLabel = computed(() => {
+  const lw = item.value?.last_watched
+  if (!lw) return ''
+  // zero-pad opzionale sugli episodi (tipo E03)
+  const s = String(lw.season)
+  const e = String(lw.episode).padStart(2, '0')
+  return `S${s} • E${e}`
+})
+
+const lastWatchedTooltip = computed(() => {
+  const lw = item.value?.last_watched
+  if (!lw?.updated_at) return 'Ultimo episodio segnato come visto'
+  const d = new Date(lw.updated_at)
+  // fallback semplice e locale-friendly
+  return `Segnato il ${d.toLocaleDateString()} ${d.toLocaleTimeString()}`
+})
+
+// Sostituisci il vecchio watch(...) con questo:
+
+const initializedSeasons = ref(false)
+
+// carica stagioni/episodi la prima volta che abbiamo un tmdb_id
+watch(
+  () => item.value?.tmdb_id,
+  async (tmdb) => {
+    if (!tmdb) return
+    const list = await apiFetch(`/tmdb/tv/${tmdb}/seasons`)
+    seasons.value = list
+
+    // inizializza SOLO la prima volta
+    if (!initializedSeasons.value) {
+      if (item.value?.last_watched) {
+        // parti dall'ultimo visto
+        selectedSeason.value = item.value.last_watched.season
+        await loadEpisodes()
+        const exists = episodes.value.find(
+          e => e.episode_number === item.value.last_watched.episode
+        )
+        selectedEpisode.value = exists
+          ? item.value.last_watched.episode
+          : (episodes.value[0]?.episode_number ?? 1)
+      } else {
+        // altrimenti prima stagione/episodio disponibili
+        selectedSeason.value = seasons.value[0]?.season_number ?? 1
+        await loadEpisodes()
+        selectedEpisode.value = episodes.value[0]?.episode_number ?? 1
+      }
+      initializedSeasons.value = true
+    }
+  },
+  { immediate: true }
+)
+
+
 
 async function loadEpisodes() {
   if (!item.value?.tmdb_id || !selectedSeason.value) return
-  episodes.value = await apiFetch(`/tmdb/tv/${item.value.tmdb_id}/season/${selectedSeason.value}`)
-  if (episodes.value.length) {
-    selectedEpisode.value = episodes.value[0].episode_number
-  } else {
-    selectedEpisode.value = 1
-  }
+  const prevEpisode = selectedEpisode.value
+  episodes.value = await apiFetch(
+    `/tmdb/tv/${item.value.tmdb_id}/season/${selectedSeason.value}`
+  )
+  // se l'episodio precedente esiste ancora, mantienilo
+  const stillThere = episodes.value.find(e => e.episode_number === prevEpisode)
+  selectedEpisode.value = stillThere
+    ? prevEpisode
+    : (episodes.value[0]?.episode_number ?? 1)
 }
 
 const playerUrl = computed(() => {
@@ -219,4 +316,36 @@ const tmdbIdNum = computed(() => {
   const x = item.value?.tmdb_id
   return typeof x === 'number' ? x : Number(x || 0)
 })
+
+function goToLastWatched() {
+  const lw = item.value?.last_watched
+  if (!lw) return
+  selectedSeason.value = lw.season
+  // ricarica gli episodi di quella stagione e poi setta episodio
+  loadEpisodes().then(() => {
+    // se esiste quell'episodio, selezionalo, altrimenti fallback 1
+    const found = episodes.value.find(e => e.episode_number === lw.episode)
+    selectedEpisode.value = found ? lw.episode : (episodes.value[0]?.episode_number ?? 1)
+  })
+}
+
+async function markCurrentAsWatched() {
+  if (!item.value?.id) return
+  savingProgress.value = true
+  try {
+    const updated = await apiFetch(`/movies/${item.value.id}/progress`, {
+      method: 'PUT',
+      body: { season: selectedSeason.value, episode: selectedEpisode.value }
+    })
+    // aggiorna localmente l'item
+    item.value = updated
+    toast?.show?.('success', `Segnato S${selectedSeason.value} • E${selectedEpisode.value} come visto`)
+  } catch (e) {
+    console.error(e)
+    toast?.show?.('error', 'Errore durante il salvataggio del progresso')
+  } finally {
+    savingProgress.value = false
+  }
+}
+
 </script>

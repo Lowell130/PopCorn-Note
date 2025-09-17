@@ -4,11 +4,18 @@ from typing import Optional, Literal, List
 from datetime import datetime
 import re
 
+
 Status = Literal["watched", "to_watch", "upcoming", "watching"]
 Liked = Literal["loved", "liked", "okay", "disliked", "terrible"]
 Kind = Literal["movie", "tv"]
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+class LastWatched(BaseModel):
+    season: int
+    episode: int
+    updated_at: datetime
 
 class MovieCreate(BaseModel):
     # 👇 nuovo: tipo dell’item
@@ -71,3 +78,4 @@ class MovieResponse(MovieCreate):
     user_id: str
     created_at: datetime
     updated_at: datetime
+    last_watched: Optional[LastWatched] = None

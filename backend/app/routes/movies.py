@@ -6,6 +6,7 @@ from app.dependencies import get_current_user
 from app.db import db
 from bson import ObjectId
 from datetime import datetime
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
@@ -16,6 +17,10 @@ def _normalize(doc: dict) -> dict:
     # rimuovo eventuale campo interno usato dalla pipeline
     doc.pop("_prio", None)
     return doc
+
+class ProgressUpdate(BaseModel):
+    season: int = Field(..., ge=1)
+    episode: int = Field(..., ge=1)
 
 @router.post("/", response_model=MovieResponse, status_code=201)
 async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
@@ -183,6 +188,37 @@ async def update_movie(movie_id: str, movie: MovieUpdate, user=Depends(get_curre
         raise HTTPException(status_code=404, detail="Movie not found")
     updated = await db["movies"].find_one({"_id": ObjectId(movie_id)})
     return _normalize(updated)
+
+
+@router.put("/{movie_id}/progress", response_model=MovieResponse)
+async def update_progress(
+    movie_id: str,
+    payload: ProgressUpdate,
+    user=Depends(get_current_user),
+):
+    # verifica esistenza item dell'utente
+    m = await db["movies"].find_one({"_id": ObjectId(movie_id), "user_id": str(user["_id"])})
+    if not m:
+        raise HTTPException(status_code=404, detail="Movie not found")
+
+    # opzionale: verifica che sia una serie
+    if m.get("kind") != "tv":
+         raise HTTPException(status_code=400, detail="Progress is only for TV shows")
+
+    update_doc = {
+        "$set": {
+            "last_watched": {
+                "season": payload.season,
+                "episode": payload.episode,
+                "updated_at": datetime.utcnow(),
+            }
+        },
+        "$currentDate": {"updated_at": True},
+    }
+    await db["movies"].update_one({"_id": ObjectId(movie_id)}, update_doc)
+    updated = await db["movies"].find_one({"_id": ObjectId(movie_id)})
+    return _normalize(updated)
+
 
 @router.delete("/{movie_id}", status_code=204)
 async def delete_movie(movie_id: str, user=Depends(get_current_user)):

@@ -1,8 +1,9 @@
 #app/routes/auth.py
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.schemas.user import UserCreate, UserLogin
 from app.utils.auth import hash_password, verify_password, create_access_token
 from app.db import db
+from app.dependencies import get_current_user  # 👈 importa la dipendenza
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -25,3 +26,13 @@ async def login(user: UserLogin):
     
     token = create_access_token({"sub": db_user["email"]})
     return {"access_token": token, "token_type": "bearer"}
+
+
+# 👇 NUOVO: profilo utente corrente
+@router.get("/me")
+async def me(user=Depends(get_current_user)):
+    return {
+        "id": str(user["_id"]),
+        "email": user.get("email"),
+        "username": user.get("username") or (user.get("email", "").split("@")[0] if user.get("email") else None),
+    }
