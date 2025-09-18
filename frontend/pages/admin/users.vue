@@ -96,18 +96,18 @@
         <div class="space-y-3">
           <div>
             <label class="block text-sm mb-1">Email</label>
-            <input v-model="form.email" type="email" class="w-full border rounded p-2" />
+            <input v-model="form.email" type="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
           </div>
           <div>
             <label class="block text-sm mb-1">Username</label>
-            <input v-model="form.username" type="text" class="w-full border rounded p-2" />
+            <input v-model="form.username" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
           </div>
           <div>
             <label class="block text-sm mb-1">Password (leave blank to keep)</label>
-            <input v-model="form.password" type="password" class="w-full border rounded p-2" />
+            <input v-model="form.password" type="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
           </div>
           <div class="flex items-center gap-2">
-            <input id="is_admin" v-model="form.is_admin" type="checkbox" class="h-4 w-4" />
+            <input id="is_admin" v-model="form.is_admin" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
             <label for="is_admin" class="text-sm">Administrator</label>
           </div>
 
@@ -116,14 +116,14 @@
 
         <div class="mt-5 flex justify-end gap-2">
           <button
-            class="px-4 py-2 rounded border"
+          class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
             @click="closeEdit"
             :disabled="savingId === editingUser?.id"
           >
             Cancel
           </button>
           <button
-            class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+           class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
             @click="saveEdit"
             :disabled="savingId === editingUser?.id"
           >
