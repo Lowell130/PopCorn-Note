@@ -1,168 +1,100 @@
-# 🍿 PopCornNote
+# PopCornNote 🎬
 
-PopCornNote is a full-stack application for managing movies and TV shows.  
-You can add titles, organize them by status (to watch, watching, watched, upcoming), fetch details from **TMDb API**, keep track of the last watched episode, and (if you are an administrator) manage registered users.
-
----
-
-## 🚀 Tech Stack
-
-- **Backend**
-  - [FastAPI](https://fastapi.tiangolo.com/) (API server)
-  - [MongoDB](https://www.mongodb.com/) (database)
-  - [Motor](https://motor.readthedocs.io/) (async MongoDB driver)
-  - JWT authentication (`SECRET_KEY`, `HS256`)
-  - [python-jose](https://python-jose.readthedocs.io/) for JWT
-
-- **Frontend**
-  - [Nuxt 3](https://nuxt.com/) + [Vue 3](https://vuejs.org/) + [Vite](https://vitejs.dev/)
-  - [Tailwind CSS](https://tailwindcss.com/) (UI styling)
-  - Custom composables (`useAuth`, `useApi`, etc.)
-  - Client-side route protection (`auth`, `admin-only` middleware)
-
-- **Third-party API**
-  - [TMDb API](https://developer.themoviedb.org/) (movies/TV metadata, posters, cast)
+PopCornNote is a web application to manage your movie and TV show collection, track progress, and fetch metadata directly from **TMDb API**.  
+It also integrates with the **VixSrc API** to provide streaming links for TV show episodes.
 
 ---
 
-## ⚙️ Environment Variables
+## 🚀 Features
 
-### Backend (`backend/.env`)
+- User authentication (JWT-based)
+- Add movies/TV shows manually or via **TMDb API**
+- Track statuses: `to_watch`, `watching`, `watched`, `upcoming`
+- Rate and add notes
+- Dashboard with user statistics
+- Admin panel to manage users and their stats
+- Streaming integration via **VixSrc API**
 
+---
+
+## 🛠 Tech Stack
+
+- **Backend**: FastAPI + MongoDB
+- **Frontend**: Nuxt 3 + Vue 3 + TailwindCSS
+- **Database**: MongoDB (Atlas or local instance)
+- **External APIs**:
+  - [TMDb API](https://developers.themoviedb.org/) – for metadata (posters, cast, episodes, etc.)
+  - [VixSrc API](https://vixcloud.co/) – for video streaming
+
+---
+
+## 📂 Project Structure
+
+```
+backend/   → FastAPI app (routes, schemas, DB connection)
+frontend/  → Nuxt 3 app (Vue components, pages, layouts)
+```
+
+---
+
+## ⚙️ Installation
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/your-repo/popcornnote.git
+cd popcornnote
+```
+
+### 2. Backend setup
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+Configure your `.env` file:
 ```env
-MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/
+MONGO_URI=your-mongodb-uri
 MONGO_DB=popcornnote
 SECRET_KEY=supersecretkey
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
-TMDB_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TMDB_API_KEY=your-tmdb-api-key
 ```
 
-### Frontend (`frontend/.env`)
+Run the backend:
+```bash
+uvicorn app.main:app --reload
+```
 
+### 3. Frontend setup
+```bash
+cd frontend
+npm install
+```
+
+Configure your `.env` file:
 ```env
 NUXT_PUBLIC_API_BASE=http://127.0.0.1:8000
-NUXT_PUBLIC_TMDB_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NUXT_PUBLIC_TMDB_API_KEY=your-tmdb-api-key
 ```
 
----
-
-## 📦 Installation
-
-### 1. Clone the repository
-
+Run the frontend:
 ```bash
-git clone https://github.com/<your-repo>/popcornnote.git
-cd popcornnote
+npm run dev
 ```
 
 ---
 
-### 2. Backend (FastAPI)
+## 🔑 Admin Access
 
-1. Navigate into the backend folder:
-
-   ```bash
-   cd backend
-   ```
-
-2. Create and activate a virtual environment:
-
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # Linux/Mac
-   venv\Scripts\activate      # Windows
-   ```
-
-3. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Run the server:
-
-   ```bash
-   python -m uvicorn app.main:app --reload
-   ```
-
-   👉 Backend available at: `http://127.0.0.1:8000`
+To grant admin access, add `"is_admin": true` to a user document in your MongoDB collection.  
+Admins can access the `/admin/users` page to view and manage registered users and their stats.
 
 ---
 
-### 3. Frontend (Nuxt)
+## 📌 Notes
 
-1. Navigate into the frontend folder:
-
-   ```bash
-   cd ../frontend
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Run the development server:
-
-   ```bash
-   npm run dev
-   ```
-
-   👉 Frontend available at: `http://localhost:3000`
-
----
-
-## 👤 Authentication
-
-- **Register:** `POST /auth/register`
-- **Login:** `POST /auth/login` → returns a JWT token
-- **Profile:** `GET /auth/me` (requires header `Authorization: Bearer <token>`)
-
----
-
-## 🔑 Roles
-
-- **User** → manage personal movies and TV shows
-- **Admin** → access `/admin/users` to:
-  - View registered users
-  - Check user statistics
-  - Delete users (removes their movies/series as well)
-
-To promote a user to **admin**, update their MongoDB document:
-
-```json
-"is_admin": true
-```
-
----
-
-## 📊 Main Features
-
-- ✅ Dashboard with search, filters, and personal statistics
-- ✅ Add movies/TV shows from TMDb
-- ✅ Manage statuses (to_watch, watching, watched, upcoming)
-- ✅ Movie/TV detail page with poster background
-- ✅ TV shows: season/episode selector + save last watched episode
-- ✅ Admin panel: manage users and view global statistics
-
----
-
-## 🛠 Development Notes
-
-- Backend runs with:
-
-  ```bash
-  python -m uvicorn app.main:app --reload
-  ```
-
-- Frontend runs with:
-
-  ```bash
-  npm run dev
-  ```
-
-- Requires a valid **MongoDB Atlas cluster** and **TMDb API Key**.
-
----
+- Make sure MongoDB is running (Atlas or local instance).
+- Requires valid **TMDb API Key** and access to **VixSrc API**.
+- Default frontend runs at [http://localhost:3000](http://localhost:3000)  
+  Backend runs at [http://127.0.0.1:8000](http://127.0.0.1:8000)
