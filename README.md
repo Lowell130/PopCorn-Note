@@ -24,7 +24,7 @@ It also integrates with the **VixSrc API** to provide streaming links for TV sho
 - **Database**: MongoDB (Atlas or local instance)
 - **External APIs**:
   - [TMDb API](https://developers.themoviedb.org/) – for metadata (posters, cast, episodes, etc.)
-  - [VixSrc API](https://vixcloud.co/) – for video streaming
+  - [VixSrc API](https://vixsrc.to/) – for video streaming
 
 ---
 
