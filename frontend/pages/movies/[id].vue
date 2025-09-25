@@ -1,15 +1,16 @@
 <!-- pages/movies/[id].vue -->
 <template>
   <div>
-    <div class="mb-4 flex items-center gap-2 text-sm">
+    <!-- <div class="mb-4 flex items-center gap-2 text-sm">
       <NuxtLink to="/" class="text-blue-300 hover:underline">← Torna alla dashboard</NuxtLink>
-    </div>
+    </div> -->
 
     <div v-if="loading" class="opacity-70">Caricamento…</div>
     <div v-else-if="error" class="text-red-400">Errore: {{ error }}</div>
     <div v-else-if="!movie" class="opacity-70">Film non trovato.</div>
 
-   <div v-else class="relative rounded-2xl overflow-hidden shadow">
+   <!-- <div v-else class="relative rounded-2xl overflow-hidden shadow"> -->
+    <div v-else class="relative overflow-hidden shadow">
   <!-- Poster come sfondo -->
   <div
     v-if="movie.poster_url"
@@ -18,10 +19,10 @@
   ></div>
 
   <!-- Overlay scuro -->
-  <div class="absolute inset-0 bg-black/70"></div>
+  <div class="absolute inset-0 bg-black/90"></div>
 
   <!-- Contenuti -->
-  <div class="relative p-5 space-y-4 text-white">
+  <div class="relative z-10 my-7 p-5 space-y-4 text-white max-w-7xl mx-auto">
     <h1 class="text-2xl font-semibold break-words">
       {{ movie.title }}
       <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm">
@@ -102,10 +103,11 @@
 
 
 <!-- Player VixSRC (mostrato solo se c'è tmdb_id) -->
+   <div class="max-w-7xl mx-auto px-4 py-6">
 <ClientOnly>
   <div v-if="playerUrl" class="mt-6">
-    <h3 class=" text-black opacity-70 mb-1">Player</h3>
-    <div class="rounded-xl overflow-hidden border border-white/10 bg-black/20">
+     <h3 class="text-lg font-semibold text-black mb-4">Player</h3>
+    <div class="overflow-hidden border border-white/10 bg-black/20">
       <iframe
         :src="playerUrl"
         class="w-full"
@@ -126,7 +128,7 @@
   />
 
   </div>
-
+</div>
 
   
 </template>
@@ -148,7 +150,7 @@ function isValidObjectId(id) {
 
 // Forza remount della pagina per ogni id (extra safety)
 definePageMeta({
-  layout: 'wide',
+  layout: 'movies',
   key: r => r.params.id, // forza remount quando cambia l'id
 })
 

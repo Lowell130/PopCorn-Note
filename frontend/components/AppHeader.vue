@@ -1,5 +1,5 @@
 <template>
-  <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky top-0 z-10">
+  <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
       <!-- Brand -->
       <NuxtLink to="/" class="flex items-center space-x-3 rtl:space-x-reverse">
@@ -34,7 +34,7 @@
       >
         <ul
           class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-white/80 md:flex-row md:space-x-6 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-transparent
-                 dark:bg-gray-800/80 md:dark:bg-transparent dark:border-gray-700"
+                 dark:bg-gray-800/80 md:dark:bg-transparent dark:border-gray-700 md:items-center"
         >
           <!-- Non loggato -->
           <template v-if="!isLoggedIn">
@@ -90,8 +90,7 @@
             <li>  <NuxtLink v-if="isAdmin" to="/admin/users"  class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent">Admin</NuxtLink></li>
             <li class="md:pl-2">
               <button
-                class="w-full md:w-auto text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
-                @click="onLogout"
+                class="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
                 Logout
               </button>

@@ -1,17 +1,21 @@
 <!-- pages/tv/[id].vue -->
 <template>
   <div>
-    <div class="mb-4 flex items-center gap-2 text-sm">
+    <!-- <div class="mb-4 flex items-center gap-2 text-sm">
       <NuxtLink to="/" class="text-blue-300 hover:underline">← Torna alla dashboard</NuxtLink>
-    </div>
+    </div> -->
 
     <div v-if="pending" class="opacity-70">Caricamento…</div>
     <div v-else-if="err" class="text-red-400">Errore: {{ err }}</div>
     <div v-else-if="!item" class="opacity-70">Elemento non trovato.</div>
 
-  <div
+  <!-- <div
   v-else
   class="relative rounded-2xl overflow-hidden shadow"
+> -->
+  <div
+  v-else
+  class="relative overflow-hidden shadow"
 >
   <!-- Poster come sfondo -->
   <div
@@ -21,10 +25,10 @@
   ></div>
 
   <!-- Overlay scuro per leggibilità -->
-  <div class="absolute inset-0 bg-black/80"></div>
+  <div class="absolute inset-0 bg-black/90"></div>
 
   <!-- Contenuto sopra -->
-  <div class="relative z-10 p-5 space-y-4 text-white">
+  <div class="relative z-10 my-7 p-5 space-y-4 text-white max-w-7xl mx-auto">
    <h1 class="text-2xl font-semibold break-words">
   {{ item.title }}
   <span
@@ -164,10 +168,11 @@
 </div>
 
     <!-- Player -->
+   <div class="max-w-7xl mx-auto px-4 py-6">
     <ClientOnly>
       <div v-if="playerUrl" class="mt-6">
-        <h3 class=" text-black opacity-70 mb-1">Player</h3>
-        <div class="rounded-xl overflow-hidden border border-white/10 bg-black/20">
+        <h3 class="text-lg font-semibold text-black mb-4">Player</h3>
+        <div class="overflow-hidden border border-white/10 bg-black/20">
           <iframe
           :key="playerUrl"  
             :src="playerUrl"
@@ -188,6 +193,7 @@
     :tmdb-id="tmdbIdNum"
   />
   </div>
+  </div>
 </template>
 
 <script setup>
@@ -203,7 +209,7 @@ function isValidObjectId(id) {
 }
 
 definePageMeta({
-  layout: 'wide',
+  layout: 'tv',
   key: r => r.params.id, // forza remount quando cambia l'id
 })
 
