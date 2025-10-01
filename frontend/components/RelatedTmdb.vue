@@ -51,9 +51,9 @@
         </div>
 
         <div class="p-3 space-y-2">
-          <h4 class="text-sm font-semibold leading-tight line-clamp-2 text-black">
-            {{ it.title }}
-          </h4>
+            <h3 class="text-md font-semibold leading-snug break-words text-black">
+          {{ it.title.length > 25 ? it.title.slice(0, 25) + '...' : it.title }}
+          </h3>
 
           <p v-if="it.overview" class="text-xs text-gray-600 line-clamp-3">{{ it.overview }}</p>
 
@@ -62,9 +62,9 @@
             <span v-if="it.vote_average">★ {{ toOne(it.vote_average) }}</span>
           </div>
 
-          <div class="flex gap-2 pt-1">
+            <div class="mt-4 flex items-center justify-between gap-4">
             <button
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:opacity-60"
+              class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
               :disabled="addingKey === keyOf(it)"
               @click="quickAdd(it)"
               title="Aggiungi alla tua lista"
@@ -79,13 +79,13 @@
               </span>
             </button>
 
-            <a
+            <a type="button"
               :href="`https://www.themoviedb.org/${it.kind==='tv'?'tv':'movie'}/${it.tmdb_id}`"
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-center text-white bg-gray-700 rounded-lg hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300"
+              class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
             >
-              TMDb
+              TMDB
             </a>
           </div>
         </div>
@@ -118,6 +118,7 @@ function toOne(n) {
   if (Number.isFinite(x)) return x.toFixed(1)
   return n
 }
+
 
 async function load() {
   loading.value = true
