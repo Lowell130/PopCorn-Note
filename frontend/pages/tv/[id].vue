@@ -87,14 +87,14 @@
   </button>
 </div>
 
-    <div class="flex flex-col md:flex-row gap-5">
-      <!-- Poster piccolo -->
-      <img
-        v-if="item.poster_url"
-        :src="item.poster_url"
-        alt=""
-        class="w-40 h-60 rounded object-cover border self-start"
-      />
+  <div class="flex flex-col md:flex-row gap-5">
+  <!-- Poster piccolo -->
+  <img
+    v-if="item.poster_url"
+    :src="item.poster_url"
+    alt=""
+    class="w-full md:w-40 h-auto md:h-60 rounded object-cover border self-start md:flex-shrink-0"
+  />
 
       <!-- Info -->
       <div class="space-y-2 text-sm">
