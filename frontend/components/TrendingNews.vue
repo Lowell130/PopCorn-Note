@@ -52,7 +52,7 @@
       <article
         v-for="it in items"
         :key="`${it.kind}-${it.id}`"
-        class="border rounded-lg overflow-hidden bg-white shadow-sm"
+        class="text-gray-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full"
       >
         <div class="relative">
           <img
@@ -76,19 +76,23 @@
         </div>
 
         <div class="p-3 space-y-2">
-          <h3 class="text-sm font-semibold leading-tight line-clamp-2 text-black">
+            <h3 class="text-md font-semibold leading-snug break-words text-black">
             <NuxtLink
               v-if="it.local_id"
               :to="it.kind==='tv' ? `/tv/${it.local_id}` : `/movies/${it.local_id}`"
               class="hover:underline"
             >
-              {{ it.title }}
+          {{ it.title.length > 25 ? it.title.slice(0, 25) + '...' : it.title }}
             </NuxtLink>
-            <span v-else>{{ it.title }}</span>
+            <span v-else>{{ it.title.length > 25 ? it.title.slice(0, 25) + '...' : it.title }}</span>
           </h3>
 
           <p v-if="it.overview" class="text-xs text-gray-600 line-clamp-3">
             {{ it.overview }}
+          </p>
+
+           <p v-else class="text-xs text-gray-600 line-clamp-3">
+            N/A
           </p>
 
           <div class="flex items-center justify-between text-xs text-gray-500">
@@ -97,9 +101,9 @@
           </div>
 
           <!-- Azioni -->
-          <div class="flex gap-2 pt-1">
+           <div class="mt-4 flex items-center justify-between gap-4">
             <button
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
               :disabled="addingKey === keyOf(it)"
               @click="quickAdd(it)"
               title="Aggiungi alla tua lista"
@@ -114,12 +118,12 @@
               </span>
             </button>
 
-            <a
+            <a type="button"
               :href="`https://www.themoviedb.org/${it.kind==='tv'?'tv':'movie'}/${it.tmdb_id}`"
               target="_blank" rel="noopener"
-              class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gray-700 rounded-lg hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+              class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
             >
-              TMDb
+              TMDB
             </a>
           </div>
         </div>
@@ -132,7 +136,7 @@
         type="button"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         :disabled="page <= 1 || loading"
-        @click="page--; refetch()"
+        @click="goPrev()"
       >
         <svg class="w-3.5 h-3.5 me-2" aria-hidden="true" fill="none" viewBox="0 0 14 10">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0L5 9M1 5l4-4"/>
@@ -146,7 +150,7 @@
         type="button"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         :disabled="page >= totalPages || loading"
-        @click="page++; refetch()"
+        @click="goNext()"
       >
         Succ
         <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" fill="none" viewBox="0 0 14 10">
@@ -244,6 +248,33 @@ async function quickAdd(it) {
     addingKey.value = null
   }
 }
+
+
+// scrolla la pagina in cima al contenuto del componente
+function scrollToTopSmooth() {
+  // se preferisci scrollare l'intera finestra:
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+}
+
+// cambia pagina indietro
+async function goPrev() {
+  if (page.value <= 1 || loading.value) return
+  page.value = Math.max(1, page.value - 1)
+  await refetch()
+  scrollToTopSmooth()
+}
+
+// cambia pagina avanti
+async function goNext() {
+  if (page.value >= totalPages.value || loading.value) return
+  page.value = Math.min(totalPages.value, page.value + 1)
+  await refetch()
+  scrollToTopSmooth()
+}
+
 </script>
 
 <style scoped>
