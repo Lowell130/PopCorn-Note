@@ -251,8 +251,8 @@ const kindLabel = computed(() =>
 );
 const kindChipClass = computed(() =>
   props.movie.kind === "tv"
-    ? "bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded"
-    : "bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded"
+    ? "bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded shadow-sm"
+    : "bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded shadow-sm"
 );
 
 const isWatched = computed(() => props.movie.status === "watched");

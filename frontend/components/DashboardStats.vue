@@ -3,11 +3,11 @@
   <!-- <div class="bg-white text-black rounded-xl p-4 shadow text-sm mb-4"> -->
     <div class="bg-white text-black text-sm mb-4">
     <p class="flex flex-wrap gap-x-4 gap-y-2">
-      <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">{{ mTotalMovies }} film</span>
-      <span class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">{{ mTotalSeries }} serie</span>
-      <span class="bg-purple-100 text-purple-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-purple-900 dark:text-purple-300">{{ mWatched }} visti</span>
-      <span class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">{{ mToWatch }} da vedere</span>
-      <span class="bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">{{ mAvgScore }} score medio</span>
+      <span class="shadow-sm bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">{{ mTotalMovies }} film</span>
+      <span class="shadow-sm bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">{{ mTotalSeries }} serie</span>
+      <span class="shadow-sm bg-purple-100 text-purple-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-purple-900 dark:text-purple-300">{{ mWatched }} visti</span>
+      <span class="shadow-sm bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">{{ mToWatch }} da vedere</span>
+      <span class="shadow-sm bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">{{ mAvgScore }} score medio</span>
     </p>
   </div>
 </template>

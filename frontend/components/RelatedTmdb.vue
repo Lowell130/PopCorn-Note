@@ -43,7 +43,7 @@
           </div>
 
           <span
-            class="absolute top-2 left-2 px-2 py-0.5 rounded text-xs font-medium"
+            class="absolute top-2 left-2 px-2 py-0.5 rounded text-xs font-medium shadow-sm"
             :class="it.kind==='tv' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'"
           >
             {{ it.kind==='tv' ? 'SERIE' : 'FILM' }}
