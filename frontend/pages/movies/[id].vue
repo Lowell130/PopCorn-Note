@@ -103,10 +103,11 @@
 
 
 <!-- Player VixSRC (mostrato solo se c'è tmdb_id) -->
-   <div class="max-w-7xl mx-auto px-4 py-6">
+   <div class="bg-player">
+    <div class="max-w-7xl mx-auto px-4 py-6">
 <ClientOnly>
-  <div v-if="playerUrl" class="mt-6">
-     <h3 class="text-lg font-semibold text-black mb-4">Player</h3>
+  <div v-if="playerUrl" class="my-6">
+     <!-- <h3 class="text-lg font-semibold text-black mb-4">Player</h3> -->
     <div class="overflow-hidden border border-white/10 bg-black/20">
       <iframe
         :src="playerUrl"
@@ -118,8 +119,12 @@
       ></iframe>
     </div>
   </div>
+  
 </ClientOnly>
+</div>
+</div>
 
+<div class="max-w-7xl mx-auto px-4 py-6">
   <!-- Correlati -->
   <RelatedTmdb
     v-if="tmdbIdNum"
@@ -133,7 +138,27 @@
   
 </template>
 
+<style scoped>
+.bg-player {
+	background: linear-gradient(-45deg, #000000, #3a3a3a, #000000, #262626);
+	background-size: 400% 400%;
+	animation: gradient 15s ease infinite;
+	
+}
 
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+</style>
 
 <script setup>
 import StatusBadge from '@/components/StatusBadge.vue'
