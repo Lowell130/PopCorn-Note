@@ -52,7 +52,7 @@
       <article
         v-for="it in items"
         :key="`${it.kind}-${it.id}`"
-        class="text-gray-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full"
+        class="text-gray-800 rounded-lg  bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full"
       >
         <div class="relative">
           <img

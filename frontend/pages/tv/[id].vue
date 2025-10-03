@@ -1,6 +1,6 @@
 <!-- pages/tv/[id].vue -->
 <template>
-  <div>
+  <div class="bg-gray-100">
     <!-- <div class="mb-4 flex items-center gap-2 text-sm">
       <NuxtLink to="/" class="text-blue-300 hover:underline">← Torna alla dashboard</NuxtLink>
     </div> -->
@@ -25,7 +25,7 @@
   ></div>
 
   <!-- Overlay scuro per leggibilità -->
-  <div class="absolute inset-0 bg-black/90"></div>
+  <div class="absolute inset-0 bg-black/80"></div>
 
   <!-- Contenuto sopra -->
   <div class="relative z-10 my-7 p-5 space-y-4 text-white max-w-7xl mx-auto">

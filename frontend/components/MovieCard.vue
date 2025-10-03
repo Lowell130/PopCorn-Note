@@ -2,7 +2,7 @@
 <template>
   <article :class="cardClasses">
     <div
-      class="text-gray-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full"
+      class="text-gray-800 rounded-lg  bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full"
     >
 <div class="w-full aspect-[2/3] overflow-hidden rounded relative group">
   <NuxtLink
