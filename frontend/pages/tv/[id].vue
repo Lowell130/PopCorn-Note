@@ -171,7 +171,7 @@
     <div class="bg-player">
     <div class="max-w-7xl mx-auto px-4 py-6">
     <ClientOnly>
-      <div v-if="playerUrl" class="mt-6">
+      <div v-if="playerUrl" class="my-6">
         <!-- <h3 class="text-lg font-semibold text-black mb-4">Player</h3> -->
         <div class="overflow-hidden border border-white/10 bg-black/20">
           <iframe
