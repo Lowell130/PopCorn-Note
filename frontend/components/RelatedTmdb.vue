@@ -47,7 +47,7 @@
 
     <div v-if="loading" class="text-sm opacity-70">Caricamento correlati…</div>
     <div v-else-if="error" class="text-sm text-red-600">Errore: {{ error }}</div>
-    <div v-else-if="items.length === 0" class="text-sm opacity-70">Nessun elemento correlato.</div>
+    <div v-else-if="items.length === 0" class="text-sm text-gray-700 opacity-70">Nessun elemento correlato.</div>
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <article
