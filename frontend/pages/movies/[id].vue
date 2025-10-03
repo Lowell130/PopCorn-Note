@@ -36,7 +36,7 @@
         v-if="movie.poster_url"
         :src="movie.poster_url"
         alt=""
-        class="w-40 h-60 rounded object-cover border self-start"
+        class="w-full md:w-40 h-auto md:h-60 rounded object-cover border self-start md:flex-shrink-0"
       />
 
       <div class="space-y-2 text-sm">
