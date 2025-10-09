@@ -19,9 +19,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",              # sviluppo locale
-        "https://pop-corn-note.vercel.app",   # produzione su Vercel (nota https:// e non http://)
-     
-        
+        "https://pop-corn-note.vercel.app",   # produzione su Vercel (nota https:// e non http://)       
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -50,10 +48,10 @@ async def create_indexes():
 
 
 
-# This is important for Vercel
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# # This is important for Vercel
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 @app.get("/api/health")
