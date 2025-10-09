@@ -5,8 +5,7 @@ from app.routes import auth, movies
 from app.routes import tmdb as tmdb_routes  # 👈 aggiunto
 from app.db import db
 from app.routes import admin as admin_routes
-#aggiunto per vercel
-import uvicorn
+
 
 
 
@@ -43,13 +42,3 @@ async def create_indexes():
         name="uq_user_tmdb_kind"
     )
 
-#aggiunto per vercel
-@app.get("/api/health")
-def health_check():
-    return {"status": "healthy"}
-
-
-# This is important for Vercel
-if __name__ == "__main__":
-   
-    uvicorn.run(app, host="0.0.0.0", port=8000)
