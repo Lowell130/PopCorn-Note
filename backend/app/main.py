@@ -5,6 +5,7 @@ from app.routes import auth, movies
 from app.routes import tmdb as tmdb_routes  # 👈 aggiunto
 from app.db import db
 from app.routes import admin as admin_routes
+import uvicorn
 
 
 
@@ -49,5 +50,5 @@ def health_check():
 
 # This is important for Vercel
 if __name__ == "__main__":
-    import uvicorn
+   
     uvicorn.run(app, host="0.0.0.0", port=8000)
