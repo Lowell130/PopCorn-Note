@@ -40,3 +40,14 @@ async def create_indexes():
         sparse=True,
         name="uq_user_tmdb_kind"
     )
+
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "healthy"}
+
+
+# This is important for Vercel
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
