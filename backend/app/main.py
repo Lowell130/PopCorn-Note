@@ -5,6 +5,10 @@ from app.routes import auth, movies
 from app.routes import tmdb as tmdb_routes  # 👈 aggiunto
 from app.db import db
 from app.routes import admin as admin_routes
+from fastapi.responses import JSONResponse
+import traceback
+from fastapi import Request
+
 
 
 
@@ -16,7 +20,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",              # sviluppo locale
         "https://pop-corn-note.vercel.app",   # produzione su Vercel (nota https:// e non http://)
-        "https://pop-corn-note-48dy.vercel.app" # il backend vero (se frontend chiama questo)
+     
         
     ],
     allow_credentials=True,
@@ -55,3 +59,15 @@ if __name__ == "__main__":
 @app.get("/api/health")
 def health_check():
     return {"status": "healthy"}
+
+
+@app.exception_handler(Exception)
+async def all_exception_handler(request: Request, exc: Exception):
+    # stampa lo stacktrace nei log di Vercel
+    print("==== ERRORE INTERNO ====")
+    traceback.print_exc()
+    print("========================")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"}
+    )
