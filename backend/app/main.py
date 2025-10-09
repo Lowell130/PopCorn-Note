@@ -16,6 +16,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",              # sviluppo locale
         "https://pop-corn-note.vercel.app",   # produzione su Vercel (nota https:// e non http://)
+        "https://pop-corn-note-48dy.vercel.app" # il backend vero (se frontend chiama questo)
+        
     ],
     allow_credentials=True,
     allow_methods=["*"],
