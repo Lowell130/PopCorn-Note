@@ -5,7 +5,7 @@
       class="text-gray-800 rounded-lg  bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full"
     >
 <div class="w-full aspect-[2/3] overflow-hidden rounded relative group">
-  <NuxtLink
+  <NuxtLink target="_blank"
     v-if="movie.id"
     :to="movie.kind === 'tv' ? `/tv/${movie.id}` : `/movies/${movie.id}`"
     class="block h-full w-full"
@@ -59,7 +59,7 @@
         </div>
 
         <h3 class="text-md font-semibold leading-snug break-words text-black">
-          <NuxtLink
+          <NuxtLink target="_blank"
             v-if="movie.id"
             :to="
               movie.kind === 'tv' ? `/tv/${movie.id}` : `/movies/${movie.id}`
