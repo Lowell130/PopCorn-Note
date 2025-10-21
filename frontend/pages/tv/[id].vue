@@ -181,6 +181,7 @@
             style="aspect-ratio: 16 / 9"
             frameborder="0"
             allowfullscreen
+             allow="autoplay; fullscreen; encrypted-media"
             referrerpolicy="no-referrer"
           ></iframe>
         </div>
