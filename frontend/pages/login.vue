@@ -34,7 +34,7 @@ const { login } = useAuth()
 async function submit() {
   try {
     await login({ email: email.value, password: password.value })
-    navigateTo("/")
+    navigateTo("/dashboard")
   } catch (e) {
     alert("Login fallito")
     console.error(e)
