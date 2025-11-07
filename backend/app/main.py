@@ -19,7 +19,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",              # sviluppo locale
-        "https://pop-corn-note.vercel.app",   # produzione su Vercel (nota https:// e non http://)       
+        "https://pop-corn-note.vercel.app",   # produzione su Vercel (nota https:// e non http://)    
+        "https://apinote-68434279777.europe-west1.run.app",  # backend su Cloud Run   
     ],
     allow_credentials=True,
     allow_methods=["*"],
