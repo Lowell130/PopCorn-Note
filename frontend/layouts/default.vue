@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-night text-white">
+  <div class="min-h-screen bg-night ">
     <AppHeader />
     <main class="max-w-5xl mx-auto px-4 py-6">
       <slot />

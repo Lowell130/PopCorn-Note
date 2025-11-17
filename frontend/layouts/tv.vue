@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-night text-white">
+  <div class="min-h-screen bg-night ">
     <AppHeader />
     <!-- main più largo -->
     <!-- <main class="max-w-full mx-auto py-6"> -->
