@@ -4,32 +4,58 @@
      <span v-if="user" class="text-gray-500 text-left font-normal">Ciao, <span class="font-semibold text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">{{ user.username || user.email }}</span>, ecco
         </span>
     <div>
-      <h1 class="text-2xl font-semibold text-black">la tua Dashboard</h1>
+      <h1 class="text-2xl font-semibold text-black mb-6">la tua Dashboard</h1>
       
     </div>
 
-    <!-- Toggle TMDb picker -->
-    <div class="flex items-center justify-end mb-3">
-      <button
-        class="shadow-sm text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
-        @click="showPicker = !showPicker"
+<!-- Toggle TMDb picker (full width) -->
+<div class="mb-4">
+  <button
+    class="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-green-600 to-emerald-500 px-4 py-3 shadow-sm text-sm sm:text-base font-medium text-white hover:from-green-700 hover:to-emerald-600 focus:outline-none focus:ring-4 focus:ring-green-300"
+    @click="showPicker = !showPicker"
+  >
+    <div class="flex items-center gap-2">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15 border border-white/20"
       >
-        {{ showPicker ? 'Chiudi ricerca TMDB' : '+ Aggiungi da TMDB' }}
-      </button>
+        🎬
+      </span>
+      <span>
+        {{ showPicker ? 'Chiudi ricerca' : 'Clicca per aggiungere serie/film' }}
+      </span>
     </div>
+
+    <div class="flex items-center gap-2 text-xs sm:text-sm">
+      <span class="hidden sm:inline opacity-80">
+        Film & Serie · dati completi
+      </span>
+      <svg
+        class="w-4 h-4 transition-transform"
+        :class="showPicker ? 'rotate-180' : ''"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M6 9l6 6 6-6"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+  </button>
+</div>
+
 
     <!-- TMDb picker + form -->
     <div class="gap-4 mb-6">
-      <AddFromTmdb
-        v-if="hasTmdb && showPicker"
-        @prefill="onPrefill"
-        @close="showPicker = false"
-      />
-      <AddMovieForm
-        v-if="showForm"
-        :initial-data="prefillData"
-        @added="onAdded"
-      />
+    <AddFromTmdb
+  v-if="hasTmdb && showPicker"
+  @added="onAddedFromTmdb"
+  @close="showPicker = false"
+/>
     </div>
 
    
@@ -103,10 +129,16 @@ onMounted(() => { init() })
 
 const showPicker = ref(false)
 
-const prefillData = ref(null)
-function onPrefill(data) {
-  prefillData.value = data
-  showForm.value = true
+// const prefillData = ref(null)
+// function onPrefill(data) {
+//   prefillData.value = data
+//   showForm.value = true
+// }
+
+function onAddedFromTmdb(newMovie) {
+  // prepend + ordina
+  movies.value = sortClient([newMovie, ...movies.value], sortBy.value)
+  fetchStats()
 }
 
 const { apiFetch } = useApi()
