@@ -32,80 +32,62 @@
       />
     </div>
 
-    <!-- Stats -->
-    <DashboardStats :stats="stats" />
+   
 
-    <!-- Toolbar -->
-    <div class="bg-white text-black rounded-xl p-3 shadow mb-4 flex flex-wrap gap-2">
-      <input
-        v-model="q"
-        placeholder="Cerca titolo o nota…"
-        class="flex-1 min-w-[200px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5"
-      />
 
-      <select
-        v-model="kind"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
-        title="Tipo"
-      >
-        <option value="">Tipo</option>
-        <option value="movie">Solo film</option>
-        <option value="tv">Solo serie</option>
-      </select>
+    <!-- Layout: sidebar filtri + griglia card -->
+    <div class="mt-6 lg:grid lg:grid-cols-4 lg:gap-4">
+      
+      <!-- Sidebar: filtri + stats -->
+    
+        <MovieFiltersSidebar
+          v-model:q="q"
+          v-model:status="status"
+          v-model:kind="kind"
+          v-model:sortBy="sortBy"
+              :stats="stats"
+          @reset="resetFilters"
+          />
 
-      <select
-        v-model="status"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
-      >
-        <option value="">Stati</option>
-        <option value="to_watch">Da vedere</option>
-        <option value="watched">Visto</option>
-        <option value="upcoming">In uscita</option>
-        <option value="watching">In visione</option>
-      </select>
+    
 
-      <select
-        v-model="sortBy"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
-      >
-        <option value="created_at_desc">Recenti</option>
-        <option value="title_asc">Titolo A→Z</option>
-        <option value="score_desc">Score alto</option>
-      </select>
+      <!-- Area card -->
+      <div class="lg:col-span-3">
+        <!-- Grid card: con sidebar ne mostri 3 a xl -->
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+          <MovieCard
+            v-for="m in movies"
+            :key="m.id"
+            :movie="m"
+            @updated="onUpdated"
+            @deleted="onDeleted"
+          />
+        </div>
 
-      <button
-        @click="resetFilters"
-       class="flex items-center justify-center w-10 h-10 bg-red-700 hover:bg-red-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
-  <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"></path>
-  </svg>
+        <!-- Empty state -->
+        <div
+          v-if="!loading && movies.length === 0"
+          class="text-center opacity-80 py-12"
+        >
+          <div class="text-5xl mb-3">🍿</div>
+          <div class="text-lg">Nessun film ancora. Aggiungine uno!</div>
+        </div>
 
-      </button>
+        <!-- Loader + sentinel -->
+        <div ref="sentinel" class="h-10"></div>
+        <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
+        <div
+          v-if="!hasMore && movies.length && !loading"
+          class="text-center text-xs opacity-60 py-4"
+        >
+          Fine elenco
+        </div>
+      </div>
     </div>
 
-    <!-- Grid -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      <MovieCard
-        v-for="m in movies"
-        :key="m.id"
-        :movie="m"
-        @updated="onUpdated"
-        @deleted="onDeleted"
-      />
-    </div>
 
-    <!-- Empty state -->
-    <div v-if="!loading && movies.length === 0" class="text-center opacity-80 py-12">
-      <div class="text-5xl mb-3">🍿</div>
-      <div class="text-lg">Nessun film ancora. Aggiungine uno!</div>
-    </div>
 
-    <!-- Loader + sentinel -->
-    <div ref="sentinel" class="h-10"></div>
-    <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
-    <div v-if="!hasMore && movies.length && !loading" class="text-center text-xs opacity-60 py-4">
-      Fine elenco
-    </div>
+
   </div>
 </template>
 
@@ -115,6 +97,10 @@ import DashboardStats from '@/components/DashboardStats.vue'
 import AddMovieForm from '@/components/AddMovieForm.vue'
 import AddFromTmdb from '@/components/AddFromTmdb.vue'
 import MovieCard from '@/components/MovieCard.vue'
+
+import MovieFiltersSidebar from '@/components/MovieFiltersSidebar.vue'
+
+
 
 definePageMeta({ layout: 'wide' })
 
