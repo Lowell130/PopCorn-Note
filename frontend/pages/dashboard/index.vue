@@ -8,33 +8,31 @@
       
     </div>
 
-<!-- Toggle TMDb picker (full width) -->
+<!-- Toggle TMDb Picker -->
 <div class="mb-4">
   <button
-    class="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-green-600 to-emerald-500 px-4 py-3 shadow-sm text-sm sm:text-base font-medium text-white hover:from-green-700 hover:to-emerald-600 focus:outline-none focus:ring-4 focus:ring-green-300"
     @click="showPicker = !showPicker"
+    class="w-full flex items-center justify-between gap-4 px-5 py-3 text-white bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 rounded-lg shadow-md transition-all"
   >
-    <div class="flex items-center gap-2">
-      <span
-        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15 border border-white/20"
-      >
+    <!-- Left side -->
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 border border-white/30 text-lg">
         🎬
-      </span>
-      <span>
-        {{ showPicker ? 'Chiudi ricerca' : 'Clicca per aggiungere serie/film' }}
+      </div>
+      <span class="text-sm sm:text-base font-medium">
+        {{ showPicker ? 'Chiudi ricerca' : 'Aggiungi Film o Serie TV' }}
       </span>
     </div>
 
-    <div class="flex items-center gap-2 text-xs sm:text-sm">
-      <span class="hidden sm:inline opacity-80">
-        Film & Serie · dati completi
-      </span>
+    <!-- Right side -->
+    <div class="flex items-center gap-2 text-xs sm:text-sm opacity-90">
+      <span class="hidden sm:inline">Dati completi da TMDb</span>
       <svg
-        class="w-4 h-4 transition-transform"
+        class="w-4 h-4 transform transition-transform duration-300"
         :class="showPicker ? 'rotate-180' : ''"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
         fill="none"
+        viewBox="0 0 24 24"
       >
         <path
           d="M6 9l6 6 6-6"
@@ -49,14 +47,17 @@
 </div>
 
 
+
     <!-- TMDb picker + form -->
-    <div class="gap-4 mb-6">
+  <!-- TMDb picker + form (con transizione) -->
+<Transition name="fade-slide" mode="out-in">
+  <div v-if="hasTmdb && showPicker" class="mb-6">
     <AddFromTmdb
-  v-if="hasTmdb && showPicker"
-  @added="onAddedFromTmdb"
-  @close="showPicker = false"
-/>
-    </div>
+      @added="onAddedFromTmdb"
+      @close="showPicker = false"
+    />
+  </div>
+</Transition>
 
    
 
@@ -110,6 +111,34 @@
 
   </div>
 </template>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 300ms ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+.fade-slide-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+</style>
+
 
 
 <script setup>

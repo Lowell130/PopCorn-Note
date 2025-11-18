@@ -30,7 +30,7 @@
           <!-- Chiudi -->
           <button
             type="button"
-class="flex items-center justify-center w-10 h-10 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"            @click="close"
+class="flex items-center justify-center w-10 h-10 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 shadow-sm"            @click="close"
             title="Chiudi"
           >
 <svg class="w-[16px] h-[16px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@ class="flex items-center justify-center w-10 h-10 text-gray-900 bg-white border 
         />
         <button
           @click="doSearch(1)"
-          class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5"
+          class="shadow-sm focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5"
         >
           Cerca
         </button>
@@ -63,86 +63,218 @@ class="flex items-center justify-center w-10 h-10 text-gray-900 bg-white border 
       <div v-if="error" class="text-sm text-red-600">Errore: {{ error }}</div>
       <div v-if="!loading && !error && searched && results.length === 0" class="text-sm opacity-70">Nessun risultato.</div>
 
-      <!-- Risultati -->
-      <ul v-if="showResults && results.length" class="divide-y">
-        <li
-          v-for="r in results"
-          :key="`${r.kind}-${r.id}`"
-          class="py-3 flex items-start gap-3"
+    <!-- Risultati -->
+<ul
+  v-if="showResults && results.length"
+   ref="resultsTop"
+  class="space-y-3"
+>
+  <li
+    v-for="r in results"
+    :key="`${r.kind}-${r.id}`"
+    class="py-3 px-3 flex items-start gap-3 rounded-lg border border-gray-100 bg-white hover:bg-purple-50/40 hover:border-purple-200 transition-colors"
+  >
+    <!-- poster -->
+    <div class="w-16 h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+      <img
+        v-if="r.poster_url"
+        :src="r.poster_url"
+        class="w-full h-full object-cover"
+        alt=""
+        loading="lazy"
+      />
+      <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-gray-400">
+        N/A
+      </div>
+    </div>
+
+    <!-- testo + azioni -->
+    <div class="min-w-0 flex-1 flex flex-col gap-2">
+      <!-- titolo + meta -->
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span
+            class="inline-flex items-center rounded-full text-[10px] px-2 py-0.5"
+            :class="r.kind==='movie'
+              ? 'bg-blue-100 text-blue-700'
+              : 'bg-green-100 text-green-700'"
+          >
+            {{ r.kind==='movie' ? 'FILM' : 'SERIE' }}
+          </span>
+
+          <span class="font-medium truncate text-sm">
+            {{ r.title }}
+          </span>
+
+          <span
+            v-if="r.release_year"
+            class="text-[11px] text-gray-500"
+          >
+            ({{ r.release_year }})
+          </span>
+
+          <span
+            v-if="r.vote_average"
+            class="ml-auto flex items-center gap-1 text-[11px] text-amber-600"
+          >
+            <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 0 0 .95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.037a1 1 0 0 0-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.975 2.137c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 0 0-.364-1.118L3.39 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 0 0 .95-.69l1.07-3.292Z"
+              />
+            </svg>
+            {{ toFixed1(r.vote_average) }}
+          </span>
+        </div>
+
+        <div class="text-[11px] text-gray-600 mt-0.5">
+          <span class="text-gray-500">Regia:</span>
+          <span class="font-medium">
+            {{ r.director || '—' }}
+          </span>
+        </div>
+
+        <p
+          v-if="r.overview"
+          class="text-xs text-gray-600 mt-1 line-clamp-2"
         >
-          <!-- poster -->
-          <div class="w-16 h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-            <img v-if="r.poster_url" :src="r.poster_url" class="w-full h-full object-cover" alt="" loading="lazy" />
-          </div>
+          {{ r.overview }}
+        </p>
+      </div>
 
-          <!-- testo -->
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center rounded-full text-[10px] px-2 py-0.5"
-                    :class="r.kind==='movie' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'">
-                {{ r.kind==='movie' ? 'FILM' : 'SERIE' }}
-              </span>
-              <span class="font-medium truncate">{{ r.title }}</span>
-              <span v-if="r.release_year" class="text-xs text-gray-500">({{ r.release_year }})</span>
-              <span v-if="r.vote_average" class="ml-1 text-xs text-amber-600">★ {{ toFixed1(r.vote_average) }}</span>
-            </div>
-
-            <div class="text-xs text-gray-600 mt-0.5">
-              <span class="text-gray-500">Regia:</span>
-              <span class="font-medium">{{ r.director || '—' }}</span>
-            </div>
-
-            <p v-if="r.overview" class="text-xs text-gray-600 mt-1 line-clamp-2">
-              {{ r.overview }}
-            </p>
-          </div>
-
-          <!-- azioni -->
-          <div class="flex flex-col gap-2 items-end">
-            <button
-              @click="pick(r)"
-              class="text-xs px-3 py-1.5 rounded bg-green-600 text-white disabled:opacity-60"
-              :disabled="loadingPickKey === `${r.kind}-${r.id}`"
+      <!-- azioni -->
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 mt-1"
+      >
+        <!-- Aggiungi -->
+        <button
+          @click="pick(r)"
+          class="inline-flex items-center justify-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 w-full sm:w-auto"
+          :disabled="loadingPickKey === `${r.kind}-${r.id}`"
+        >
+          <template v-if="loadingPickKey !== `${r.kind}-${r.id}`">
+            <svg
+              class="w-3.5 h-3.5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
             >
-              <span v-if="loadingPickKey !== `${r.kind}-${r.id}`">Usa dati</span>
-              <span v-else class="inline-flex items-center gap-1">
-                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"/>
-                </svg>
-                Prendo…
-              </span>
-            </button>
+              <path
+                d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 0 1 0-2h5V4a1 1 0 0 1 1-1Z"
+              />
+            </svg>
+            <span>Aggiungi</span>
+          </template>
+          <template v-else>
+            <svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"
+              />
+            </svg>
+            <span>Prendo…</span>
+          </template>
+        </button>
 
-            <a
-              :href="`https://www.themoviedb.org/${r.kind==='tv'?'tv':'movie'}/${r.tmdb_id}`"
-              target="_blank" rel="noopener"
-              class="text-xs px-3 py-1.5 rounded border"
-            >
-              TMDb
-            </a>
-          </div>
-        </li>
-      </ul>
+        <!-- Info su TMDb -->
+        <a
+          :href="`https://www.themoviedb.org/${r.kind==='tv'?'tv':'movie'}/${r.tmdb_id}`"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center justify-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 w-full sm:w-auto"
+        >
+          <svg
+            class="w-3.5 h-3.5"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <path
+              d="M11 3h4.5A1.5 1.5 0 0 1 17 4.5V9"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M9 11l7-7"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M9.5 3H5A2 2 0 0 0 3 5v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4.5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Info</span>
+        </a>
+      </div>
+    </div>
+  </li>
+</ul>
+
 
       <!-- Paginazione -->
-      <div v-if="showResults && totalPages>1" class="flex items-center justify-between pt-2">
-        <button
-          type="button"
-          class="text-sm px-3 py-1.5 rounded border disabled:opacity-50"
-          :disabled="page<=1 || loading"
-          @click="doSearch(page-1)"
-        >« Prec</button>
+     <!-- Paginazione -->
+<div
+  v-if="showResults && totalPages > 1"
+  class="mt-4 flex items-center justify-center gap-3"
+>
+  <!-- Prec -->
+<button
+  type="button"
+  class="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+  :disabled="page <= 1 || loading"
+  @click="changePage(page - 1)"
+>
+    <svg class="w-3 h-3" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M12.5 4.5 7.5 10l5 5.5"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+    <span>Prec</span>
+  </button>
 
-        <span class="text-xs opacity-70">Pagina {{ page }} / {{ totalPages }}</span>
+  <!-- Info pagina -->
+  <span class="text-xs text-gray-500">
+    Pagina {{ page }} / {{ totalPages }}
+  </span>
 
-        <button
-          type="button"
-          class="text-sm px-3 py-1.5 rounded border disabled:opacity-50"
-          :disabled="page>=totalPages || loading"
-          @click="doSearch(page+1)"
-        >Succ »</button>
-      </div>
+  <!-- Succ -->
+<button
+  type="button"
+  class="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+  :disabled="page >= totalPages || loading"
+  @click="changePage(page + 1)"
+>
+    <span>Succ</span>
+    <svg class="w-3 h-3" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M7.5 4.5 12.5 10l-5 5.5"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </button>
+</div>
+
     </div>
   </ClientOnly>
 </template>
@@ -159,6 +291,7 @@ const results = ref([])
 const loading = ref(false)
 const error = ref('')
 const searched = ref(false)
+const resultsTop = ref(null)
 
 const showResults = ref(false)
 const loadingPickKey = ref(null)
@@ -180,6 +313,7 @@ function setType(t) {
   }
 }
 
+
 function close() {
   // pulizia + evento al genitore
   results.value = []
@@ -198,13 +332,33 @@ onMounted(() => {
   onUnmounted(() => window.removeEventListener('keydown', onKey))
 })
 
+
+function scrollToResultsTop() {
+  if (!resultsTop.value) return
+  const rect = resultsTop.value.getBoundingClientRect()
+  const top = rect.top + window.scrollY - 80 // offset per header / margine
+  window.scrollTo({ top, behavior: 'smooth' })
+}
+
+function changePage(newPage) {
+  if (loading.value) return
+  // fai lo scroll SUBITO
+  scrollToResultsTop()
+  // poi lancia la ricerca sulla nuova pagina
+  doSearch(newPage)
+}
+
+
 async function doSearch(goToPage = 1) {
   error.value = ''
   searched.value = true
   results.value = []
   showResults.value = false
 
-  if (!q.value.trim()) { error.value = 'Inserisci un titolo'; return }
+  if (!q.value.trim()) {
+    error.value = 'Inserisci un titolo'
+    return
+  }
 
   loading.value = true
   try {
@@ -222,6 +376,7 @@ async function doSearch(goToPage = 1) {
     loading.value = false
   }
 }
+
 
 
 async function pick (item) {
