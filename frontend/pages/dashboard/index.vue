@@ -1,90 +1,71 @@
 <!-- pages/index.vue -->
 <template>
   <div>
-     <span v-if="user" class="text-gray-500 text-left font-normal">Ciao, {{ user.username || user.email }}, ecco
+     <span v-if="user" class="text-gray-500 text-left font-normal">Ciao, <span class="font-semibold text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">{{ user.username || user.email }}</span>, ecco
         </span>
     <div>
-      <h1 class="text-2xl font-semibold text-black">la tua Dashboard</h1>
+      <h1 class="text-2xl font-semibold text-black mb-6">la tua Dashboard</h1>
       
     </div>
 
-    <!-- Toggle TMDb picker -->
-    <div class="flex items-center justify-end mb-3">
-      <button
-        class="shadow-sm text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
-        @click="showPicker = !showPicker"
+<!-- Toggle TMDb picker (full width) -->
+<div class="mb-4">
+  <button
+    class="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-green-600 to-emerald-500 px-4 py-3 shadow-sm text-sm sm:text-base font-medium text-white hover:from-green-700 hover:to-emerald-600 focus:outline-none focus:ring-4 focus:ring-green-300"
+    @click="showPicker = !showPicker"
+  >
+    <div class="flex items-center gap-2">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15 border border-white/20"
       >
-        {{ showPicker ? 'Chiudi ricerca TMDB' : '+ Aggiungi da TMDB' }}
-      </button>
+        🎬
+      </span>
+      <span>
+        {{ showPicker ? 'Chiudi ricerca' : 'Clicca per aggiungere serie/film' }}
+      </span>
     </div>
+
+    <div class="flex items-center gap-2 text-xs sm:text-sm">
+      <span class="hidden sm:inline opacity-80">
+        Film & Serie · dati completi
+      </span>
+      <svg
+        class="w-4 h-4 transition-transform"
+        :class="showPicker ? 'rotate-180' : ''"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M6 9l6 6 6-6"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+  </button>
+</div>
+
 
     <!-- TMDb picker + form -->
     <div class="gap-4 mb-6">
-      <AddFromTmdb
-        v-if="hasTmdb && showPicker"
-        @prefill="onPrefill"
-        @close="showPicker = false"
-      />
-      <AddMovieForm
-        v-if="showForm"
-        :initial-data="prefillData"
-        @added="onAdded"
-      />
+    <AddFromTmdb
+  v-if="hasTmdb && showPicker"
+  @added="onAddedFromTmdb"
+  @close="showPicker = false"
+/>
     </div>
 
-    <!-- Stats -->
-    <DashboardStats :stats="stats" />
+   
 
-    <!-- Toolbar -->
-    <div class="bg-white text-black rounded-xl p-3 shadow mb-4 flex flex-wrap gap-2">
-      <input
-        v-model="q"
-        placeholder="Cerca titolo o nota…"
-        class="flex-1 min-w-[200px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5"
-      />
 
-      <select
-        v-model="kind"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
-        title="Tipo"
-      >
-        <option value="">Tipo</option>
-        <option value="movie">Solo film</option>
-        <option value="tv">Solo serie</option>
-      </select>
-
-      <select
-        v-model="status"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
-      >
-        <option value="">Stati</option>
-        <option value="to_watch">Da vedere</option>
-        <option value="watched">Visto</option>
-        <option value="upcoming">In uscita</option>
-        <option value="watching">In visione</option>
-      </select>
-
-      <select
-        v-model="sortBy"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
-      >
-        <option value="created_at_desc">Recenti</option>
-        <option value="title_asc">Titolo A→Z</option>
-        <option value="score_desc">Score alto</option>
-      </select>
-
-      <button
-        @click="resetFilters"
-       class="flex items-center justify-center w-10 h-10 bg-red-700 hover:bg-red-800 text-white rounded-full shadow-sm focus:outline-none focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
-  <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"></path>
-  </svg>
-
-      </button>
-    </div>
-
-    <!-- Grid -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <!-- Layout: sidebar filtri + griglia card -->
+    <div class="mt-6 lg:grid lg:grid-cols-4 lg:gap-4">
+  <!-- Griglia -->
+  <div class="lg:col-span-3">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
       <MovieCard
         v-for="m in movies"
         :key="m.id"
@@ -95,7 +76,10 @@
     </div>
 
     <!-- Empty state -->
-    <div v-if="!loading && movies.length === 0" class="text-center opacity-80 py-12">
+    <div
+      v-if="!loading && movies.length === 0"
+      class="text-center opacity-80 py-12"
+    >
       <div class="text-5xl mb-3">🍿</div>
       <div class="text-lg">Nessun film ancora. Aggiungine uno!</div>
     </div>
@@ -103,9 +87,27 @@
     <!-- Loader + sentinel -->
     <div ref="sentinel" class="h-10"></div>
     <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
-    <div v-if="!hasMore && movies.length && !loading" class="text-center text-xs opacity-60 py-4">
+    <div
+      v-if="!hasMore && movies.length && !loading"
+      class="text-center text-xs opacity-60 py-4"
+    >
       Fine elenco
     </div>
+  </div>
+
+  <!-- Sidebar a destra -->
+  <MovieFiltersSidebar
+    v-model:q="q"
+    v-model:status="status"
+    v-model:kind="kind"
+    v-model:sortBy="sortBy"
+    :stats="stats"
+    @reset="resetFilters"
+  />
+</div>
+
+
+
   </div>
 </template>
 
@@ -116,6 +118,10 @@ import AddMovieForm from '@/components/AddMovieForm.vue'
 import AddFromTmdb from '@/components/AddFromTmdb.vue'
 import MovieCard from '@/components/MovieCard.vue'
 
+import MovieFiltersSidebar from '@/components/MovieFiltersSidebar.vue'
+
+
+
 definePageMeta({ layout: 'wide' })
 
 const { user, isLoggedIn, init } = useAuth()   // 👈
@@ -123,10 +129,16 @@ onMounted(() => { init() })
 
 const showPicker = ref(false)
 
-const prefillData = ref(null)
-function onPrefill(data) {
-  prefillData.value = data
-  showForm.value = true
+// const prefillData = ref(null)
+// function onPrefill(data) {
+//   prefillData.value = data
+//   showForm.value = true
+// }
+
+function onAddedFromTmdb(newMovie) {
+  // prepend + ordina
+  movies.value = sortClient([newMovie, ...movies.value], sortBy.value)
+  fetchStats()
 }
 
 const { apiFetch } = useApi()

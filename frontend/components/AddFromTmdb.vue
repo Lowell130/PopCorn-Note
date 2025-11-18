@@ -1,10 +1,10 @@
 <!-- components/AddFromTmdb.vue -->
 <template>
   <ClientOnly>
-    <div class="bg-white text-black rounded-2xl p-5 shadow space-y-3">
+    <div class="bg-white text-black p-5 shadow space-y-3">
       <!-- Header -->
       <div class="flex items-center justify-between gap-2">
-        <h2 class="text-lg font-semibold">Aggiungi da TMDb</h2>
+        <!-- <h2 class="text-lg font-semibold">Cerca ed aggiungi</h2> -->
 
         <div class="flex items-center gap-2">
           <!-- Toggle tipo -->
@@ -148,8 +148,9 @@ class="flex items-center justify-center w-10 h-10 text-gray-900 bg-white border 
 </template>
 
 <script setup>
-const emit = defineEmits(['prefill','close'])
+const emit = defineEmits(['added', 'close'])
 const { apiFetch } = useApi()
+const toast = useToast?.()
 
 const q = ref('')
 const searchType = ref('movie') // 'movie' | 'tv'
@@ -222,9 +223,13 @@ async function doSearch(goToPage = 1) {
   }
 }
 
+
 async function pick (item) {
-  loadingPickKey.value = `${item.kind}-${item.id}`
+  const key = `${item.kind}-${item.id}`
+  loadingPickKey.value = key
+
   try {
+    // 1. Recupero dettagli completi da TMDb
     let details
     if (item.kind === 'movie') {
       details = await apiFetch(`/tmdb/details/${item.id}`)
@@ -232,9 +237,11 @@ async function pick (item) {
       details = await apiFetch(`/tmdb/tv/${item.id}`)
     }
 
-    const payload = {
+    // 2. Costruisco il payload per il backend
+    const body = {
       kind: details.kind || item.kind,
       title: details.title,
+      status: 'to_watch', // default sensato
       release_date: details.release_date || null,
       release_year: details.release_year ?? null,
       poster_url: details.poster_url || null,
@@ -245,15 +252,27 @@ async function pick (item) {
       overview: details.overview || null
     }
 
-    emit('prefill', payload)
-    // chiudo dopo la scelta
+    // 3. Salvo direttamente nel DB
+    const saved = await apiFetch('/movies/', {
+      method: 'POST',
+      body
+    })
+
+    // 4. Notifico il padre + toast
+    emit('added', saved)
+    toast?.show?.('success', `"${saved.title}" aggiunto alla tua lista`)
+    // chiudo il picker
     close()
   } catch (e) {
-    console.error('[TMDb] details error:', e)
+    console.error('[TMDb] details/save error:', e)
+    toast?.show?.('error', 'Errore durante aggiunta da TMDb')
   } finally {
     loadingPickKey.value = null
   }
 }
+
+
+
 </script>
 
 <style scoped>
