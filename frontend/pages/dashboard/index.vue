@@ -1,7 +1,7 @@
 <!-- pages/index.vue -->
 <template>
   <div>
-     <span v-if="user" class="text-gray-500 text-left font-normal">Ciao, {{ user.username || user.email }}, ecco
+     <span v-if="user" class="text-gray-500 text-left font-normal">Ciao, <span class="font-semibold text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">{{ user.username || user.email }}</span>, ecco
         </span>
     <div>
       <h1 class="text-2xl font-semibold text-black">la tua Dashboard</h1>
@@ -37,54 +37,48 @@
 
     <!-- Layout: sidebar filtri + griglia card -->
     <div class="mt-6 lg:grid lg:grid-cols-4 lg:gap-4">
-      
-      <!-- Sidebar: filtri + stats -->
-    
-        <MovieFiltersSidebar
-          v-model:q="q"
-          v-model:status="status"
-          v-model:kind="kind"
-          v-model:sortBy="sortBy"
-              :stats="stats"
-          @reset="resetFilters"
-          />
-
-    
-
-      <!-- Area card -->
-      <div class="lg:col-span-3">
-        <!-- Grid card: con sidebar ne mostri 3 a xl -->
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-          <MovieCard
-            v-for="m in movies"
-            :key="m.id"
-            :movie="m"
-            @updated="onUpdated"
-            @deleted="onDeleted"
-          />
-        </div>
-
-        <!-- Empty state -->
-        <div
-          v-if="!loading && movies.length === 0"
-          class="text-center opacity-80 py-12"
-        >
-          <div class="text-5xl mb-3">🍿</div>
-          <div class="text-lg">Nessun film ancora. Aggiungine uno!</div>
-        </div>
-
-        <!-- Loader + sentinel -->
-        <div ref="sentinel" class="h-10"></div>
-        <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
-        <div
-          v-if="!hasMore && movies.length && !loading"
-          class="text-center text-xs opacity-60 py-4"
-        >
-          Fine elenco
-        </div>
-      </div>
+  <!-- Griglia -->
+  <div class="lg:col-span-3">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+      <MovieCard
+        v-for="m in movies"
+        :key="m.id"
+        :movie="m"
+        @updated="onUpdated"
+        @deleted="onDeleted"
+      />
     </div>
 
+    <!-- Empty state -->
+    <div
+      v-if="!loading && movies.length === 0"
+      class="text-center opacity-80 py-12"
+    >
+      <div class="text-5xl mb-3">🍿</div>
+      <div class="text-lg">Nessun film ancora. Aggiungine uno!</div>
+    </div>
+
+    <!-- Loader + sentinel -->
+    <div ref="sentinel" class="h-10"></div>
+    <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
+    <div
+      v-if="!hasMore && movies.length && !loading"
+      class="text-center text-xs opacity-60 py-4"
+    >
+      Fine elenco
+    </div>
+  </div>
+
+  <!-- Sidebar a destra -->
+  <MovieFiltersSidebar
+    v-model:q="q"
+    v-model:status="status"
+    v-model:kind="kind"
+    v-model:sortBy="sortBy"
+    :stats="stats"
+    @reset="resetFilters"
+  />
+</div>
 
 
 
