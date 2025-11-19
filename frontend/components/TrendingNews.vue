@@ -1,7 +1,7 @@
 <template>
-  <section class="bg-white rounded-2xl p-5 shadow text-black">
+  <section class="bg-white text-black">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <h2 class="text-xl font-semibold">Novità & Tendenze</h2>
+      <!-- <h2 class="text-md font-semibold">Novità & Tendenze</h2> -->
 
       <div class="flex flex-wrap items-center gap-2">
         <!-- Filtro media -->
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <div v-if="loading" class="text-sm opacity-70">Caricamento…</div>
+    <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
     <div v-else-if="error" class="text-sm text-red-600">Errore: {{ error }}</div>
     <div v-else-if="items.length === 0" class="text-sm opacity-70">Nessun risultato.</div>
 
