@@ -1,6 +1,6 @@
 <!-- components/MovieFiltersSidebar.vue -->
 <template>
-  <aside class="hidden md:block bg-white p-4 rounded-lg top-6 self-start text-gray-800 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full">
+<aside class="bg-white p-4 rounded-lg top-6 self-start text-gray-800 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full">
     <h2 class="text-lg font-semibold mb-1">Filtri</h2>
     <p class="text-xs text-gray-500 mb-4">
       Affina la tua libreria per titolo, stato e tipo.

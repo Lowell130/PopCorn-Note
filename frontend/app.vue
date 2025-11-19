@@ -5,3 +5,4 @@
     <NuxtPage :key="$route.fullPath" />
   </NuxtLayout>
 </template>
+

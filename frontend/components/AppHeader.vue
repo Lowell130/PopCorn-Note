@@ -1,6 +1,6 @@
 <template>
   <!-- <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky top-0 z-50"> FIX TOP-->
-    <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky z-50">
+    <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
       <!-- Brand -->
       <NuxtLink to="/" class="flex items-center space-x-3 rtl:space-x-reverse">

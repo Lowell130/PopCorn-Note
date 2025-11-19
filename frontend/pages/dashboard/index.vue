@@ -64,8 +64,26 @@
 
     <!-- Layout: sidebar filtri + griglia card -->
     <div class="mt-6 lg:grid lg:grid-cols-4 lg:gap-4">
+
+
+
+
+
+  <!-- Griglia -->
   <!-- Griglia -->
   <div class="lg:col-span-3">
+    <!-- Bottone drawer (solo mobile, SOPRA la griglia) -->
+    <div class="mb-4 flex justify-end lg:hidden">
+      <button
+        @click="isFiltersOpen = true"
+        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none"
+      >
+        🎛️
+        <span>Filtri</span>
+      </button>
+    </div>
+
+    <!-- Griglia card -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
       <MovieCard
         v-for="m in movies"
@@ -75,6 +93,59 @@
         @deleted="onDeleted"
       />
     </div>
+
+
+
+<!-- Drawer sidebar per mobile -->
+<!-- Drawer sidebar per mobile (gestito da Vue) -->
+<Transition name="drawer-slide">
+  <div
+    v-if="isFiltersOpen"
+    class="fixed inset-0 z-40 flex lg:hidden"
+  >
+    <!-- Backdrop -->
+    <div
+      class="fixed inset-0 bg-black/40"
+      @click="isFiltersOpen = false"
+    ></div>
+
+    <!-- Pannello -->
+    <div
+      class="relative h-full w-80 bg-white dark:bg-gray-800 p-4 overflow-y-auto shadow-lg drawer-scroll"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <h5 class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
+          Filtri
+        </h5>
+        <button
+          type="button"
+          @click="isFiltersOpen = false"
+          class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span class="sr-only">Chiudi</span>
+        </button>
+      </div>
+
+      <MovieFiltersSidebar
+        v-model:q="q"
+        v-model:status="status"
+        v-model:kind="kind"
+        v-model:sortBy="sortBy"
+        :stats="stats"
+        @reset="resetFilters"
+      />
+    </div>
+  </div>
+</Transition>
+
+
 
     <!-- Empty state -->
     <div
@@ -96,7 +167,8 @@
     </div>
   </div>
 
-  <!-- Sidebar a destra -->
+ <!-- Sidebar a destra (solo su desktop) -->
+<div class="hidden lg:block">
   <MovieFiltersSidebar
     v-model:q="q"
     v-model:status="status"
@@ -106,6 +178,7 @@
     @reset="resetFilters"
   />
 </div>
+</div>
 
 
 
@@ -113,6 +186,15 @@
 </template>
 
 <style scoped>
+.drawer-scroll {
+  scrollbar-width: none;         /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+.drawer-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 300ms ease;
@@ -137,6 +219,24 @@
   opacity: 0;
   transform: translateY(-12px);
 }
+
+.drawer-slide-enter-active,
+.drawer-slide-leave-active {
+  transition: transform 250ms ease, opacity 250ms ease;
+}
+
+.drawer-slide-enter-from,
+.drawer-slide-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.drawer-slide-enter-to,
+.drawer-slide-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+
 </style>
 
 
@@ -194,6 +294,7 @@ const q = ref('')
 const status = ref('')
 const sortBy = ref('created_at_desc')
 const kind = ref('')
+const isFiltersOpen = ref(false) // 👈 AGGIUNGI QUESTO
 
 const limit = 20
 let skip = 0
