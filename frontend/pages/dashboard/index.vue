@@ -73,15 +73,15 @@
   <!-- Griglia -->
   <div class="lg:col-span-3">
     <!-- Bottone drawer (solo mobile, SOPRA la griglia) -->
-    <div class="mb-4 flex justify-end lg:hidden">
-      <button
-        @click="isFiltersOpen = true"
-        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none"
-      >
-        🎛️
-        <span>Filtri</span>
-      </button>
-    </div>
+   <div class="mb-4 flex justify-end lg:hidden">
+  <button
+    @click="isFiltersOpen = true"
+    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none lg:w-auto"
+  >
+    🎛️
+    <span>Filtri</span>
+  </button>
+</div>
 
     <!-- Griglia card -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
