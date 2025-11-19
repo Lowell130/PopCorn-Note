@@ -1,48 +1,50 @@
 <template>
   <section class="bg-white text-black">
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <!-- <h2 class="text-md font-semibold">Novità & Tendenze</h2> -->
+ <div class="flex flex-col items-center gap-3 mb-4">
+  
+  <div class="flex flex-wrap items-center justify-center gap-2">
 
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- Filtro media -->
-        <div class="inline-flex rounded-md shadow-sm" role="group">
-          <button
-            v-for="(m, idx) in mediaTabs"
-            :key="m.value"
-            @click="media = m.value; refetch(true)"
-            type="button"
-            :class="[
-              'px-4 py-2 text-sm font-medium border focus:z-10',
-              idx === 0 ? 'rounded-s-lg' : idx === mediaTabs.length - 1 ? 'rounded-e-lg' : '',
-              media === m.value
-                ? 'text-white bg-blue-600 border-blue-600 focus:ring-2 focus:ring-blue-700'
-                : 'text-gray-900 bg-white border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white'
-            ]"
-          >
-            {{ m.label }}
-          </button>
-        </div>
-
-        <!-- Finestra temporale -->
-        <div class="inline-flex rounded-md shadow-sm" role="group">
-          <button
-            v-for="(w, idx) in windowTabs"
-            :key="w.value"
-            @click="windowVal = w.value; refetch(true)"
-            type="button"
-            :class="[
-              'px-4 py-2 text-sm font-medium border focus:z-10',
-              idx === 0 ? 'rounded-s-lg' : idx === windowTabs.length - 1 ? 'rounded-e-lg' : '',
-              windowVal === w.value
-                ? 'text-white bg-purple-600 border-purple-600 focus:ring-2 focus:ring-purple-700'
-                : 'text-gray-900 bg-white border-gray-200 hover:bg-gray-100 hover:text-purple-700 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-purple-500 dark:focus:text-white'
-            ]"
-          >
-            {{ w.label }}
-          </button>
-        </div>
-      </div>
+    <!-- Filtro media -->
+    <div class="inline-flex rounded-md shadow-sm" role="group">
+      <button
+        v-for="(m, idx) in mediaTabs"
+        :key="m.value"
+        @click="media = m.value; refetch(true)"
+        type="button"
+        :class="[
+          'px-4 py-2 text-sm font-medium border focus:z-10',
+          idx === 0 ? 'rounded-s-lg' : idx === mediaTabs.length - 1 ? 'rounded-e-lg' : '',
+          media === m.value
+            ? 'text-white bg-blue-600 border-blue-600 focus:ring-2 focus:ring-blue-700'
+            : 'text-gray-900 bg-white border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white'
+        ]"
+      >
+        {{ m.label }}
+      </button>
     </div>
+
+    <!-- Finestra temporale -->
+    <div class="inline-flex rounded-md shadow-sm" role="group">
+      <button
+        v-for="(w, idx) in windowTabs"
+        :key="w.value"
+        @click="windowVal = w.value; refetch(true)"
+        type="button"
+        :class="[
+          'px-4 py-2 text-sm font-medium border focus:z-10',
+          idx === 0 ? 'rounded-s-lg' : idx === windowTabs.length - 1 ? 'rounded-e-lg' : '',
+          windowVal === w.value
+            ? 'text-white bg-purple-600 border-purple-600 focus:ring-2 focus:ring-purple-700'
+            : 'text-gray-900 bg-white border-gray-200 hover:bg-gray-100 hover:text-purple-700 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-purple-500 dark:focus:text-white'
+        ]"
+      >
+        {{ w.label }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
     <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
     <div v-else-if="error" class="text-sm text-red-600">Errore: {{ error }}</div>
