@@ -1,8 +1,7 @@
 <!-- pages/admin/users.vue -->
-<!-- pages/admin/users.vue -->
 <template>
   <div>
-    <!-- Header + pulsante TMDb -->
+    <!-- Header + pulsanti TMDb -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-2xl font-semibold text-black">User Management</h1>
@@ -11,15 +10,16 @@
         </p>
       </div>
 
-      <!-- Pulsante backfill TMDb -->
-      <div class="flex flex-col items-end gap-1">
+      <!-- Box strumenti TMDb -->
+      <div class="flex flex-col items-end gap-2 w-full sm:w-auto">
+        <!-- Pulsante principale: aggiorna TUTTI -->
         <button
-          @click="runBackfillTmdbVotes"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-60"
-          :disabled="backfillLoading"
+          @click="runFullBackfillTmdbVotes"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-60 w-full sm:w-auto"
+          :disabled="backfillRunning"
         >
           <svg
-            v-if="!backfillLoading"
+            v-if="!backfillRunning"
             class="w-4 h-4"
             viewBox="0 0 20 20"
             fill="none"
@@ -54,17 +54,38 @@
           </svg>
 
           <span>
-            {{ backfillLoading ? 'Aggiorno voti TMDb…' : 'Aggiorna voti TMDb' }}
+            {{ backfillRunning ? 'Aggiorno tutti i voti TMDb…' : 'Aggiorna tutti i voti TMDb' }}
           </span>
         </button>
 
-        <!-- Messaggi esito -->
-        <p v-if="backfillMessage" class="text-xs text-emerald-700">
-          {{ backfillMessage }}
-        </p>
-        <p v-if="backfillError" class="text-xs text-red-600">
-          {{ backfillError }}
-        </p>
+        <!-- Barra progresso (indeterminata) -->
+        <div v-if="backfillRunning" class="w-full sm:w-64">
+          <div class="h-1.5 w-full bg-purple-100 rounded-full overflow-hidden">
+            <div class="h-full w-1/2 bg-purple-500 animate-pulse"></div>
+          </div>
+        </div>
+
+        <!-- Messaggi -->
+        <div class="text-right w-full sm:w-64 space-y-0.5">
+          <p v-if="backfillStats.totalUpdated > 0" class="text-xs text-emerald-700">
+            Aggiornati finora: {{ backfillStats.totalUpdated }} elementi TMDb
+            <span v-if="backfillStats.batches > 1">
+              ({{ backfillStats.batches }} batch)
+            </span>
+          </p>
+          <p v-if="typeof backfillStats.lastUpdated === 'number'" class="text-xs text-gray-500">
+            Ultimo batch: {{ backfillStats.lastUpdated }} aggiornati
+            <span v-if="typeof backfillStats.lastRemaining === 'number'">
+              – rimanenti stimati: {{ backfillStats.lastRemaining }}
+            </span>
+          </p>
+          <p v-if="backfillMessage" class="text-xs text-emerald-700">
+            {{ backfillMessage }}
+          </p>
+          <p v-if="backfillError" class="text-xs text-red-600">
+            {{ backfillError }}
+          </p>
+        </div>
       </div>
     </div>
     <!-- <h1 class="text-2xl font-semibold text-black mb-6">User Management</h1> -->
@@ -203,6 +224,7 @@
   </div>
 </template>
 
+
 <script setup>
 definePageMeta({ middleware: ['admin-only'], layout: 'wide' })
 
@@ -226,10 +248,16 @@ const form = reactive({
   is_admin: false,
 })
 
-// 🔹 NUOVI stati per il pulsante TMDb
-const backfillLoading = ref(false)
+// 🔹 Stato per backfill TMDb
+const backfillRunning = ref(false)
 const backfillMessage = ref('')
 const backfillError = ref('')
+const backfillStats = reactive({
+  totalUpdated: 0,
+  batches: 0,
+  lastUpdated: null,
+  lastRemaining: null,
+})
 
 onMounted(fetchUsers)
 
@@ -266,7 +294,7 @@ function openEdit(u) {
   editingUser.value = u
   form.email = u.email || ''
   form.username = u.username || ''
-  form.password = ''               // vuota -> non aggiorna password
+  form.password = ''
   form.is_admin = !!u.is_admin
   editError.value = ''
 }
@@ -282,7 +310,6 @@ function closeEdit() {
 
 async function saveEdit() {
   if (!editingUser.value) return
-  // blocca il self-downgrade lato FE (già gestito lato BE comunque)
   if (editingUser.value.id === me?.value?.id && form.is_admin === false) {
     editError.value = 'You cannot remove your own admin role.'
     return
@@ -318,29 +345,56 @@ async function saveEdit() {
   }
 }
 
-// 🔹 FUNZIONE per avviare il backfill dei voti TMDb
-async function runBackfillTmdbVotes() {
-  if (backfillLoading.value) return
+// 🔁 BACKFILL IN LOOP FINO A ESAURIMENTO
+async function runFullBackfillTmdbVotes() {
+  if (backfillRunning.value) return
 
-  backfillLoading.value = true
+  backfillRunning.value = true
   backfillMessage.value = ''
   backfillError.value = ''
+  backfillStats.totalUpdated = 0
+  backfillStats.batches = 0
+  backfillStats.lastUpdated = null
+  backfillStats.lastRemaining = null
+
+  const batchSize = 100
+  const maxBatches = 100  // sicurezza per evitare loop infinito
 
   try {
-    const res = await apiFetch('/admin/tmdb-tools/backfill-tmdb-votes', {
-      method: 'POST',
-      query: { limit: 300 }, // puoi cambiare il batch size
-    })
+    for (let i = 0; i < maxBatches; i++) {
+      const res = await apiFetch('/admin/tmdb-tools/backfill-tmdb-votes', {
+        method: 'POST',
+        query: { limit: batchSize, force: false },
+      })
 
-    const updated = res?.updated ?? 0
-    backfillMessage.value = `Aggiornati ${updated} elementi TMDb.`
+      const updated = res?.updated ?? 0
+      const remaining = res?.remaining
+
+      backfillStats.batches += 1
+      backfillStats.totalUpdated += updated
+      backfillStats.lastUpdated = updated
+      backfillStats.lastRemaining = typeof remaining === 'number' ? remaining : null
+
+      // se il batch non ha aggiornato nulla, fermati
+      if (!updated || updated === 0) break
+
+      // se remaining è 0, fermati
+      if (typeof remaining === 'number' && remaining <= 0) break
+    }
+
+    if (backfillStats.totalUpdated === 0) {
+      backfillMessage.value = 'Nessun elemento TMDb da aggiornare.'
+    } else {
+      backfillMessage.value = `Backfill completato. Aggiornati ${backfillStats.totalUpdated} elementi in ${backfillStats.batches} batch.`
+    }
   } catch (e) {
     backfillError.value =
       e?.response?._data?.detail ||
       e?.message ||
       'Errore durante aggiornamento voti TMDb'
   } finally {
-    backfillLoading.value = false
+    backfillRunning.value = false
   }
 }
 </script>
+
