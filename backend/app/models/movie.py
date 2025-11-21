@@ -10,3 +10,5 @@ class Movie(BaseModel):
     liked: Optional[Literal["loved", "liked", "okay", "disliked", "terrible"]] = None
     note: Optional[str] = None
     user_id: str
+       # voto medio TMDB (0–10 con decimali)
+    tmdb_vote: Optional[float] = None  # 👈 NUOVO

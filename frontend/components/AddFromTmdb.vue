@@ -404,7 +404,8 @@ async function pick (item) {
       cast: Array.isArray(details.cast) ? details.cast : null,
       runtime: details.runtime ?? null,
       tmdb_id: details.tmdb_id || item.id,
-      overview: details.overview || null
+      overview: details.overview || null,
+      tmdb_vote: details.vote_average ?? item.vote_average ?? null,  // 👈 AGGIUNTO
     }
 
     // 3. Salvo direttamente nel DB

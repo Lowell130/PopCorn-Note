@@ -1,7 +1,74 @@
 <!-- pages/admin/users.vue -->
+<!-- pages/admin/users.vue -->
 <template>
   <div>
-    <h1 class="text-2xl font-semibold text-black mb-6">User Management</h1>
+    <!-- Header + pulsante TMDb -->
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold text-black">User Management</h1>
+        <p class="text-sm text-gray-500">
+          Gestisci utenti e avvia strumenti di manutenzione TMDb.
+        </p>
+      </div>
+
+      <!-- Pulsante backfill TMDb -->
+      <div class="flex flex-col items-end gap-1">
+        <button
+          @click="runBackfillTmdbVotes"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-60"
+          :disabled="backfillLoading"
+        >
+          <svg
+            v-if="!backfillLoading"
+            class="w-4 h-4"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <path
+              d="M4 4v4h4M4 4l3-3M16 16v-4h-4m4 4-3 3"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <svg
+            v-else
+            class="animate-spin h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"
+            />
+          </svg>
+
+          <span>
+            {{ backfillLoading ? 'Aggiorno voti TMDb…' : 'Aggiorna voti TMDb' }}
+          </span>
+        </button>
+
+        <!-- Messaggi esito -->
+        <p v-if="backfillMessage" class="text-xs text-emerald-700">
+          {{ backfillMessage }}
+        </p>
+        <p v-if="backfillError" class="text-xs text-red-600">
+          {{ backfillError }}
+        </p>
+      </div>
+    </div>
+    <!-- <h1 class="text-2xl font-semibold text-black mb-6">User Management</h1> -->
+
 
     <div v-if="loading" class="opacity-70">Loading…</div>
     <div v-else-if="error" class="text-red-600">Error: {{ error }}</div>
@@ -159,6 +226,11 @@ const form = reactive({
   is_admin: false,
 })
 
+// 🔹 NUOVI stati per il pulsante TMDb
+const backfillLoading = ref(false)
+const backfillMessage = ref('')
+const backfillError = ref('')
+
 onMounted(fetchUsers)
 
 async function fetchUsers() {
@@ -220,13 +292,11 @@ async function saveEdit() {
   editError.value = ''
   try {
     const payload = {}
-    // invia solo i campi modificati/valorizzati
     if (form.email && form.email !== editingUser.value.email) payload.email = form.email
     if (form.username && form.username !== editingUser.value.username) payload.username = form.username
     if (form.password && form.password.trim().length >= 6) payload.password = form.password
     if (form.is_admin !== editingUser.value.is_admin) payload.is_admin = form.is_admin
 
-    // se non c'è nulla da aggiornare, non chiamare l'API
     if (Object.keys(payload).length === 0) {
       closeEdit()
       return
@@ -237,7 +307,6 @@ async function saveEdit() {
       body: payload,
     })
 
-    // aggiorna riga in memoria
     const idx = users.value.findIndex(x => x.id === editingUser.value.id)
     if (idx !== -1) users.value[idx] = { ...users.value[idx], ...updated }
 
@@ -246,6 +315,32 @@ async function saveEdit() {
     editError.value = e?.response?._data?.detail || e?.message || 'Update failed'
   } finally {
     savingId.value = null
+  }
+}
+
+// 🔹 FUNZIONE per avviare il backfill dei voti TMDb
+async function runBackfillTmdbVotes() {
+  if (backfillLoading.value) return
+
+  backfillLoading.value = true
+  backfillMessage.value = ''
+  backfillError.value = ''
+
+  try {
+    const res = await apiFetch('/admin/tmdb-tools/backfill-tmdb-votes', {
+      method: 'POST',
+      query: { limit: 300 }, // puoi cambiare il batch size
+    })
+
+    const updated = res?.updated ?? 0
+    backfillMessage.value = `Aggiornati ${updated} elementi TMDb.`
+  } catch (e) {
+    backfillError.value =
+      e?.response?._data?.detail ||
+      e?.message ||
+      'Errore durante aggiornamento voti TMDb'
+  } finally {
+    backfillLoading.value = false
   }
 }
 </script>

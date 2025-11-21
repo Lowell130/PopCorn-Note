@@ -147,6 +147,7 @@ async def tmdb_details(tmdb_id: int, user=Depends(get_current_user)):
         "runtime": d.get("runtime"),
         "director": director,
         "cast": cast_list,
+        "vote_average": d.get("vote_average"),  # 👈 AGGIUNTO
     }
 
 # -------------------------
@@ -202,6 +203,7 @@ async def tmdb_tv_details(tmdb_id: int, user=Depends(get_current_user)):
         "cast": cast_list,
         # opzionale: info stagioni (conteggio)
         "number_of_seasons": d.get("number_of_seasons"),
+         "vote_average": d.get("vote_average"),  # 👈 AGGIUNTO
     }
 
 # -------------------------

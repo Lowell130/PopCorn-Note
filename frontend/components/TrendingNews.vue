@@ -1,3 +1,4 @@
+<!-- components/TrendinNews.vue -->
 <template>
   <section class="bg-white text-black">
  <div class="flex flex-col items-center gap-3 mb-4">
@@ -233,7 +234,8 @@ async function quickAdd(it) {
       cast: Array.isArray(details.cast) ? details.cast : null,
       runtime: details.runtime ?? null,
       tmdb_id: details.tmdb_id || it.id,
-      overview: details.overview || null
+      overview: details.overview || null,
+      tmdb_vote: details.vote_average ?? it.vote_average ?? null, // 👈 QUI
     }
     const saved = await apiFetch('/movies/', { method: 'POST', body })
     // aggiorna la card per linkarla alla tua pagina locale

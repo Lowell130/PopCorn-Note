@@ -70,7 +70,20 @@
           </NuxtLink>
           <template v-else>{{ shortTitle }}</template>
         </h3>
-<p class="text-xs text-gray-400">{{ movie.release_year }}<span v-if="movie.kind === 'movie'"> - Durata: {{ movie.runtime }} min</span></p>
+<div class="mt-1 flex items-center justify-between text-xs text-gray-400">
+  <p>
+    <span v-if="movie.release_year">{{ movie.release_year }}</span>
+    <span v-if="movie.kind === 'movie' && movie.runtime">
+      · Durata: {{ movie.runtime }} min
+    </span>
+  </p>
+
+  <!-- Voto TMDB -->
+  <p v-if="tmdbScore" class="flex items-center gap-1">
+    <span class="text-yellow-500">★</span>
+    <span>{{ tmdbScore }}</span>
+  </p>
+</div>
         <ul class="mt-3 flex items-center gap-4 text-xs text-gray-600">
           <li v-if="movie.director" class="flex items-center gap-2">
      Regia:<a
@@ -286,6 +299,20 @@ function toggleEdit() {
     draft.note = props.movie.note;
   }
 }
+
+const tmdbScore = computed(() => {
+  const raw =
+    props.movie.tmdb_vote ??
+    props.movie.vote_average ??
+    null
+
+  if (raw == null) return null
+  const num = typeof raw === 'number' ? raw : Number(raw)
+  if (!Number.isFinite(num)) return null
+  return num.toFixed(1)  // es: 7.8
+})
+
+
 
 async function remove() {
   if (!confirm(`Vuoi davvero eliminare "${props.movie.title}"?`)) return;
