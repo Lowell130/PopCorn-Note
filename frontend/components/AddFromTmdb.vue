@@ -421,7 +421,11 @@ async function pick (item) {
     close()
   } catch (e) {
     console.error('[TMDb] details/save error:', e)
-    toast?.show?.('error', 'Errore durante aggiunta da TMDb')
+    if (e?.response?.status === 409) {
+      toast?.show?.('error', 'Questo titolo è già presente nella tua collezione!')
+    } else {
+      toast?.show?.('error', 'Errore durante aggiunta da TMDb')
+    }
   } finally {
     loadingPickKey.value = null
   }

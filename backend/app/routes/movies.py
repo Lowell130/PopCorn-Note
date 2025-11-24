@@ -1,5 +1,6 @@
 # app/routes/movies.py
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pymongo.errors import DuplicateKeyError
 from typing import List
 from app.schemas.movie import MovieCreate, MovieUpdate, MovieResponse
 from app.dependencies import get_current_user
@@ -31,7 +32,13 @@ async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
     movie_dict["created_at"] = now
     movie_dict["updated_at"] = now
 
-    result = await db["movies"].insert_one(movie_dict)
+    try:
+        result = await db["movies"].insert_one(movie_dict)
+    except DuplicateKeyError:
+        raise HTTPException(
+            status_code=409,
+            detail="Questo titolo è già presente nella tua collezione."
+        )
     new_movie = await db["movies"].find_one({"_id": result.inserted_id})
     return _normalize(new_movie)
 

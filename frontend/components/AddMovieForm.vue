@@ -106,6 +106,7 @@
 <script setup>
 const emit = defineEmits(['added'])
 const { apiFetch } = useApi()
+const toast = useToast?.()
 
 const props = defineProps({
   initialTitle: { type: String, default: '' },
@@ -214,6 +215,9 @@ async function submit () {
     emit('added', created)
   } catch (e) {
     console.error(e)
+    if (e?.response?.status === 409) {
+      toast?.show?.('error', 'Questo titolo è già presente nella tua collezione!')
+    }
   } finally {
     loading.value = false
   }

@@ -38,7 +38,7 @@ async def tmdb_search(
         "page": page,
     }
 
-    async with httpx.AsyncClient(timeout=15) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(search_endpoint, params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
@@ -117,7 +117,7 @@ async def tmdb_details(tmdb_id: int, user=Depends(get_current_user)):
         "language": "it-IT",
         "append_to_response": "credits,external_ids",
     }
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(f"{BASE}/movie/{tmdb_id}", params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
@@ -161,7 +161,7 @@ async def tmdb_tv_details(tmdb_id: int, user=Depends(get_current_user)):
         "language": "it-IT",
         "append_to_response": "credits",
     }
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(f"{BASE}/tv/{tmdb_id}", params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
@@ -216,7 +216,7 @@ async def tmdb_tv_seasons(tmdb_id: int, user=Depends(get_current_user)):
         "api_key": settings.TMDB_API_KEY,
         "language": "it-IT",
     }
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(f"{BASE}/tv/{tmdb_id}", params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
@@ -245,7 +245,7 @@ async def tmdb_tv_episodes(tmdb_id: int, season_number: int, user=Depends(get_cu
         "api_key": settings.TMDB_API_KEY,
         "language": "it-IT",
     }
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(f"{BASE}/tv/{tmdb_id}/season/{season_number}", params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=r.status_code, detail=r.text)
@@ -283,7 +283,7 @@ async def tmdb_trending(
     url = f"{BASE}/trending/{media}/{window}"
     params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
 
-    async with httpx.AsyncClient(timeout=15) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(url, params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=502, detail="TMDb upstream error")
@@ -330,7 +330,7 @@ async def tmdb_popular(
     url = f"{BASE}/{media}/popular"
     params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
 
-    async with httpx.AsyncClient(timeout=15) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(url, params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=502, detail="TMDb upstream error")
@@ -375,7 +375,7 @@ async def movie_recommendations(
     url = f"{BASE}/movie/{tmdb_id}/recommendations"
     params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
 
-    async with httpx.AsyncClient(timeout=15) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(url, params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=502, detail="TMDb upstream error")
@@ -416,7 +416,7 @@ async def tv_recommendations(
     url = f"{BASE}/tv/{tmdb_id}/recommendations"
     params = {"api_key": settings.TMDB_API_KEY, "language": language, "page": page}
 
-    async with httpx.AsyncClient(timeout=15) as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         r = await client.get(url, params=params)
         if r.status_code != 200:
             raise HTTPException(status_code=502, detail="TMDb upstream error")

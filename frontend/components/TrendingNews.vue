@@ -246,8 +246,13 @@ async function quickAdd(it) {
     else alert(`"${saved.title}" aggiunto!`)
   } catch (e) {
     console.error('quickAdd trending error', e)
-    if (toast?.show) toast.show('error', 'Errore durante aggiunta')
-    else alert('Errore durante aggiunta')
+    if (e?.response?.status === 409) {
+      if (toast?.show) toast.show('error', 'Questo titolo è già presente nella tua collezione!')
+      else alert('Questo titolo è già presente nella tua collezione!')
+    } else {
+      if (toast?.show) toast.show('error', 'Errore durante aggiunta')
+      else alert('Errore durante aggiunta')
+    }
   } finally {
     addingKey.value = null
   }
