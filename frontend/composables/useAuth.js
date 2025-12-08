@@ -1,7 +1,7 @@
 // composables/useAuth.js
 export const useAuth = () => {
   // stato condiviso tra le pagine
-  const user  = useState('auth_user', () => null)
+  const user = useState('auth_user', () => null)
 
   // cookie token (path / così vale per tutto il sito)
   const token = useCookie('token', {
@@ -13,7 +13,7 @@ export const useAuth = () => {
   const { apiFetch } = useApi()
 
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin    = computed(() => !!user.value?.is_admin)   // <— AGGIUNTO
+  const isAdmin = computed(() => !!user.value?.is_admin)   // <— AGGIUNTO
 
   async function register(payload) {
     return await apiFetch('/auth/register', { method: 'POST', body: payload })
@@ -64,5 +64,20 @@ export const useAuth = () => {
     return navigateTo('/login')
   }
 
-  return { user, token, isLoggedIn, isAdmin, register, login, logout, init, fetchMe }
+  async function refreshToken() {
+    if (!token.value) return
+    try {
+      const res = await apiFetch('/auth/refresh', { method: 'POST' })
+      if (res.access_token) {
+        token.value = res.access_token
+      }
+    } catch (e) {
+      console.error("Refresh token failed", e)
+      // Se fallisce il refresh (es. sessione scaduta), potremmo fare logout
+      // ma per ora lasciamo che l'utente continui a vedere finché può
+      // o gestiamo l'errore diversamente.
+    }
+  }
+
+  return { user, token, isLoggedIn, isAdmin, register, login, logout, init, fetchMe, refreshToken }
 }

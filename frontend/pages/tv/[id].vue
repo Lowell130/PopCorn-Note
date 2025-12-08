@@ -380,4 +380,19 @@ async function markCurrentAsWatched() {
   }
 }
 
+
+// Heartbeat sessione
+const { refreshToken } = useAuth()
+let refreshInterval = null
+
+onMounted(() => {
+  // Ogni 9 minuti rinnova il token
+  refreshInterval = setInterval(() => {
+    refreshToken()
+  }, 9 * 60 * 1000) 
+})
+
+onUnmounted(() => {
+  if (refreshInterval) clearInterval(refreshInterval)
+})
 </script>

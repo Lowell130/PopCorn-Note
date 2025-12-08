@@ -37,3 +37,13 @@ async def me(user=Depends(get_current_user)):
         "username": user.get("username") or (user.get("email", "").split("@")[0] if user.get("email") else None),
         "is_admin": bool(user.get("is_admin", False)),
     }
+
+@router.post("/refresh")
+async def refresh(user=Depends(get_current_user)):
+    """
+    Endpoint per rinnovare il token (heartbeat).
+    Richiede un token valido (non scaduto).
+    Restituisce un nuovo token con scadenza resettata.
+    """
+    new_token = create_access_token({"sub": user["email"]})
+    return {"access_token": new_token, "token_type": "bearer"}
