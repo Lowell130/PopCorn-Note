@@ -99,7 +99,15 @@
 </div>
 
     <!-- Griglia card -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+    <div class="space-y-8">
+      <!-- Recommendations Section -->
+      <RecommendationsRow 
+        v-if="recommendationSeed" 
+        :source-movie="recommendationSeed"
+        @added="onAddedFromTmdb"
+      />
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
       <MovieCard
         v-for="m in movies"
         :key="m.id"
@@ -112,6 +120,7 @@
          <MovieCardSkeleton v-for="n in (movies.length ? 3 : 6)" :key="'skel-'+n" />
        </template>
     </div>
+  </div>
 
 
 
@@ -260,6 +269,7 @@
 
 
 
+
 <script setup>
 import DashboardStats from '@/components/DashboardStats.vue'
 import AddMovieForm from '@/components/AddMovieForm.vue'
@@ -267,10 +277,9 @@ import AddFromTmdb from '@/components/AddFromTmdb.vue'
 import MovieCard from '@/components/MovieCard.vue'
 import MovieCardSkeleton from '@/components/MovieCardSkeleton.vue'
 import RandomPickerModal from '@/components/RandomPickerModal.vue'
+import RecommendationsRow from '@/components/RecommendationsRow.vue'
 
 import MovieFiltersSidebar from '@/components/MovieFiltersSidebar.vue'
-
-
 
 definePageMeta({ layout: 'wide' })
 
@@ -279,12 +288,6 @@ onMounted(() => { init() })
 
 const showPicker = ref(false)
 const showRandomPicker = ref(false)
-
-// const prefillData = ref(null)
-// function onPrefill(data) {
-//   prefillData.value = data
-//   showForm.value = true
-// }
 
 function onAddedFromTmdb(newMovie) {
   // prepend + ordina
@@ -311,6 +314,12 @@ const hasTmdb = computed(() => !!config.public.tmdbApiKey)
 const movies = ref([])
 const loading = ref(false)
 const showForm = ref(false)
+
+// Seed per raccomandazioni: prendiamo il primo elemento con tmdb_id (il più recente aggiunto se default sort)
+const recommendationSeed = computed(() => {
+    if (!movies.value || !movies.value.length) return null
+    return movies.value.find(m => m.tmdb_id) || null
+})
 
 const q = ref('')
 const status = ref('')
@@ -400,12 +409,8 @@ function resetFilters() {
 }
 
 // ---- Callbacks (uniche) ----
-function onAdded(newMovie) {
-  showForm.value = false
-  // prepend e ri-ordina localmente se vuoi
-  movies.value = sortClient([newMovie, ...movies.value], sortBy.value)
-  fetchStats()
-}
+// function onAdded(newMovie) { ... } // Rimossa se non usata, o kept warning
+// Usiamo onAddedFromTmdb per il picker
 
 function onUpdated(updatedMovie) {
   const idx = movies.value.findIndex(m => m.id === updatedMovie.id)
@@ -413,6 +418,7 @@ function onUpdated(updatedMovie) {
     const next = [...movies.value]
     next[idx] = updatedMovie
     movies.value = sortClient(next, sortBy.value)
+    // Se cambia lo status, potrebbe sparire o spostarsi, ma ok per ora
   }
   fetchStats()
 }
@@ -422,3 +428,4 @@ function onDeleted(id) {
   fetchStats()
 }
 </script>
+
