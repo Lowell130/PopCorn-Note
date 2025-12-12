@@ -8,11 +8,11 @@
       
     </div>
 
-<!-- Toggle TMDb Picker -->
-<div class="mb-4">
+<!-- Action Bar -->
+<div class="mb-4 flex gap-3">
   <button
     @click="showPicker = !showPicker"
-    class="w-full flex items-center justify-between gap-4 px-5 py-3 text-white bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 rounded-lg shadow-md transition-all"
+    class="flex-1 flex items-center justify-between gap-4 px-5 py-3 text-white bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 rounded-lg shadow-md transition-all"
   >
     <!-- Left side -->
     <div class="flex items-center gap-3">
@@ -44,7 +44,22 @@
       </svg>
     </div>
   </button>
+  
+  <!-- Random Picker Button -->
+   <button
+    @click="showRandomPicker = true"
+    class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3 text-white bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-purple-300 rounded-lg shadow-md transition-all sm:w-auto"
+    title="Cosa guardo stasera?"
+  >
+    <span class="text-xl">🎲</span>
+    <span class="hidden sm:inline font-medium">Fai scegliere al fato</span>
+  </button>
 </div>
+
+<!-- Random Picker Modal -->
+<Transition name="fade-slide">
+  <RandomPickerModal v-if="showRandomPicker" @close="showRandomPicker = false" />
+</Transition>
 
 
 
@@ -92,6 +107,10 @@
         @updated="onUpdated"
         @deleted="onDeleted"
       />
+      <!-- Skeletons -->
+       <template v-if="loading">
+         <MovieCardSkeleton v-for="n in (movies.length ? 3 : 6)" :key="'skel-'+n" />
+       </template>
     </div>
 
 
@@ -158,7 +177,7 @@
 
     <!-- Loader + sentinel -->
     <div ref="sentinel" class="h-10"></div>
-    <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
+    <!-- <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div> -->
     <div
       v-if="!hasMore && movies.length && !loading"
       class="text-center text-xs opacity-60 py-4"
@@ -246,6 +265,8 @@ import DashboardStats from '@/components/DashboardStats.vue'
 import AddMovieForm from '@/components/AddMovieForm.vue'
 import AddFromTmdb from '@/components/AddFromTmdb.vue'
 import MovieCard from '@/components/MovieCard.vue'
+import MovieCardSkeleton from '@/components/MovieCardSkeleton.vue'
+import RandomPickerModal from '@/components/RandomPickerModal.vue'
 
 import MovieFiltersSidebar from '@/components/MovieFiltersSidebar.vue'
 
@@ -257,6 +278,7 @@ const { user, isLoggedIn, init } = useAuth()   // 👈
 onMounted(() => { init() })        
 
 const showPicker = ref(false)
+const showRandomPicker = ref(false)
 
 // const prefillData = ref(null)
 // function onPrefill(data) {

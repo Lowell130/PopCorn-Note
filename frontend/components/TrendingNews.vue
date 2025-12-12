@@ -47,11 +47,13 @@
 </div>
 
 
-    <div v-if="loading" class="text-sm opacity-70 py-4">Caricamento…</div>
+    <div v-if="loading" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+       <MovieCardSkeleton v-for="n in 8" :key="n" />
+    </div>
     <div v-else-if="error" class="text-sm text-red-600">Errore: {{ error }}</div>
     <div v-else-if="items.length === 0" class="text-sm opacity-70">Nessun risultato.</div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <article
         v-for="it in items"
         :key="`${it.kind}-${it.id}`"
@@ -165,6 +167,7 @@
 </template>
 
 <script setup>
+import MovieCardSkeleton from './MovieCardSkeleton.vue'
 const { apiFetch } = useApi()
 const toast = useToast?.() // se non hai un composable toast, sostituisci con alert
 

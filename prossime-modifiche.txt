@@ -1,8 +1,0 @@
-Prossimi aggiornamenti
-
-- spostare ricerca e filtri in una barra laterale a destra, cambiare layout della dashboard?
-- evidenziare il pulsante è sezione "Aggiungi da TMDB"
-- all'aggiunta di film/serie dalla home page, eliminare il passaggio intermedio con "Salva" e aggiungere direttamente come avviene
-nei correlati
-- personalizzare il messaggio che si visualizza quanto è film è già presente
-- aggiungere categorie

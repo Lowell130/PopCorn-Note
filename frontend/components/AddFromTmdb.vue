@@ -59,7 +59,9 @@ class="flex items-center justify-center w-10 h-10 text-gray-900 bg-white border 
       </div>
 
       <!-- Stati -->
-      <div v-if="loading" class="text-sm opacity-70">Ricerca in corso…</div>
+      <ul v-if="loading" class="space-y-3">
+        <SearchResultSkeleton v-for="n in 3" :key="n" />
+      </ul>
       <div v-if="error" class="text-sm text-red-600">Errore: {{ error }}</div>
       <div v-if="!loading && !error && searched && results.length === 0" class="text-sm opacity-70">Nessun risultato.</div>
 
@@ -280,6 +282,7 @@ class="flex items-center justify-center w-10 h-10 text-gray-900 bg-white border 
 </template>
 
 <script setup>
+import SearchResultSkeleton from './SearchResultSkeleton.vue'
 const emit = defineEmits(['added', 'close'])
 const { apiFetch } = useApi()
 const toast = useToast?.()

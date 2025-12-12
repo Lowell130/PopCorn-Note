@@ -43,6 +43,37 @@ async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
     return _normalize(new_movie)
 
 
+@router.get("/random", response_model=MovieResponse)
+async def get_random_movie(
+    user=Depends(get_current_user),
+    status: str = Query("to_watch", regex="^(to_watch|watched|upcoming|watching)$"),
+    kind: str | None = Query(None, regex="^(movie|tv)$"),
+):
+    """
+    Restituisce un film a caso dalla lista dell'utente, filtrato opzionalmente per status (default=to_watch) e kind.
+    """
+    uid = str(user["_id"])
+    match_stage = {"user_id": uid, "status": status}
+    
+    if kind:
+        if kind == "movie":
+            match_stage["$or"] = [{"kind": "movie"}, {"kind": {"$exists": False}}]
+        else:
+            match_stage["kind"] = "tv"
+
+    pipeline = [
+        {"$match": match_stage},
+        {"$sample": {"size": 1}}
+    ]
+    
+    docs = await db["movies"].aggregate(pipeline).to_list(length=1)
+    if not docs:
+        raise HTTPException(status_code=404, detail="Nessun titolo trovato con questi criteri.")
+    
+    return _normalize(docs[0])
+
+
+
 @router.get("/stats")
 async def movies_stats(user=Depends(get_current_user)):
     """

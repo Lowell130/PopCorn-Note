@@ -13,7 +13,9 @@
       </div>
     </div>
 
-    <div v-if="loading" class="text-sm opacity-70">Caricamento…</div>
+    <div v-if="loading" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <MovieCardSkeleton v-for="n in 3" :key="n" />
+    </div>
     <div v-else-if="error" class="text-sm text-red-600">Errore: {{ error }}</div>
 
     <div v-else>
@@ -62,6 +64,7 @@
 <script setup>
 const emit = defineEmits(['prefill'])
 const { apiFetch } = useApi()
+import MovieCardSkeleton from './MovieCardSkeleton.vue'
 
 const props = defineProps({
   months: { type: Number, default: 3 },
@@ -126,6 +129,7 @@ async function useMovie(m) {
   }
 }
 </script>
+
 
 <style scoped>
 .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
