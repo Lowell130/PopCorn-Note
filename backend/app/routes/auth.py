@@ -3,9 +3,29 @@ from fastapi import APIRouter, HTTPException, Depends
 from app.schemas.user import UserCreate, UserLogin
 from app.utils.auth import hash_password, verify_password, create_access_token
 from app.db import db
-from app.dependencies import get_current_user  # 👈 importa la dipendenza
+from app.dependencies import get_current_user
+from bson import ObjectId
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+@router.delete("/me", status_code=204)
+async def delete_account(user=Depends(get_current_user)):
+    """
+    Elimina permanentemente l'account utente e tutti i film associati.
+    """
+    user_id = str(user["_id"])
+    
+    # 1. Elimina film dell'utente
+    await db["movies"].delete_many({"user_id": user_id})
+    
+    # 2. Elimina utente
+    res = await db["users"].delete_one({"_id": user["_id"]})
+    
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return
+
 
 @router.post("/register")
 async def register(user: UserCreate):

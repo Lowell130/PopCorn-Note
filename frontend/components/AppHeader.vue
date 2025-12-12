@@ -88,7 +88,34 @@
                 News
               </NuxtLink>
             </li>
+            <li>
+              <NuxtLink
+                to="/stats"
+                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
+                @click="closeOnMobile"
+              >
+                Statistiche
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink
+                to="/community"
+                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
+                @click="closeOnMobile"
+              >
+                Community
+              </NuxtLink>
+            </li>
             <li>  <NuxtLink v-if="isAdmin" to="/admin/users"  class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent">Admin</NuxtLink></li>
+            <li>
+              <NuxtLink
+                to="/settings"
+                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
+                @click="closeOnMobile"
+              >
+                Impostazioni
+              </NuxtLink>
+            </li>
             <li class="md:pl-2">
               <button @click="onLogout"
                 class="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

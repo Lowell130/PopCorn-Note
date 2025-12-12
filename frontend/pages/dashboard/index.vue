@@ -315,10 +315,23 @@ const movies = ref([])
 const loading = ref(false)
 const showForm = ref(false)
 
-// Seed per raccomandazioni: prendiamo il primo elemento con tmdb_id (il più recente aggiunto se default sort)
+// Seed per raccomandazioni: CERCA IL VERO "ULTIMO AGGIUNTO" ignorando ordinamento "In visione"
 const recommendationSeed = computed(() => {
     if (!movies.value || !movies.value.length) return null
-    return movies.value.find(m => m.tmdb_id) || null
+    
+    // Creiamo una copia per non mutare l'ordine visualizzato
+    // Filtriamo solo quelli con tmdb_id
+    const candidates = movies.value.filter(m => m.tmdb_id)
+    if (!candidates.length) return null
+
+    // Ordiniamo per data creazione decrescente
+    candidates.sort((a, b) => {
+        const da = new Date(a.created_at || 0)
+        const db = new Date(b.created_at || 0)
+        return db - da // Più recente prima
+    })
+
+    return candidates[0]
 })
 
 const q = ref('')

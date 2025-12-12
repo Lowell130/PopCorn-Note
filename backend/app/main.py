@@ -6,6 +6,7 @@ import traceback
 
 from app.routes import auth, movies
 from app.routes import tmdb as tmdb_routes
+from app.routes import social  # 👈 Import social
 from app.routes import admin as admin_routes
 from app.db import db
 from app.routes import admin_tmdb_tools
@@ -39,6 +40,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(movies.router)
 app.include_router(tmdb_routes.router)
+app.include_router(social.router) # 👈 Include social
 app.include_router(admin_routes.router)
 app.include_router(admin_tmdb_tools.router)
 

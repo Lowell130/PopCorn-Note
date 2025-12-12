@@ -1,5 +1,7 @@
 # app/routes/movies.py
 from fastapi import APIRouter, Depends, HTTPException, Query
+from starlette.responses import Response
+from starlette import status
 from pymongo.errors import DuplicateKeyError
 from typing import List
 from app.schemas.movie import MovieCreate, MovieUpdate, MovieResponse
@@ -40,6 +42,25 @@ async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
             detail="Questo titolo è già presente nella tua collezione."
         )
     new_movie = await db["movies"].find_one({"_id": result.inserted_id})
+    
+    # --- SOCIAL ACTIVITY ---
+    try:
+        activity = {
+            "user_id": str(user["_id"]),
+            "username": user.get("username") or user["email"].split("@")[0],
+            "type": "add_movie",
+            "content": f"ha aggiunto {new_movie['title']} alla sua lista.",
+            "movie_id": str(new_movie["_id"]),
+            "movie_title": new_movie["title"],
+            "movie_poster": new_movie.get("poster_url"),
+            "movie_score": new_movie.get("score"),
+            "created_at": datetime.utcnow()
+        }
+        await db["activities"].insert_one(activity)
+    except Exception as e:
+        print(f"Social activity error: {e}")
+    # -----------------------
+
     return _normalize(new_movie)
 
 
@@ -106,6 +127,34 @@ async def movies_stats(user=Depends(get_current_user)):
     agg = await db["movies"].aggregate(pipeline).to_list(length=1)
     avg_score = round(agg[0]["avg"], 1) if agg else None
 
+    # --- AGGREGAZIONI AVANZATE ---
+    
+    # 1. Top Directors (Top 5)
+    dir_pipeline = [
+        {"$match": {"user_id": uid, "director": {"$ne": None}}},
+        {"$group": {"_id": "$director", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 5}
+    ]
+    top_directors = await db["movies"].aggregate(dir_pipeline).to_list(length=5)
+    
+    # 2. Release Years Distribution (Ultimi 50 anni, raggruppati)
+    # Per semplicità restituiamo raw list, il frontend raggruppa
+    year_pipeline = [
+        {"$match": {"user_id": uid, "release_year": {"$type": "number"}}},
+        {"$group": {"_id": "$release_year", "count": {"$sum": 1}}},
+        {"$sort": {"_id": 1}} # ordine cronologico
+    ]
+    years_dist = await db["movies"].aggregate(year_pipeline).to_list(length=100)
+
+    # 3. Score Distribution
+    score_pipeline = [
+        {"$match": {"user_id": uid, "score": {"$type": "number"}}},
+        {"$group": {"_id": "$score", "count": {"$sum": 1}}},
+        {"$sort": {"_id": 1}}
+    ]
+    scores_dist = await db["movies"].aggregate(score_pipeline).to_list(length=11)
+
     return {
         "total_movies": total_movies,
         "total_series": total_series,
@@ -113,7 +162,12 @@ async def movies_stats(user=Depends(get_current_user)):
         "to_watch": to_watch,
         "upcoming": upcoming,
         "watching": watching,
-        "avg_score": avg_score,  # può essere None se nessuno score
+        "avg_score": avg_score,
+        "stats_advanced": {
+            "directors": [{"name": x["_id"], "count": x["count"]} for x in top_directors],
+            "years": [{"year": x["_id"], "count": x["count"]} for x in years_dist],
+            "scores": [{"score": x["_id"], "count": x["count"]} for x in scores_dist],
+        }
     }
 
 
@@ -260,8 +314,22 @@ async def update_progress(
 
 @router.delete("/{movie_id}", status_code=204)
 async def delete_movie(movie_id: str, user=Depends(get_current_user)):
-    res = await db["movies"].delete_one({"_id": ObjectId(movie_id), "user_id": str(user["_id"])})
-    if res.deleted_count == 0:
+    # Find the movie to ensure it exists and belongs to the user
+    movie_obj_id = ObjectId(movie_id)
+    user_id_str = str(user["_id"])
+    
+    movie_to_delete = await db["movies"].find_one({"_id": movie_obj_id, "user_id": user_id_str})
+    
+    if not movie_to_delete:
         raise HTTPException(status_code=404, detail="Movie not found")
-    return
+
+    # Remove social activity
+    await db["activities"].delete_many({"movie_id": movie_id})
+    
+    delete_result = await db["movies"].delete_one({"_id": movie_obj_id})
+
+    if delete_result.deleted_count == 1:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    raise HTTPException(status_code=500, detail="Movie not deleted")
 
