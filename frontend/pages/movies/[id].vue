@@ -270,5 +270,20 @@ const tmdbIdNum = computed(() => {
   const x = movie.value?.tmdb_id
   return typeof x === 'number' ? x : Number(x || 0)
 })
+
+// Heartbeat sessione
+const { refreshToken } = useAuth()
+let refreshInterval = null
+
+onMounted(() => {
+  // Ogni 9 minuti rinnova il token se siamo ancora su questa pagina
+  refreshInterval = setInterval(() => {
+    refreshToken()
+  }, 9 * 60 * 1000) 
+})
+
+onUnmounted(() => {
+  if (refreshInterval) clearInterval(refreshInterval)
+})
 </script>
 
