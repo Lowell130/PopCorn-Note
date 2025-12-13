@@ -1,225 +1,256 @@
 <!-- pages/tv/[id].vue -->
 <template>
-  <div class="bg-gray-100">
-    <!-- <div class="mb-4 flex items-center gap-2 text-sm">
-      <NuxtLink to="/" class="text-blue-300 hover:underline">← Torna alla dashboard</NuxtLink>
-    </div> -->
-
-    <div v-if="pending" class="opacity-70">Caricamento…</div>
-    <div v-else-if="err" class="text-red-400">Errore: {{ err }}</div>
-    <div v-else-if="!item" class="opacity-70">Elemento non trovato.</div>
-
-  <!-- <div
-  v-else
-  class="relative rounded-2xl overflow-hidden shadow"
-> -->
-  <div
-  v-else
-  class="relative overflow-hidden shadow"
->
-  <!-- Poster come sfondo -->
-  <div
-    v-if="item.poster_url"
-    class="absolute inset-0 bg-center bg-cover"
-    :style="{ backgroundImage: `url(${item.poster_url})` }"
-  ></div>
-
-  <!-- Overlay scuro per leggibilità -->
-  <div class="absolute inset-0 bg-black/80"></div>
-
-  <!-- Contenuto sopra -->
-  <div class="relative z-10 my-7 p-5 space-y-4 text-white max-w-7xl mx-auto">
-   <h1 class="text-2xl font-semibold break-words">
-  {{ item.title }}
-  <span
-    class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm"
-  >
-    SERIE
-  </span>
-
-  <!-- ✅ Badge Ultimo visto -->
-  <span
-    v-if="item?.last_watched"
-    class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-600/90 text-white align-middle"
-    :title="lastWatchedTooltip"
-  >
-    <!-- piccola iconcina -->
-    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
-    </svg>
-    Ultimo visto {{ lastWatchedLabel }}
-  </span>
-</h1>
-
-
-<!-- Dentro il blocco principale, sotto il titolo/infos, PRIMA dei selettori -->
-<!-- Barra progresso sempre visibile -->
-<div class="mt-2 flex flex-wrap items-center gap-2 text-sm">
-  <span class="inline-flex items-center gap-2 rounded-lg bg-black/40 px-3 py-1">
-    <template v-if="item.last_watched">
-      Ultimo visto:
-      <strong>S{{ item.last_watched.season }} • E{{ item.last_watched.episode }}</strong>
-    </template>
-    <template v-else>
-      Nessun episodio segnato
-    </template>
-  </span>
-
-  <button
-    type="button"
-    class="px-3 py-1.5 rounded border border-white/30 bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
-    :disabled="!item.last_watched"
-    @click="goToLastWatched()"
-    title="Vai all'ultimo episodio visto"
-  >
-    Vai
-  </button>
-
-  <button
-    type="button"
-    class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 transition text-white disabled:opacity-50 disabled:cursor-not-allowed"
-    @click="markCurrentAsWatched()"
-    :disabled="savingProgress"
-    title="Segna come visto l'episodio selezionato"
-  >
-    <span v-if="!savingProgress">Segna come visto</span>
-    <span v-else>Salvo…</span>
-  </button>
-</div>
-
-  <div class="flex flex-col md:flex-row gap-5">
-  <!-- Poster piccolo -->
-  <img
-    v-if="item.poster_url"
-    :src="item.poster_url"
-    alt=""
-    class="w-full md:w-40 h-auto md:h-60 rounded object-cover border self-start md:flex-shrink-0"
-  />
-
-      <!-- Info -->
-      <div class="space-y-2 text-sm">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2">
-          <div v-if="item.release_year">
-            <span class="text-gray-300">Anno:</span>
-            <span class="font-medium">{{ item.release_year }}</span>
-          </div>
-          <div v-if="item.release_date">
-            <span class="text-gray-300">Prima messa in onda:</span>
-            <span class="font-medium">{{ item.release_date }}</span>
-          </div>
-          <div v-if="item.runtime">
-            <span class="text-gray-300">Durata ep.:</span>
-            <span class="font-medium">{{ item.runtime }} min</span>
-          </div>
-          <div v-if="item.director">
-            <span class="text-gray-300">Creatore:</span>
-            <span class="font-medium">{{ item.director }}</span>
-          </div>
-          <div v-if="item.cast?.length" class="sm:col-span-2">
-            <span class="text-gray-300">Cast:</span>
-            <span class="font-medium">{{ item.cast.join(', ') }}</span>
-          </div>
-        </div>
-
-        <div v-if="item.overview" class="pt-2">
-          <div class="text-gray-300 mb-1">Trama</div>
-          <p class="whitespace-pre-line">{{ item.overview }}</p>
-        </div>
-      </div>
+  <div class="min-h-screen bg-black text-white font-sans selection:bg-purple-500 selection:text-white pb-20">
+    <div v-if="pending" class="flex h-screen items-center justify-center">
+      <div class="animate-pulse text-xl font-light tracking-widest text-gray-400">CARICAMENTO...</div>
+    </div>
+    <div v-else-if="err" class="flex h-screen items-center justify-center">
+      <div class="text-red-400 text-lg">Errore: {{ err }}</div>
+    </div>
+    <div v-else-if="!item" class="flex h-screen items-center justify-center">
+      <div class="text-gray-500">Elemento non trovato.</div>
     </div>
 
-    <!-- Selettori Stagione / Episodio -->
-    <div v-if="item.tmdb_id" class="pt-3 border-t border-white/20 mt-2">
-      <div class="grid sm:grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-medium mb-1 text-gray-300">Stagione</label>
-          <select
-            v-model.number="selectedSeason"
-            @change="loadEpisodes"
-            class="w-full border rounded-lg p-2 bg-black/40 border-gray-600 text-white"
-          >
-            <option
-              v-for="s in seasons"
-              :key="s.season_number"
-              :value="s.season_number"
-            >
-              {{ s.name || `Stagione ${s.season_number}` }} ({{ s.episode_count || 0 }} ep.)
-            </option>
-          </select>
+    <div v-else class="relative w-full">
+      <!-- HERO SECTION -->
+      <div class="relative w-full h-[70vh] lg:h-[85vh] overflow-hidden">
+        <div 
+          v-if="item.poster_url"
+          class="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] ease-out hover:scale-105"
+          :style="{ backgroundImage: `url(${item.poster_url})` }"
+        ></div>
+        <div v-else class="absolute inset-0 bg-gray-900"></div>
+
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+
+        <!-- Hero Content -->
+        <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 lg:p-16 flex flex-col md:flex-row items-start md:items-end gap-8 max-w-7xl mx-auto z-10">
+           <!-- Poster (Floating) -->
+           <div class="hidden md:block w-48 lg:w-64 flex-shrink-0 shadow-2xl rounded-lg overflow-hidden border border-white/10 group">
+            <img 
+              v-if="item.poster_url" 
+              :src="item.poster_url" 
+              alt="Poster" 
+              class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          </div>
+
+          <div class="flex-1 space-y-4 mb-4 md:mb-0 w-full">
+             <div class="flex items-center gap-3 mb-2 flex-wrap">
+              <span class="px-3 py-1 text-xs font-bold tracking-wider uppercase bg-purple-600/80 backdrop-blur-md rounded text-white shadow-lg shadow-purple-900/20">
+                Serie TV
+              </span>
+              <!-- Badge Ultimo visto -->
+              <span
+                v-if="item?.last_watched"
+                class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-md rounded"
+                :title="lastWatchedTooltip"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
+                Ultimo visto {{ lastWatchedLabel }}
+              </span>
+            </div>
+
+            <h1 class="text-4xl md:text-5xl lg:text-7xl font-bold text-white leading-tight drop-shadow-lg text-left">
+              {{ item.title }}
+            </h1>
+
+             <div class="flex flex-wrap items-center gap-x-2 md:gap-x-4 text-sm md:text-base text-gray-300 font-light">
+              <span v-if="item.release_year">{{ item.release_year }}</span>
+              <span v-if="item.release_year && item.runtime" class="text-gray-600">•</span>
+              <span v-if="item.runtime">{{ item.runtime }} min/ep</span>
+              <span v-if="item.director">
+                <span class="text-gray-600">•</span> Creatore: <span class="text-white font-normal">{{ item.director }}</span>
+              </span>
+            </div>
+            
+            <!-- Progress Actions in Hero -->
+            <div class="pt-2 flex flex-wrap items-center gap-3" v-if="item.last_watched">
+               <button
+                  type="button"
+                  class="px-4 py-2 rounded-lg border border-white/30 bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium backdrop-blur-sm"
+                  :disabled="!item.last_watched"
+                  @click="goToLastWatched()"
+                  title="Vai all'ultimo episodio visto"
+                >
+                  Riprendi da S{{ item.last_watched.season }} E{{ item.last_watched.episode }}
+                </button>
+            </div>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-medium mb-1 text-gray-300">Episodio</label>
-          <select
-            v-model.number="selectedEpisode"
-            class="w-full border rounded-lg p-2 bg-black/40 border-gray-600 text-white"
-          >
-            <option
-              v-for="e in episodes"
-              :key="e.episode_number"
-              :value="e.episode_number"
-            >
-              {{ e.episode_number }} — {{ e.name || 'Episodio' }}
-            </option>
-          </select>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="relative z-20 max-w-7xl mx-auto px-6 md:px-12 mt-8 md:mt-10 pb-12">
+        
+         <!-- Mobile Poster -->
+        <div class="md:hidden mb-10 w-full max-w-sm mx-auto rounded-xl shadow-2xl overflow-hidden border border-white/20">
+          <img 
+              v-if="item.poster_url" 
+              :src="item.poster_url" 
+              alt="Poster" 
+              class="w-full h-auto object-cover"
+            />
         </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          
+          <!-- Left Column -->
+          <div class="lg:col-span-2 space-y-10">
+
+             <!-- Plot -->
+             <div v-if="item.overview">
+              <h3 class="text-xl font-semibold text-white mb-3 flex items-center gap-2">
+                <span class="w-1 h-6 bg-purple-500 rounded-full"></span>
+                Sinossi
+              </h3>
+              <p class="text-gray-300 leading-relaxed text-lg font-light whitespace-pre-line">
+                {{ item.overview }}
+              </p>
+            </div>
+
+
+            <!-- SELEZIONE EPISODI & PLAYER -->
+            <div class="space-y-6" v-if="item.tmdb_id">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-white flex items-center gap-2">
+                   <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                   Riproduzione
+                </h3>
+              </div>
+
+              <!-- Selectors Container Glass -->
+              <div class="p-6 bg-gray-900/60 backdrop-blur-xl border border-white/10 rounded-2xl space-y-4">
+                  <div class="grid sm:grid-cols-2 gap-4">
+                    <!-- Season Selector -->
+                    <div class="relative group">
+                      <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Stagione</label>
+                      <select
+                        v-model.number="selectedSeason"
+                        @change="loadEpisodes"
+                        class="w-full appearance-none bg-black/50 border border-gray-700 text-white py-3 px-4 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-black/70"
+                      >
+                        <option
+                          v-for="s in seasons"
+                          :key="s.season_number"
+                          :value="s.season_number"
+                          class="bg-gray-900"
+                        >
+                          {{ s.name || `Stagione ${s.season_number}` }} ({{ s.episode_count || 0 }} ep.)
+                        </option>
+                      </select>
+                       <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-6 text-gray-400">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                      </div>
+                    </div>
+
+                    <!-- Episode Selector -->
+                     <div class="relative group">
+                       <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Episodio</label>
+                      <select
+                        v-model.number="selectedEpisode"
+                        class="w-full appearance-none bg-black/50 border border-gray-700 text-white py-3 px-4 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-black/70"
+                      >
+                         <option
+                          v-for="e in episodes"
+                          :key="e.episode_number"
+                          :value="e.episode_number"
+                          class="bg-gray-900"
+                        >
+                          {{ e.episode_number }} — {{ e.name || 'Episodio' }}
+                        </option>
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-6 text-gray-400">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action Row Inside Selector Box -->
+                  <div class="flex items-center justify-end pt-2 border-t border-white/5 mt-2">
+                     <button
+                        type="button"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition shadow-lg shadow-emerald-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        @click="markCurrentAsWatched()"
+                        :disabled="savingProgress"
+                        title="Segna come visto l'episodio selezionato"
+                      >
+                        <span v-if="!savingProgress">Segna episodio come visto</span>
+                        <span v-else>Salvataggio...</span>
+                         <svg v-if="!savingProgress" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                      </button>
+                  </div>
+              </div>
+
+               <!-- Player Frame -->
+               <ClientOnly>
+                <div v-if="playerUrl" class="rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 bg-black relative z-10 min-h-[300px]">
+                  <div class="aspect-video w-full">
+                     <iframe
+                      :key="playerUrl"
+                      :src="playerUrl"
+                      class="w-full h-full"
+                      allowfullscreen
+                      allow="autoplay; fullscreen; encrypted-media"
+                      referrerpolicy="no-referrer"
+                    ></iframe>
+                  </div>
+                </div>
+              </ClientOnly>
+            </div>
+            
+          </div>
+
+          <!-- Right Column Details -->
+          <div class="space-y-8">
+            <div class="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-6">
+               <div v-if="item.cast?.length">
+                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Cast Principale</h4>
+                <div class="flex flex-wrap gap-2">
+                  <span 
+                    v-for="actor in item.cast.slice(0, 8)" 
+                    :key="actor" 
+                    class="px-3 py-1 bg-black/40 hover:bg-black/60 transition rounded-full text-xs text-gray-200 border border-white/5"
+                  >
+                    {{ actor }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="h-px bg-white/10 w-full"></div>
+
+              <div class="space-y-4 text-sm">
+                 <div v-if="item.director">
+                  <span class="block text-gray-500 mb-1">Creatore</span>
+                  <span class="text-white font-medium text-base">{{ item.director }}</span>
+                </div>
+                <div v-if="item.release_date">
+                  <span class="block text-gray-500 mb-1">Prima TV</span>
+                  <span class="text-white font-medium">{{ item.release_date }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related -->
+        <div class="mt-20 pt-10 border-t border-white/10">
+          <h3 class="text-2xl font-bold text-white mb-6">Potrebbe interessarti anche</h3>
+           <RelatedTmdb
+            v-if="tmdbIdNum"
+            :kind="'tv'"
+            :tmdb-id="tmdbIdNum"
+          />
+        </div>
+
       </div>
     </div>
-  </div>
-</div>
-
-    <!-- Player -->
-    <div class="bg-player">
-    <div class="max-w-7xl mx-auto px-4 py-6">
-    <ClientOnly>
-      <div v-if="playerUrl" class="my-6">
-        <!-- <h3 class="text-lg font-semibold text-black mb-4">Player</h3> -->
-        <div class="overflow-hidden border border-white/10 bg-black/20">
-          <iframe
-          :key="playerUrl"  
-            :src="playerUrl"
-            class="w-full"
-            style="aspect-ratio: 16 / 9"
-            frameborder="0"
-            allowfullscreen
-             allow="autoplay; fullscreen; encrypted-media"
-            referrerpolicy="no-referrer"
-          ></iframe>
-        </div>
-      </div>
-    </ClientOnly>
-</div>
-</div>
-      <!-- Correlati -->
-      <div class="max-w-7xl mx-auto px-4 py-6">
-  <RelatedTmdb
-    v-if="tmdbIdNum"
-    :kind="'tv'"
-    :tmdb-id="tmdbIdNum"
-  />
-  </div>
   </div>
 </template>
 
 <style scoped>
-.bg-player {
-	background: linear-gradient(-45deg, #000000, #3a3a3a, #000000, #262626);
-	background-size: 400% 400%;
-	animation: gradient 15s ease infinite;
-	
-}
-
-@keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
+/* No custom css */
 </style>
 
 <script setup>
@@ -236,12 +267,11 @@ function isValidObjectId(id) {
 
 definePageMeta({
   layout: 'tv',
-  key: r => r.params.id, // forza remount quando cambia l'id
+  key: r => r.params.id, 
 })
 
 const itemId = computed(() => String(route.params.id || ''))
 
-// carico l’item (deve essere kind=tv)
 const { data: item, pending, error } = await useAsyncData(
   () => `tv:${itemId.value}`,
   async () => {
@@ -259,7 +289,6 @@ const { data: item, pending, error } = await useAsyncData(
 )
 
 const err = computed(() => error.value?.data?.message || error.value?.message || null)
-// const pending = pending
 
 // stagioni/episodi
 const seasons = ref([])
@@ -270,7 +299,6 @@ const selectedEpisode = ref(1)
 const lastWatchedLabel = computed(() => {
   const lw = item.value?.last_watched
   if (!lw) return ''
-  // zero-pad opzionale sugli episodi (tipo E03)
   const s = String(lw.season)
   const e = String(lw.episode).padStart(2, '0')
   return `S${s} • E${e}`
@@ -280,11 +308,8 @@ const lastWatchedTooltip = computed(() => {
   const lw = item.value?.last_watched
   if (!lw?.updated_at) return 'Ultimo episodio segnato come visto'
   const d = new Date(lw.updated_at)
-  // fallback semplice e locale-friendly
   return `Segnato il ${d.toLocaleDateString()} ${d.toLocaleTimeString()}`
 })
-
-// Sostituisci il vecchio watch(...) con questo:
 
 const initializedSeasons = ref(false)
 
@@ -296,10 +321,8 @@ watch(
     const list = await apiFetch(`/tmdb/tv/${tmdb}/seasons`)
     seasons.value = list
 
-    // inizializza SOLO la prima volta
     if (!initializedSeasons.value) {
       if (item.value?.last_watched) {
-        // parti dall'ultimo visto
         selectedSeason.value = item.value.last_watched.season
         await loadEpisodes()
         const exists = episodes.value.find(
@@ -309,7 +332,6 @@ watch(
           ? item.value.last_watched.episode
           : (episodes.value[0]?.episode_number ?? 1)
       } else {
-        // altrimenti prima stagione/episodio disponibili
         selectedSeason.value = seasons.value[0]?.season_number ?? 1
         await loadEpisodes()
         selectedEpisode.value = episodes.value[0]?.episode_number ?? 1
@@ -320,15 +342,12 @@ watch(
   { immediate: true }
 )
 
-
-
 async function loadEpisodes() {
   if (!item.value?.tmdb_id || !selectedSeason.value) return
   const prevEpisode = selectedEpisode.value
   episodes.value = await apiFetch(
     `/tmdb/tv/${item.value.tmdb_id}/season/${selectedSeason.value}`
   )
-  // se l'episodio precedente esiste ancora, mantienilo
   const stillThere = episodes.value.find(e => e.episode_number === prevEpisode)
   selectedEpisode.value = stillThere
     ? prevEpisode
@@ -353,9 +372,7 @@ function goToLastWatched() {
   const lw = item.value?.last_watched
   if (!lw) return
   selectedSeason.value = lw.season
-  // ricarica gli episodi di quella stagione e poi setta episodio
   loadEpisodes().then(() => {
-    // se esiste quell'episodio, selezionalo, altrimenti fallback 1
     const found = episodes.value.find(e => e.episode_number === lw.episode)
     selectedEpisode.value = found ? lw.episode : (episodes.value[0]?.episode_number ?? 1)
   })
@@ -369,7 +386,6 @@ async function markCurrentAsWatched() {
       method: 'PUT',
       body: { season: selectedSeason.value, episode: selectedEpisode.value }
     })
-    // aggiorna localmente l'item
     item.value = updated
     toast?.show?.('success', `Segnato S${selectedSeason.value} • E${selectedEpisode.value} come visto`)
   } catch (e) {
@@ -380,13 +396,11 @@ async function markCurrentAsWatched() {
   }
 }
 
-
 // Heartbeat sessione
 const { refreshToken } = useAuth()
 let refreshInterval = null
 
 onMounted(() => {
-  // Ogni 9 minuti rinnova il token
   refreshInterval = setInterval(() => {
     refreshToken()
   }, 9 * 60 * 1000) 
