@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-night ">
     <AppHeader />
     <!-- main più largo -->
-    <main class="max-w-7xl mx-auto px-4 py-6">
+    <main class="max-w-7xl mx-auto px-4 py-6 pt-24">
       <slot />
     </main>
     <AppFooter />

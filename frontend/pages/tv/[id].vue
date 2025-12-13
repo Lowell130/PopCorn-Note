@@ -129,7 +129,7 @@
                       <select
                         v-model.number="selectedSeason"
                         @change="loadEpisodes"
-                        class="w-full appearance-none bg-black/50 border border-gray-700 text-white py-3 px-4 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-black/70"
+                        class="w-full bg-black/50 border border-gray-700 text-white py-3 px-4 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-black/70"
                       >
                         <option
                           v-for="s in seasons"
@@ -140,9 +140,6 @@
                           {{ s.name || `Stagione ${s.season_number}` }} ({{ s.episode_count || 0 }} ep.)
                         </option>
                       </select>
-                       <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-6 text-gray-400">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                      </div>
                     </div>
 
                     <!-- Episode Selector -->
@@ -150,7 +147,7 @@
                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Episodio</label>
                       <select
                         v-model.number="selectedEpisode"
-                        class="w-full appearance-none bg-black/50 border border-gray-700 text-white py-3 px-4 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-black/70"
+                        class="w-full bg-black/50 border border-gray-700 text-white py-3 px-4 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer hover:bg-black/70"
                       >
                          <option
                           v-for="e in episodes"
@@ -161,9 +158,6 @@
                           {{ e.episode_number }} — {{ e.name || 'Episodio' }}
                         </option>
                       </select>
-                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-6 text-gray-400">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                      </div>
                     </div>
                   </div>
 
@@ -185,7 +179,7 @@
 
                <!-- Player Frame -->
                <ClientOnly>
-                <div v-if="playerUrl" class="rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 bg-black relative z-10 min-h-[300px]">
+                <div v-if="playerUrl" class="rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 bg-black relative z-10 min-h-[200px] md:min-h-[360px]">
                   <div class="aspect-video w-full">
                      <iframe
                       :key="playerUrl"

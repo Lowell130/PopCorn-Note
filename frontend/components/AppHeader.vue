@@ -1,150 +1,169 @@
 <template>
-  <!-- <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky top-0 z-50"> FIX TOP-->
-    <nav class="border-b border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
+  <nav 
+    class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/5 bg-black/70 backdrop-blur-xl"
+  >
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      
       <!-- Brand -->
-      <NuxtLink to="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-        <span class="text-2xl">🍿</span>
-        <span class="self-center text-xl font-semibold whitespace-nowrap text-black dark:text-white">
+      <NuxtLink to="/" class="group flex items-center gap-3 relative z-[70]">
+        <span class="text-3xl transform group-hover:scale-110 transition-transform duration-300">🍿</span>
+        <span class="font-bold text-xl tracking-tight text-white group-hover:text-blue-400 transition-colors">
           PopCornNote
         </span>
       </NuxtLink>
 
-      <!-- Hamburger -->
-      <button
-        type="button"
-        class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-600 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:ring-gray-700"
-        :aria-expanded="open ? 'true' : 'false'"
-        aria-controls="navbar-default"
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center gap-8">
+        <!-- Links -->
+        <template v-if="isLoggedIn">
+          <NuxtLink to="/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Dashboard</NuxtLink>
+          <NuxtLink to="/news" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">News</NuxtLink>
+          <NuxtLink to="/stats" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Statistiche</NuxtLink>
+          <NuxtLink to="/community" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Community</NuxtLink>
+          <NuxtLink v-if="isAdmin" to="/admin/users" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider text-yellow-400 hover:!text-yellow-300" active-class="!text-white">Admin</NuxtLink>
+        </template>
+
+        <!-- Auth Buttons -->
+        <div class="flex items-center gap-4 ml-4 pl-4 border-l border-white/10">
+          <template v-if="!isLoggedIn">
+            <NuxtLink to="/login" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Accedi</NuxtLink>
+            <NuxtLink to="/register" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40">
+              Inizia gratis
+            </NuxtLink>
+          </template>
+          <template v-else>
+            <NuxtLink to="/settings" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Impostazioni</NuxtLink>
+            <button @click="onLogout" class="px-4 py-1.5 border border-white/20 hover:bg-white/10 text-white rounded-full text-xs font-medium transition-all">
+              Logout
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button 
+        class="md:hidden relative z-[70] w-10 h-10 flex flex-col justify-center items-center gap-1.5 focus:outline-none"
         @click="open = !open"
       >
-        <span class="sr-only">Apri menù</span>
-        <svg class="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 17 14">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M1 1h15M1 7h15M1 13h15" />
-        </svg>
+        <span :class="['w-6 h-0.5 bg-white rounded-full transition-all duration-300', open ? 'rotate-45 translate-y-2' : '']"></span>
+        <span :class="['w-6 h-0.5 bg-white rounded-full transition-all duration-300', open ? 'opacity-0' : '']"></span>
+        <span :class="['w-6 h-0.5 bg-white rounded-full transition-all duration-300', open ? '-rotate-45 -translate-y-2' : '']"></span>
       </button>
+    </div>
 
-      <!-- Menu -->
-      <div
-        :class="[
-          'w-full md:block md:w-auto',
-          open ? 'block' : 'hidden'
-        ]"
-        id="navbar-default"
+    <!-- Mobile Menu Teleported to Body -->
+    <Teleport to="body">
+      <!-- Mobile Backdrop -->
+      <Transition
+        enter-active-class="transition-opacity duration-300 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-200 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
       >
-        <ul
-          class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-white/80 md:flex-row md:space-x-6 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-transparent
-                 dark:bg-gray-800/80 md:dark:bg-transparent dark:border-gray-700 md:items-center"
-        >
-          <!-- Non loggato -->
-          <template v-if="!isLoggedIn">
-            <li>
-              <NuxtLink
-                to="/login"
-                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
-                @click="closeOnMobile"
-              >
-                Accedi
-              </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink
-                to="/register"
-                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
-                @click="closeOnMobile"
-              >
-                Inizia gratis
-              </NuxtLink>
-            </li>
-          </template>
+        <div 
+          v-if="open" 
+          class="fixed inset-0 z-[5000] bg-black/60 backdrop-blur-sm md:hidden"
+          @click="open = false"
+        ></div>
+      </Transition>
 
-          <!-- Loggato -->
-          <template v-else>
-            <li>
-              <NuxtLink
-                to="/"
-                class="block py-2 px-3 text-blue-700 md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-400"
-                @click="closeOnMobile"
-              >
+      <!-- Mobile Side Drawer -->
+      <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="-translate-x-full"
+        enter-to-class="translate-x-0"
+        leave-active-class="transition duration-200 ease-in"
+        leave-from-class="translate-x-0"
+        leave-to-class="-translate-x-full"
+      >
+        <div 
+          v-if="open" 
+          class="fixed inset-y-0 left-0 z-[5001] w-4/5 max-w-sm bg-gray-900 border-r border-white/10 shadow-3xl md:hidden overflow-y-auto"
+        >
+          <div class="flex flex-col p-6 pt-10 space-y-2">
+            <!-- Close Button Header in Drawer for easier closing -->
+             <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
+                <span class="text-xl font-bold text-white tracking-tight">PopCornNote</span>
+                <button @click="open = false" class="p-2 text-gray-400 hover:text-white transition">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <template v-if="!isLoggedIn">
+              <div class="space-y-4 px-2">
+                 <NuxtLink to="/login" class="text-xl font-bold text-white block" @click="closeOnMobile">Accedi</NuxtLink>
+                 <NuxtLink to="/register" class="text-center w-full block px-6 py-3 bg-blue-600 rounded-full text-white font-bold shadow-lg" @click="closeOnMobile">Inizia gratis</NuxtLink>
+              </div>
+            </template>
+
+            <template v-else>
+              <div class="px-3 mb-4">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Menu</span>
+              </div>
+              
+              <NuxtLink to="/" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
                 Dashboard
               </NuxtLink>
-            </li>
-            <!-- <li>
-              <NuxtLink
-                to="/test"
-                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
-                @click="closeOnMobile"
-              >
-                Dashboard 2
-              </NuxtLink>
-            </li> -->
-            <li>
-              <NuxtLink
-                to="/news"
-                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
-                @click="closeOnMobile"
-              >
+              <NuxtLink to="/news" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
                 News
               </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink
-                to="/stats"
-                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
-                @click="closeOnMobile"
-              >
-                Statistiche
+              <NuxtLink to="/stats" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
+                 Statistiche
               </NuxtLink>
-            </li>
-            <li>
-              <NuxtLink
-                to="/community"
-                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
-                @click="closeOnMobile"
-              >
-                Community
+              <NuxtLink to="/community" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
+                 Community
               </NuxtLink>
-            </li>
-            <li>  <NuxtLink v-if="isAdmin" to="/admin/users"  class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent">Admin</NuxtLink></li>
-            <li>
-              <NuxtLink
-                to="/settings"
-                class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-100 md:dark:hover:text-blue-400 dark:hover:bg-gray-800 md:dark:hover:bg-transparent"
-                @click="closeOnMobile"
-              >
+               <NuxtLink v-if="isAdmin" to="/admin/users" class="group flex items-center px-3 py-3 text-lg font-medium text-yellow-500 rounded-xl hover:bg-yellow-500/10 transition-all" @click="closeOnMobile">
+                 Admin Panel
+              </NuxtLink>
+
+              <div class="h-px bg-white/10 my-4 mx-3"></div>
+
+              <div class="px-3 mb-2">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Account</span>
+              </div>
+
+              <NuxtLink to="/settings" class="group flex items-center px-3 py-3 text-base font-medium text-gray-400 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                 Impostazioni
               </NuxtLink>
-            </li>
-            <li class="md:pl-2">
-              <button @click="onLogout"
-                class="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >
-                Logout
+              
+              <button @click="onLogout" class="w-full text-left group flex items-center px-3 py-3 text-base font-medium text-red-500 rounded-xl hover:bg-red-500/10 transition-all">
+                Esci
               </button>
-            </li>
-          </template>
-        </ul>
-      </div>
-    </div>
+            </template>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </nav>
 </template>
 
 <script setup>
 const open = ref(false)
-const { isAdmin } = useAuth()
-
+const { isAdmin, logout } = useAuth()
+// Utilizzo cookie per reattività immediata dello stato loggedIn
 const token = useCookie('token', { sameSite: 'lax', path: '/', watch: true })
 const isLoggedIn = computed(() => !!token.value)
 
-const { logout } = useAuth()
 function onLogout() {
   if (isLoggedIn.value) logout()
   open.value = false
 }
 
 function closeOnMobile() {
-  // chiude il menu dopo un click su voce in mobile
-  if (window.innerWidth < 768) open.value = false
+  open.value = false
 }
+
+// Disable scroll when mobile menu is open
+watch(open, (val) => {
+  if (import.meta.client) {
+    document.body.style.overflow = val ? 'hidden' : ''
+  }
+})
 </script>
+
+<style scoped>
+/* Removed @apply rules to prevent build errors. Styles are now inline. */
+</style>
