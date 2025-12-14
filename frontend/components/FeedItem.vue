@@ -48,7 +48,7 @@
       </div>
 
       <!-- Actions Bar -->
-      <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+      <div class="flex items-center flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
           <ReactionBar 
             :activity-id="item.id" 
             :reactions="item.reactions || []"

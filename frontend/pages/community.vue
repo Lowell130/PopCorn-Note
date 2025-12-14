@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-2xl mx-auto py-8 px-4">
+  <div class="max-w-4xl mx-auto py-8">
     
     <div class="flex items-center justify-between mb-8 animate-fade-in">
         <div>
