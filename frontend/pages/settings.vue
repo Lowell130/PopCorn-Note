@@ -19,6 +19,20 @@
       </div>
     </div>
 
+    <!-- Support Card -->
+    <div class="bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl shadow-lg p-6 mb-8 text-white relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-4 opacity-10">
+        <span class="text-9xl">☕</span>
+      </div>
+      <div class="relative z-10">
+        <h2 class="text-2xl font-bold mb-2">Ti piace PopCornNote?</h2>
+        <p class="text-pink-100 mb-6 max-w-lg text-lg">
+          Siamo un progetto indipendente e gratuito. Se apprezzi il nostro lavoro, considera di offrirci un caffè per mantenere i server attivi!
+        </p>
+        <SupportButton label="Offrici un caffè" class="bg-white text-pink-600 hover:bg-pink-50 hover:text-pink-700 border-none" />
+      </div>
+    </div>
+
     <!-- Zona Pericolosa -->
     <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl shadow p-6">
       <h2 class="text-xl font-semibold mb-4 text-red-600 dark:text-red-400">Zona Pericolosa</h2>

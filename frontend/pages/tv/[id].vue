@@ -66,8 +66,9 @@
             </div>
             
             <!-- Progress Actions in Hero -->
-            <div class="pt-2 flex flex-wrap items-center gap-3" v-if="item.last_watched">
+            <div class="pt-2 flex flex-wrap items-center gap-3">
                <button
+                  v-if="item.last_watched"
                   type="button"
                   class="px-4 py-2 rounded-lg border border-white/30 bg-white/10 hover:bg-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium backdrop-blur-sm"
                   :disabled="!item.last_watched"
@@ -76,6 +77,9 @@
                 >
                   Riprendi da S{{ item.last_watched.season }} E{{ item.last_watched.episode }}
                 </button>
+                
+                <WatchlistButton :item="item" type="tv" />
+                <ShareButton :title="item.title" text="Sto guardando questa serie:" />
             </div>
           </div>
         </div>

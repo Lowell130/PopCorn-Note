@@ -4,7 +4,8 @@
     <!-- Avatar -->
     <div class="flex-shrink-0">
       <div 
-        class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md"
+        class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md transition-transform hover:scale-105"
+        :style="{ background: avatarGivenColor }"
       >
         {{ (item.username || 'U')[0].toUpperCase() }}
       </div>
@@ -46,12 +47,61 @@
         </div>
       </div>
 
-      <!-- Reactions -->
-      <ReactionBar 
-        :activity-id="item.id" 
-        :reactions="item.reactions || []"
-        @updated="$emit('reaction-updated', item.id)"
-      />
+      <!-- Actions Bar -->
+      <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <ReactionBar 
+            :activity-id="item.id" 
+            :reactions="item.reactions || []"
+            @updated="$emit('reaction-updated', item.id)"
+          />
+          
+          <!-- Comment Toggle -->
+          <button 
+            @click="toggleComments"
+            class="flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 transition px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            <span>{{ comments.length ? comments.length : 'Commenta' }}</span>
+          </button>
+      </div>
+
+      <!-- Comments Section -->
+      <div v-if="showComments" class="mt-3 space-y-3 pl-2 border-l-2 border-gray-100 dark:border-gray-700 animate-fade-in-up">
+         <!-- Existing Comments -->
+         <div v-for="c in comments" :key="c.id" class="group/comment flex gap-2 text-sm items-start">
+             <div class="font-bold text-gray-800 dark:text-gray-200 text-xs whitespace-nowrap">{{ c.username }}:</div>
+             <div class="text-gray-600 dark:text-gray-300 flex-1 break-words">{{ c.content }}</div>
+             
+             <!-- Delete Comment Button (Admin or Author) -->
+             <button 
+                v-if="isAdmin || user?.id === c.user_id"
+                @click="deleteComment(c.id)"
+                class="opacity-0 group-hover/comment:opacity-100 text-gray-400 hover:text-red-500 transition px-1"
+                title="Elimina commento"
+             >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+             </button>
+         </div>
+
+         <!-- Add Comment -->
+         <div class="flex gap-2">
+             <input 
+                v-model="newComment"
+                type="text" 
+                placeholder="Scrivi un commento..." 
+                class="flex-1 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 dark:text-white"
+                @keyup.enter="postComment"
+             />
+             <button 
+                @click="postComment"
+                :disabled="!newComment.trim() || submitting"
+                class="text-blue-500 hover:text-blue-600 disabled:opacity-50 text-sm font-medium px-2"
+             >
+                Invia
+             </button>
+         </div>
+      </div>
+
     </div>
 
     <!-- Delete Action (Admin) -->
@@ -75,8 +125,35 @@ const props = defineProps({
 })
 const emit = defineEmits(['deleted', 'reaction-updated'])
 const router = useRouter()
-const { isAdmin } = useAuth()
+const { isAdmin, user } = useAuth()
 const { apiFetch } = useApi()
+
+const showComments = ref(false)
+const newComment = ref('')
+const submitting = ref(false)
+const localComments = ref([])
+
+onMounted(() => {
+    // Inizializza commenti se presenti nell'item (il backend li deve tornare)
+    // Se il backend non popola ancora i commenti nel feed principale, si potrebbero caricare on demand
+    // Per ora assumiamo che item.comments esista o lo inizializziamo vuoto
+    if (props.item.comments) {
+        localComments.value = [...props.item.comments]
+    }
+})
+
+const comments = computed(() => localComments.value)
+
+// Dynamic Avatar Color
+const avatarGivenColor = computed(() => {
+    const name = props.item.username || 'User'
+    let hash = 0
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const h = Math.abs(hash % 360)
+    return `linear-gradient(135deg, hsl(${h}, 70%, 60%), hsl(${h + 40}, 80%, 50%))`
+})
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -86,7 +163,7 @@ function formatDate(iso) {
 
 function goToMovie(id) {
     if(id) {
-        // Al momento non abbiamo una pagina dettaglio pubblica, ma potremmo averla
+       navigateTo(`/movies/${id}`)
     }
 }
 
@@ -98,6 +175,37 @@ async function deleteItem() {
     } catch (e) {
         console.error(e)
         alert('Errore eliminazione')
+    }
+}
+
+function toggleComments() {
+    showComments.value = !showComments.value
+}
+
+async function postComment() {
+    if (!newComment.value.trim()) return
+    submitting.value = true
+    try {
+        const added = await apiFetch(`/social/${props.item.id}/comments`, {
+            method: 'POST',
+            body: { content: newComment.value }
+        })
+        localComments.value.push(added)
+        newComment.value = ''
+    } catch (e) {
+        console.error(e)
+    } finally {
+        submitting.value = false
+    }
+}
+
+async function deleteComment(commentId) {
+    if (!confirm('Eliminare questo commento?')) return
+    try {
+        await apiFetch(`/social/${props.item.id}/comments/${commentId}`, { method: 'DELETE' })
+        localComments.value = localComments.value.filter(c => c.id !== commentId)
+    } catch (e) {
+        console.error(e)
     }
 }
 </script>

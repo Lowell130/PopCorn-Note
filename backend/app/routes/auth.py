@@ -56,6 +56,7 @@ async def me(user=Depends(get_current_user)):
         "email": user.get("email"),
         "username": user.get("username") or (user.get("email", "").split("@")[0] if user.get("email") else None),
         "is_admin": bool(user.get("is_admin", False)),
+        "watchlist": user.get("watchlist", [])
     }
 
 @router.post("/refresh")

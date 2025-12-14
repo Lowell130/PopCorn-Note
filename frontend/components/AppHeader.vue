@@ -13,27 +13,32 @@
       </NuxtLink>
 
       <!-- Desktop Menu -->
-      <div class="hidden md:flex items-center gap-8">
+      <div class="hidden md:flex items-center gap-4">
         <!-- Links -->
         <template v-if="isLoggedIn">
-          <NuxtLink to="/" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Dashboard</NuxtLink>
-          <NuxtLink to="/news" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">News</NuxtLink>
-          <NuxtLink to="/stats" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Statistiche</NuxtLink>
-          <NuxtLink to="/community" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Community</NuxtLink>
-          <NuxtLink v-if="isAdmin" to="/admin/users" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider text-yellow-400 hover:!text-yellow-300" active-class="!text-white">Admin</NuxtLink>
+          <NuxtLink to="/" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Dashboard</NuxtLink>
+
+          <NuxtLink to="/watchlist" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Watchlist</NuxtLink>
+          <NuxtLink to="/news" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">News</NuxtLink>
+          <NuxtLink to="/stats" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Statistiche</NuxtLink>
+          <NuxtLink to="/community" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Community</NuxtLink>
+          <NuxtLink v-if="isAdmin" to="/admin/users" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider text-yellow-400 hover:!text-yellow-300" active-class="!text-white">Admin</NuxtLink>
         </template>
 
+        <!-- Support Button -->
+        <SupportButton variant="solid" label="Sostienici" class="mr-2" />
+
         <!-- Auth Buttons -->
-        <div class="flex items-center gap-4 ml-4 pl-4 border-l border-white/10">
+        <div class="flex items-center gap-3 ml-2 pl-2 border-l border-white/10">
           <template v-if="!isLoggedIn">
-            <NuxtLink to="/login" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Accedi</NuxtLink>
-            <NuxtLink to="/register" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40">
+            <NuxtLink to="/login" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Accedi</NuxtLink>
+            <NuxtLink to="/register" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-medium transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40">
               Inizia gratis
             </NuxtLink>
           </template>
           <template v-else>
-            <NuxtLink to="/settings" class="text-sm font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Impostazioni</NuxtLink>
-            <button @click="onLogout" class="px-4 py-1.5 border border-white/20 hover:bg-white/10 text-white rounded-full text-xs font-medium transition-all">
+            <NuxtLink to="/settings" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Impostazioni</NuxtLink>
+            <button @click="onLogout" class="px-3 py-1 border border-white/20 hover:bg-white/10 text-white rounded-full text-[10px] font-medium transition-all">
               Logout
             </button>
           </template>
@@ -103,6 +108,10 @@
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Menu</span>
               </div>
               
+              <NuxtLink to="/watchlist" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
+                 Watchlist
+              </NuxtLink>
+
               <NuxtLink to="/" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
                 Dashboard
               </NuxtLink>
@@ -132,6 +141,12 @@
               <button @click="onLogout" class="w-full text-left group flex items-center px-3 py-3 text-base font-medium text-red-500 rounded-xl hover:bg-red-500/10 transition-all">
                 Esci
               </button>
+              
+               <div class="h-px bg-white/10 my-4 mx-3"></div>
+
+               <div class="px-3">
+                 <SupportButton label="Sostienici" class="w-full justify-center" />
+               </div>
             </template>
           </div>
         </div>

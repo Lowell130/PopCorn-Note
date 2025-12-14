@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-1 flex-wrap mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+  <div class="flex items-center gap-1 flex-wrap">
     <button
       v-for="reaction in reactionTypes"
       :key="reaction.type"

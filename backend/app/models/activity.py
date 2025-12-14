@@ -18,5 +18,8 @@ class Activity(BaseModel):
     
     # Reactions: lista di {user_id, type, created_at}
     reactions: list = Field(default_factory=list)
+
+    # Comments: lista di {id, user_id, username, content, created_at}
+    comments: list = Field(default_factory=list)
     
     created_at: datetime = Field(default_factory=datetime.utcnow)

@@ -65,9 +65,10 @@
               </span>
             </div>
 
-            <!-- Action Buttons Row (Optional future actions) -->
-             <div class="pt-4 flex gap-3" v-if="false">
-                 <!-- Placeholder per pulsanti "Play", "Aggiungi a lista", ecc. -->
+            <!-- Action Buttons Row -->
+             <div class="pt-4 flex flex-wrap gap-3">
+                 <WatchlistButton :item="movie" type="movie" />
+                 <ShareButton :title="movie.title" text="Ho appena guardato questo film:" />
              </div>
           </div>
         </div>

@@ -120,3 +120,79 @@ async def unreact_to_activity(activity_id: str, user=Depends(get_current_user)):
     
     return {"success": True}
 
+    return {"success": True}
+
+
+@router.post("/{activity_id}/comments")
+async def add_comment(
+    activity_id: str,
+    content: str = Body(..., embed=True),
+    user=Depends(get_current_user)
+):
+    """
+    Aggiungi un commento a un'attività.
+    """
+    from bson import ObjectId
+    import uuid
+    
+    if not content.strip():
+        raise HTTPException(status_code=400, detail="Il commento non può essere vuoto")
+        
+    comment_id = str(uuid.uuid4())
+    user_id = str(user["_id"])
+    username = user.get("username") or user["email"].split("@")[0]
+    
+    new_comment = {
+        "id": comment_id,
+        "user_id": user_id,
+        "username": username,
+        "content": content,
+        "created_at": datetime.utcnow()
+    }
+    
+    result = await db["activities"].update_one(
+        {"_id": ObjectId(activity_id)},
+        {"$push": {"comments": new_comment}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Activity not found")
+        
+    return new_comment
+
+
+@router.delete("/{activity_id}/comments/{comment_id}")
+async def delete_comment(
+    activity_id: str,
+    comment_id: str,
+    user=Depends(get_current_user)
+):
+    """
+    Rimuovi un commento.
+    """
+    from bson import ObjectId
+    
+    # Per ora permettiamo a chiunque sia l'autore O admin di eliminare
+    # La logica di verifica permessi andrebbe qui, ma per semplicità facciamo $pull diretto con query
+    
+    # Se admin, rimuovi ovunque
+    if user.get("is_admin"):
+        query = {"_id": ObjectId(activity_id)}
+        pull = {"comments": {"id": comment_id}}
+    else:
+        # Se utente normale, rimuovi solo se è suo
+        query = {"_id": ObjectId(activity_id)}
+        pull = {"comments": {"id": comment_id, "user_id": str(user["_id"])}}
+        
+    result = await db["activities"].update_one(query, {"$pull": pull})
+    
+    if result.modified_count == 0:
+        # Potrebbe non esistere o non avere permessi
+        # Verifichiamo esistenza activity
+        act = await db["activities"].find_one({"_id": ObjectId(activity_id)})
+        if not act:
+            raise HTTPException(status_code=404, detail="Activity not found")
+        # Se esiste, allora o commento non trovato o permessi negati
+        raise HTTPException(status_code=403, detail="Impossibile eliminare commento (non trovato o permessi negati)")
+        
+    return {"success": True}

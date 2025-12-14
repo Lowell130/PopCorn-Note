@@ -19,4 +19,5 @@ class UserOut(BaseModel):
     id: str
     email: EmailStr
     username: str
+    watchlist: list[dict] = []
     is_admin: bool = False

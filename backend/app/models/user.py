@@ -7,3 +7,4 @@ class User(BaseModel):
     email: EmailStr
     username: str
     hashed_password: str
+    watchlist: list[dict] = []
