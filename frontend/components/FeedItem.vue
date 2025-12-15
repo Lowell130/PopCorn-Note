@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex gap-4 animate-fade-in-up">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-3 md:p-5 flex gap-3 md:gap-4 animate-fade-in-up">
     
     <!-- Avatar -->
     <div class="flex-shrink-0">
@@ -48,7 +48,7 @@
       </div>
 
       <!-- Actions Bar -->
-      <div class="flex items-center flex-wrap gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
           <ReactionBar 
             :activity-id="item.id" 
             :reactions="item.reactions || []"
@@ -58,7 +58,7 @@
           <!-- Comment Toggle -->
           <button 
             @click="toggleComments"
-            class="flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 transition px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+            class="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 transition px-3 py-2 sm:py-1.5 w-full sm:w-auto rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
             <span>{{ comments.length ? comments.length : 'Commenta' }}</span>
@@ -66,7 +66,7 @@
       </div>
 
       <!-- Comments Section -->
-      <div v-if="showComments" class="mt-3 space-y-3 pl-2 border-l-2 border-gray-100 dark:border-gray-700 animate-fade-in-up">
+      <div v-if="showComments" class="mt-3 space-y-3 pl-2 md:pl-4 border-l-2 border-gray-100 dark:border-gray-700 animate-fade-in-up">
          <!-- Existing Comments -->
          <div v-for="c in comments" :key="c.id" class="group/comment flex gap-2 text-sm items-start">
              <div class="font-bold text-gray-800 dark:text-gray-200 text-xs whitespace-nowrap">{{ c.username }}:</div>

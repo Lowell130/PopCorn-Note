@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto py-8">
+  <div class="max-w-4xl mx-auto py-4 md:py-8 px-4 md:px-0">
     
     <div class="flex items-center justify-between mb-8 animate-fade-in">
         <div>
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Compose Box -->
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 animate-fade-in">
+    <div class="bg-white dark:bg-gray-800 p-3 md:p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 animate-fade-in">
         <textarea
             v-model="newPostContent"
             rows="2"
