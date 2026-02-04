@@ -189,11 +189,22 @@
                   </div>
               </div>
 
-               <!-- Player Frame -->
+
+
+
+
+               <!-- Player Frame and Controls Wrapper -->
                <ClientOnly>
-                <div v-if="playerUrl" class="rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 bg-black relative z-10 min-h-[200px] md:min-h-[360px]">
-                  <div class="aspect-video w-full">
+                <div 
+                  v-if="playerUrl" 
+                  ref="playerContainer" 
+                  class="rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 bg-black relative z-10 min-h-[200px] md:min-h-[360px] group"
+                  @mousemove="handleMouseMove"
+                  @mouseleave="handleMouseLeave"
+                >
+                  <div class="aspect-video w-full relative z-0">
                      <iframe
+                      ref="playerIframe"
                       :key="playerUrl"
                       :src="playerUrl"
                       class="w-full h-full"
@@ -201,6 +212,58 @@
                       allow="autoplay; fullscreen; encrypted-media"
                       referrerpolicy="no-referrer"
                     ></iframe>
+                  </div>
+
+                  <!-- Overlay Controls (Visible on mouse move) -->
+                  <div 
+                    class="absolute inset-0 z-20 flex items-end justify-center pb-8 transition-opacity duration-300 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent"
+                    :class="showControls ? 'opacity-100' : 'opacity-0'"
+                  >
+                     
+                     <!-- Centered Control Pill -->
+                     <div class="flex items-center gap-6 px-6 py-3 rounded-full bg-black/50 backdrop-blur-md border border-white/10 shadow-2xl pointer-events-auto transform transition hover:scale-105 hover:bg-black/70">
+                        
+                        <!-- Autoplay Toggle -->
+                        <div class="flex items-center gap-3 border-r border-white/10 pr-6">
+                           <label class="inline-flex items-center cursor-pointer">
+                              <input type="checkbox" v-model="autoplayEnabled" class="sr-only peer">
+                              <div class="relative w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                              <span class="ms-2 text-xs font-bold text-gray-200 uppercase tracking-wider">Autoplay</span>
+                            </label>
+                        </div>
+
+                        <!-- Navigation & Fullscreen -->
+                        <div class="flex items-center gap-3">
+                           <button 
+                             @click="prevEpisode"
+                             :disabled="!canPrev"
+                             class="p-2 rounded-full bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition text-white"
+                             title="Episodio precedente"
+                           >
+                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg> <!-- Material Design Skip Previous -->
+                           </button>
+       
+                           <button 
+                             @click="nextEpisode"
+                             :disabled="!canNext"
+                             class="p-2 rounded-full bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition text-white"
+                             title="Episodio successivo"
+                           >
+                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg> <!-- Material Design Skip Next -->
+                           </button>
+       
+                           <!-- Fullscreen Toggle -->
+                           <button 
+                             @click="toggleFullscreen"
+                             class="ml-2 p-2 rounded-full bg-white/5 hover:bg-white/20 transition text-white"
+                             :title="isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'"
+                           >
+                              <svg v-if="!isFullscreen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.25m4.75 0v4.75m0-4.75l-4.75 4.75M14 10h4.75m-4.75 0V5.25m0 4.75l4.75-4.75"></path></svg>
+                           </button>
+                        </div>
+
+                     </div>
                   </div>
                 </div>
               </ClientOnly>
@@ -330,6 +393,67 @@ const lastWatchedTooltip = computed(() => {
 })
 
 const initializedSeasons = ref(false)
+const autoplayEnabled = ref(true)
+
+// Navigation Computeds
+const canNext = computed(() => {
+  if (!episodes.value.length) return false
+  // C'è un episodio dopo quello corrente?
+  const curr = selectedEpisode.value
+  const hasNextInSeason = episodes.value.some(e => e.episode_number === curr + 1)
+  if (hasNextInSeason) return true
+  
+  // C'è una stagione successiva?
+  const currSeas = selectedSeason.value
+  const hasNextSeason = seasons.value.some(s => s.season_number === currSeas + 1)
+  return hasNextSeason
+})
+
+const canPrev = computed(() => {
+  if (!episodes.value.length) return false
+  const curr = selectedEpisode.value
+  // C'è un episodio prima?
+  const hasPrevInSeason = episodes.value.some(e => e.episode_number === curr - 1)
+  if (hasPrevInSeason) return true
+  
+  // C'è una stagione precedente?
+  const currSeas = selectedSeason.value
+  const hasPrevSeason = seasons.value.some(s => s.season_number === currSeas - 1)
+  return hasPrevSeason
+})
+
+// Navigation Actions
+async function nextEpisode() {
+  if (!canNext.value) return
+  
+  const currentEpNum = selectedEpisode.value
+  const nextEp = episodes.value.find(e => e.episode_number === currentEpNum + 1)
+  
+  if (nextEp) {
+    selectedEpisode.value = nextEp.episode_number
+  } else {
+    // Next season
+    selectedSeason.value = selectedSeason.value + 1
+    // Il watcher gestirà il caricamento
+  }
+}
+
+async function prevEpisode() {
+  if (!canPrev.value) return
+
+  const currentEpNum = selectedEpisode.value
+  const prevEp = episodes.value.find(e => e.episode_number === currentEpNum - 1)
+  
+  if (prevEp) {
+    selectedEpisode.value = prevEp.episode_number
+  } else {
+    // Prev season
+    const prevSeasNum = selectedSeason.value - 1
+    if (prevSeasNum < 1) return
+    
+    selectedSeason.value = prevSeasNum
+  }
+}
 
 // carica stagioni/episodi la prima volta che abbiamo un tmdb_id
 watch(
@@ -377,7 +501,7 @@ const playerUrl = computed(() => {
   const s = selectedSeason.value
   const e = selectedEpisode.value
   return (id && s && e)
-    ? `https://vixsrc.to/tv/${id}/${s}/${e}?lang=it&_=${Date.now()}`
+    ? `https://vixsrc.to/tv/${id}/${s}/${e}?lang=it`
     : null
 })
 
@@ -414,19 +538,146 @@ async function markCurrentAsWatched() {
   }
 }
 
+
+
 // Heartbeat sessione
 const { refreshToken } = useAuth()
 let refreshInterval = null
 
+const showControls = ref(false)
+let controlsTimeout = null
+
+function handleMouseMove() {
+  showControls.value = true
+  if (controlsTimeout) clearTimeout(controlsTimeout)
+  controlsTimeout = setTimeout(() => {
+    showControls.value = false
+  }, 3000)
+}
+
+function handleMouseLeave() {
+  if (controlsTimeout) clearTimeout(controlsTimeout)
+  showControls.value = false
+}
+
+const playerContainer = ref(null)
+const isFullscreen = ref(false)
+
+function toggleFullscreen() {
+  if (!playerContainer.value) {
+    toast?.show?.('error', 'Player non disponibile')
+    return
+  }
+
+  const doc = document
+  const el = playerContainer.value
+  
+  // Cross-browser fullscreen element check
+  const fullscreenElement = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement
+
+  if (!fullscreenElement) {
+    // Request Fullscreen (Cross-browser)
+    const requestFs = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen
+    
+    if (requestFs) {
+      requestFs.call(el).catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`)
+        toast?.show?.('error', `Errore Fullscreen: ${err.message}`)
+      })
+    } else {
+      toast?.show?.('error', 'Fullscreen non supportato dal browser')
+    }
+  } else {
+    // Exit Fullscreen (Cross-browser)
+    const exitFs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen
+    
+    if (exitFs) {
+      exitFs.call(doc)
+    }
+  }
+}
+
+function onFullscreenChange() {
+  const doc = document
+  isFullscreen.value = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement)
+}
+
+/**
+ * Gestione ciclo di vita
+ */
 onMounted(() => {
   refreshInterval = setInterval(() => {
     refreshToken()
-  }, 9 * 60 * 1000) 
+  }, 9 * 60 * 1000)
+  
+  window.addEventListener('message', handlePlayerMessage)
+  document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onUnmounted(() => {
   if (refreshInterval) clearInterval(refreshInterval)
+  window.removeEventListener('message', handlePlayerMessage)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
+
+
+function handlePlayerMessage(event) {
+  let data = event.data
+  
+  // A volte i messaggi arrivano come stringhe JSON
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data)
+    } catch (e) {
+      // Non è un JSON valido, ignoriamo
+      return
+    }
+  }
+
+  // Filtra solo gli eventi attesi
+  if (data?.type !== 'PLAYER_EVENT') return
+  
+  const payload = data.data
+  
+  if (payload?.event === 'ended') {
+    handleEpisodeEnded()
+  }
+}
+
+
+async function handleEpisodeEnded() {
+  // 1. Segna come visto
+  await markCurrentAsWatched()
+  
+  // Se l'autoplay è disabilitato, ci fermiamo qui (dopo aver salvato il progresso)
+  if (!autoplayEnabled.value) return
+
+  // 2. Calcola prossimo episodio
+  const currentEpNum = selectedEpisode.value
+  const currentSeasonNum = selectedSeason.value
+  
+  // Cerca nell'array episodi corrente se c'è un successivo
+  // episodes.value è ordinato? Di solito sì da TMDB, ma cerchiamo per sicurezza
+  // Assumiamo che episode_number sia sequenziale
+  const nextInSeason = episodes.value.find(e => e.episode_number === currentEpNum + 1)
+  
+  if (nextInSeason) {
+    // Caso semplice: prossimo episodio nella stessa stagione
+    toast?.show?.('info', `Riproduzione episodio successivo: S${currentSeasonNum} E${nextInSeason.episode_number}`, 3000)
+    selectedEpisode.value = nextInSeason.episode_number
+  } else {
+    // Caso fine stagione: cerchiamo la prossima stagione
+    const nextSeasNum = currentSeasonNum + 1
+    const nextSeasonExists = seasons.value.find(s => s.season_number === nextSeasNum)
+    
+    if (nextSeasonExists) {
+      toast?.show?.('info', `Inizio prossima stagione: S${nextSeasNum}`, 3000)
+      selectedSeason.value = nextSeasNum
+    } else {
+      toast?.show?.('success', 'Hai completato la serie!', 5000)
+    }
+  }
+}
 
 
 function handleUpdated(updatedItem) {
