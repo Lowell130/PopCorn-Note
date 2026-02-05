@@ -108,6 +108,7 @@
           <!-- Azioni -->
            <div class="mt-4 flex items-center justify-between gap-4">
             <button
+              v-if="!it.local_id"
               class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
               :disabled="addingKey === keyOf(it)"
               @click="quickAdd(it)"
@@ -123,6 +124,17 @@
               </span>
             </button>
 
+            <NuxtLink
+              v-else
+              :to="it.kind==='tv' ? `/tv/${it.local_id}` : `/movies/${it.local_id}`"
+              class="text-green-800 bg-green-100 hover:bg-green-200 border border-green-200 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-1"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              In Lista
+            </NuxtLink>
+
             <a type="button"
               :href="`https://www.themoviedb.org/${it.kind==='tv'?'tv':'movie'}/${it.tmdb_id}`"
               target="_blank" rel="noopener"
@@ -135,11 +147,13 @@
       </article>
     </div>
 
-    <!-- Paginazione -->
-    <div class="flex justify-center items-center gap-4 mt-6" v-if="totalPages > 1">
+    <!-- Paginazione Avanzata -->
+    <div class="flex justify-center items-center gap-2 mt-8 select-none" v-if="totalPages > 1">
+      
+      <!-- Previous -->
       <button
         type="button"
-        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         :disabled="page <= 1 || loading"
         @click="goPrev()"
       >
@@ -149,19 +163,52 @@
         Prec
       </button>
 
-      <span class="text-sm opacity-70">Pagina {{ page }} / {{ totalPages }}</span>
+      <!-- Page Numbers (hidden on small screens) -->
+      <div class="hidden sm:flex items-center gap-1">
+        <template v-for="(p, idx) in visiblePages" :key="idx">
+          
+          <button
+            v-if="p === '...'"
+            type="button"
+            class="px-3 py-2 text-sm font-medium text-gray-700 bg-transparent cursor-default dark:text-gray-400"
+          >
+            ...
+          </button>
+          
+          <button
+            v-else
+            type="button"
+            @click="goToPage(p)"
+            :class="[
+              'px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+              page === p
+                ? 'text-white bg-blue-600 border border-blue-600'
+                : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+            ]"
+          >
+            {{ p }}
+          </button>
+        </template>
+      </div>
 
+      <!-- Mobile Indicator (visible only on small) -->
+      <span class="sm:hidden text-sm text-gray-600 dark:text-gray-400">
+        {{ page }} / {{ totalPages }}
+      </span>
+
+      <!-- Next -->
       <button
         type="button"
-        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         :disabled="page >= totalPages || loading"
         @click="goNext()"
       >
         Succ
-        <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" fill="none" viewBox="0 0 14 10">
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" fill="none" viewBox="0 0 14 10">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
         </svg>
       </button>
+
     </div>
   </section>
 </template>
@@ -286,6 +333,41 @@ async function goNext() {
   await refetch()
   scrollToTopSmooth()
 }
+
+async function goToPage(p) {
+  if (p === page.value || loading.value) return
+  page.value = p
+  await refetch()
+  scrollToTopSmooth()
+}
+
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = page.value
+  const delta = 1 // numero pagine adiacenti
+  const range = []
+  const rangeWithDots = []
+  let l
+
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+      range.push(i)
+    }
+  }
+
+  for (let i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1)
+      } else if (i - l !== 1) {
+        rangeWithDots.push('...')
+      }
+    }
+    rangeWithDots.push(i)
+    l = i
+  }
+  return rangeWithDots
+})
 
 </script>
 

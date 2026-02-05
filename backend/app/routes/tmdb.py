@@ -4,6 +4,7 @@ from app.config import settings
 from app.dependencies import get_current_user
 import httpx
 import asyncio
+from app.db import db
 
 router = APIRouter(prefix="/tmdb", tags=["TMDb"])
 BASE = "https://api.themoviedb.org/3"
@@ -290,13 +291,37 @@ async def tmdb_trending(
         data = r.json()
 
     base_img = "https://image.tmdb.org/t/p/w500"
+    
+    # 1. Raccolgo i risultati grezzi
+    raw_results = data.get("results", [])
+    
+    # 2. Estraggo gli ID TMDB per fare una query al DB locale
+    tmdb_ids = [m.get("id") for m in raw_results if m.get("id")]
+    
+    # 3. Mappa tmdb_id -> local_id per l'utente corrente
+    existing_map = {}
+    if tmdb_ids:
+        # Cerco nel DB i film/serie che scemano con questi tmdb_id e appartengono all'utente
+        cursor = db["movies"].find({
+            "user_id": str(user["_id"]),
+            "tmdb_id": {"$in": tmdb_ids}
+        }, projection={"_id": 1, "tmdb_id": 1})
+        
+        async for doc in cursor:
+            # doc["_id"] è ObjectId, lo converto a stringa
+            t_id = doc.get("tmdb_id")
+            if t_id:
+                existing_map[t_id] = str(doc["_id"])
+
     items = []
-    for m in data.get("results", []):
+    for m in raw_results:
         mtype = m.get("media_type") or ("movie" if "title" in m else "tv")
         title = m.get("title") or m.get("name")
         release_date = m.get("release_date") or m.get("first_air_date")
+        t_id = m.get("id")
+        
         items.append({
-            "id": m.get("id"),
+            "id": t_id,
             "kind": "movie" if mtype == "movie" else ("tv" if mtype == "tv" else None),
             "title": title,
             "release_date": release_date,
@@ -306,7 +331,8 @@ async def tmdb_trending(
             "vote_average": m.get("vote_average"),
             "vote_count": m.get("vote_count"),
             "popularity": m.get("popularity"),
-            "tmdb_id": m.get("id"),
+            "tmdb_id": t_id,
+            "local_id": existing_map.get(t_id)  # <--- Ecco il campo popolato se esiste
         })
 
     return {
