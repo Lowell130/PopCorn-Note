@@ -327,7 +327,51 @@
 </template>
 
 <style scoped>
-/* No custom css */
+/* Gestione Fullscreen nativo */
+:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: black !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:fullscreen .aspect-video {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: unset !important;
+}
+
+:fullscreen iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Compatibilità WebKit (Safari/iOS) */
+:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: black !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:-webkit-full-screen .aspect-video {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: unset !important;
+}
+
+:-webkit-full-screen iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
 </style>
 
 <script setup>
