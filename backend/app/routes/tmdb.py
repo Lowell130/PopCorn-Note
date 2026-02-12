@@ -408,12 +408,28 @@ async def movie_recommendations(
         data = r.json()
 
     base_img = "https://image.tmdb.org/t/p/w500"
+    raw_results = data.get("results", [])
+
+    # Enrich with local_id
+    tmdb_ids = [m.get("id") for m in raw_results if m.get("id")]
+    existing_map = {}
+    if tmdb_ids:
+        cursor = db["movies"].find({
+            "user_id": str(user["_id"]),
+            "tmdb_id": {"$in": tmdb_ids}
+        }, projection={"_id": 1, "tmdb_id": 1})
+        async for doc in cursor:
+            t_id = doc.get("tmdb_id")
+            if t_id:
+                existing_map[t_id] = str(doc["_id"])
+
     items = []
-    for m in data.get("results", []):
+    for m in raw_results:
         title = m.get("title")
         release_date = m.get("release_date")
+        t_id = m.get("id")
         items.append({
-            "id": m.get("id"),
+            "id": t_id,
             "kind": "movie",
             "title": title,
             "release_date": release_date,
@@ -421,7 +437,8 @@ async def movie_recommendations(
             "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
             "overview": m.get("overview") or None,
             "vote_average": m.get("vote_average"),
-            "tmdb_id": m.get("id"),
+            "tmdb_id": t_id,
+            "local_id": existing_map.get(t_id)
         })
 
     return {
@@ -449,12 +466,28 @@ async def tv_recommendations(
         data = r.json()
 
     base_img = "https://image.tmdb.org/t/p/w500"
+    raw_results = data.get("results", [])
+
+    # Enrich with local_id
+    tmdb_ids = [m.get("id") for m in raw_results if m.get("id")]
+    existing_map = {}
+    if tmdb_ids:
+        cursor = db["movies"].find({
+            "user_id": str(user["_id"]),
+            "tmdb_id": {"$in": tmdb_ids}
+        }, projection={"_id": 1, "tmdb_id": 1})
+        async for doc in cursor:
+            t_id = doc.get("tmdb_id")
+            if t_id:
+                existing_map[t_id] = str(doc["_id"])
+
     items = []
-    for m in data.get("results", []):
+    for m in raw_results:
         title = m.get("name")
         first_air = m.get("first_air_date")
+        t_id = m.get("id")
         items.append({
-            "id": m.get("id"),
+            "id": t_id,
             "kind": "tv",
             "title": title,
             "release_date": first_air,
@@ -462,7 +495,8 @@ async def tv_recommendations(
             "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
             "overview": m.get("overview") or None,
             "vote_average": m.get("vote_average"),
-            "tmdb_id": m.get("id"),
+            "tmdb_id": t_id,
+            "local_id": existing_map.get(t_id)
         })
 
     return {

@@ -88,6 +88,7 @@
 
             <div class="mt-4 flex items-center justify-between gap-4">
             <button
+              v-if="!it.local_id"
               class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-4 py-2 disabled:opacity-60"
               :disabled="addingKey === keyOf(it)"
               @click="quickAdd(it)"
@@ -102,6 +103,17 @@
                 Salvo…
               </span>
             </button>
+
+            <NuxtLink
+              v-else
+              :to="it.kind==='tv' ? `/tv/${it.local_id}` : `/movies/${it.local_id}`"
+              class="text-green-800 bg-green-100 hover:bg-green-200 border border-green-200 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-1"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              In Lista
+            </NuxtLink>
 
             <a type="button"
               :href="`https://www.themoviedb.org/${it.kind==='tv'?'tv':'movie'}/${it.tmdb_id}`"
@@ -186,6 +198,13 @@ async function quickAdd(it) {
     }
 
     const saved = await apiFetch('/movies/', { method: 'POST', body })
+    
+    // Update local_id to show "In List" button
+    const idx = items.value.findIndex(x => keyOf(x) === keyOf(it))
+    if (idx !== -1) {
+      items.value[idx].local_id = saved.id
+    }
+
     // feedback
     if (toast?.show) toast.show('success', `"${saved.title}" aggiunto!`)
     else alert(`"${saved.title}" aggiunto!`)
