@@ -61,7 +61,7 @@
               <span v-if="movie.release_year && movie.runtime" class="text-gray-600">•</span>
               <span v-if="movie.runtime">{{ movie.runtime }} min</span>
               <span v-if="movie.director">
-                <span class="text-gray-600">•</span> Regia di <span class="text-white font-normal">{{ movie.director }}</span>
+                <span class="text-gray-600">•</span> Regia di <NuxtLink :to="{ path: '/dashboard', query: { director: movie.director } }" class="text-blue-400 hover:text-blue-300 transition font-normal hover:underline">{{ movie.director }}</NuxtLink>
               </span>
             </div>
 
@@ -153,13 +153,14 @@
               <div v-if="movie.cast?.length">
                 <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Cast Principale</h4>
                 <div class="flex flex-wrap gap-2">
-                  <span 
+                  <NuxtLink 
                     v-for="actor in movie.cast.slice(0, 10)" 
-                    :key="actor" 
-                    class="px-3 py-1 bg-black/40 hover:bg-black/60 transition rounded-full text-xs text-gray-200 border border-white/5"
+                    :key="actor"
+                    :to="{ path: '/dashboard', query: { cast: actor } }" 
+                    class="px-3 py-1 bg-black/40 hover:bg-blue-900/40 transition rounded-full text-xs text-gray-200 hover:text-blue-300 border border-white/5 hover:border-blue-500/30 cursor-pointer"
                   >
                     {{ actor }}
-                  </span>
+                  </NuxtLink>
                 </div>
               </div>
 
@@ -169,7 +170,7 @@
               <div class="space-y-4 text-sm">
                  <div v-if="movie.director">
                   <span class="block text-gray-500 mb-1">Regia</span>
-                  <span class="text-white font-medium text-base">{{ movie.director }}</span>
+                  <NuxtLink :to="{ path: '/dashboard', query: { director: movie.director } }" class="text-white hover:text-blue-400 transition font-medium text-base hover:underline">{{ movie.director }}</NuxtLink>
                 </div>
                 <div v-if="movie.release_date">
                   <span class="block text-gray-500 mb-1">Data Uscita</span>

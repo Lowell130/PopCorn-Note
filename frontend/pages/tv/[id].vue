@@ -61,7 +61,7 @@
               <span v-if="item.release_year && item.runtime" class="text-gray-600">•</span>
               <span v-if="item.runtime">{{ item.runtime }} min/ep</span>
               <span v-if="item.director">
-                <span class="text-gray-600">•</span> Creatore: <span class="text-white font-normal">{{ item.director }}</span>
+                <span class="text-gray-600">•</span> Creatore: <NuxtLink :to="{ path: '/dashboard', query: { director: item.director } }" class="text-blue-400 hover:text-blue-300 transition font-normal hover:underline">{{ item.director }}</NuxtLink>
               </span>
             </div>
             
@@ -277,13 +277,14 @@
                <div v-if="item.cast?.length">
                 <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Cast Principale</h4>
                 <div class="flex flex-wrap gap-2">
-                  <span 
+                  <NuxtLink 
                     v-for="actor in item.cast.slice(0, 8)" 
-                    :key="actor" 
-                    class="px-3 py-1 bg-black/40 hover:bg-black/60 transition rounded-full text-xs text-gray-200 border border-white/5"
+                    :key="actor"
+                    :to="{ path: '/dashboard', query: { cast: actor } }" 
+                    class="px-3 py-1 bg-black/40 hover:bg-blue-900/40 transition rounded-full text-xs text-gray-200 border border-white/5 hover:border-blue-500/30 hover:text-blue-300"
                   >
                     {{ actor }}
-                  </span>
+                  </NuxtLink>
                 </div>
               </div>
 
@@ -292,7 +293,7 @@
               <div class="space-y-4 text-sm">
                  <div v-if="item.director">
                   <span class="block text-gray-500 mb-1">Creatore</span>
-                  <span class="text-white font-medium text-base">{{ item.director }}</span>
+                  <NuxtLink :to="{ path: '/dashboard', query: { director: item.director } }" class="text-white hover:text-blue-300 hover:underline transition font-medium text-base">{{ item.director }}</NuxtLink>
                 </div>
                 <div v-if="item.release_date">
                   <span class="block text-gray-500 mb-1">Prima TV</span>

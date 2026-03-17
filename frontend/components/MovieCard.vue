@@ -86,11 +86,11 @@
 </div>
         <ul class="mt-3 flex items-center gap-4 text-xs text-gray-600">
           <li v-if="movie.director" class="flex items-center gap-2">
-     Regia:<a
-              :href="directorUrl"
+     Regia:<NuxtLink
+              :to="{ path: '/dashboard', query: { director: movie.director } }"
               class="font-medium text-blue-700 hover:underline"
             >{{ movie.director }}
-            </a>
+            </NuxtLink>
           </li>
           <li v-else class="flex items-center gap-2">
            

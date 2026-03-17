@@ -98,6 +98,22 @@
   </button>
 </div>
 
+    <!-- Active Filters Badges -->
+    <div v-if="directorFilter || castFilter" class="mb-4 flex gap-2 flex-wrap">
+      <div v-if="directorFilter" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-sm">
+        <span>Regista: <strong>{{ directorFilter }}</strong></span>
+        <button @click="clearDirectorFilter" class="hover:bg-blue-200 p-0.5 rounded-full">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div v-if="castFilter" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 text-sm">
+        <span>Attore: <strong>{{ castFilter }}</strong></span>
+        <button @click="clearCastFilter" class="hover:bg-purple-200 p-0.5 rounded-full">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>
+
     <!-- Griglia card -->
     <div class="space-y-8">
       <!-- Recommendations Section -->
@@ -283,6 +299,9 @@ import MovieFiltersSidebar from '@/components/MovieFiltersSidebar.vue'
 
 definePageMeta({ layout: 'wide' })
 
+const route = useRoute()
+const router = useRouter()
+
 const { user, isLoggedIn, init } = useAuth()   // 👈
 onMounted(() => { init() })        
 
@@ -340,6 +359,37 @@ const sortBy = ref('created_at_desc')
 const kind = ref('')
 const isFiltersOpen = ref(false) // 👈 AGGIUNGI QUESTO
 
+const directorFilter = ref(route.query.director || '')
+const castFilter = ref(route.query.cast || '')
+
+// sync with route changes
+watch(() => route.query, (newQuery) => {
+  if (newQuery.director !== directorFilter.value) {
+    directorFilter.value = newQuery.director || ''
+    fetchMovies({ reset: true })
+  }
+  if (newQuery.cast !== castFilter.value) {
+    castFilter.value = newQuery.cast || ''
+    fetchMovies({ reset: true })
+  }
+})
+
+function clearDirectorFilter() {
+  directorFilter.value = ''
+  const query = { ...route.query }
+  delete query.director
+  router.push({ query })
+  fetchMovies({ reset: true })
+}
+
+function clearCastFilter() {
+  castFilter.value = ''
+  const query = { ...route.query }
+  delete query.cast
+  router.push({ query })
+  fetchMovies({ reset: true })
+}
+
 const limit = 20
 let skip = 0
 const hasMore = ref(true)
@@ -383,6 +433,8 @@ async function fetchMovies({ reset = false } = {}) {
     if (status.value) params.set('status', status.value)
     if (q.value.trim()) params.set('q', q.value.trim())
     if (kind.value) params.set('kind', kind.value)
+    if (directorFilter.value) params.set('director', directorFilter.value)
+    if (castFilter.value) params.set('cast', castFilter.value)
     if (!status.value) params.set('priority_status', 'watching') // priorità "watching" in cima
     params.set('push_last_status', 'watched') // "watched" sempre in fondo
 

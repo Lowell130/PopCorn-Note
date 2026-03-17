@@ -91,8 +91,39 @@
         Reset filtri
       </button>
     </div>
+
+    <!-- Top Registi -->
+    <div v-if="stats?.stats_advanced?.directors?.length" class="mt-6 border-t dark:border-gray-700 pt-4">
+      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">I tuoi registi preferiti</h3>
+      <div class="flex flex-wrap gap-2">
+        <NuxtLink
+          v-for="dir in stats.stats_advanced.directors"
+          :key="dir.name"
+          :to="{ path: '/dashboard', query: { director: dir.name } }"
+          class="px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition rounded-md text-xs text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-300 border border-gray-200 dark:border-gray-600 block w-max"
+        >
+          {{ dir.name }} <span class="text-gray-400 dark:text-gray-500">({{ dir.count }})</span>
+        </NuxtLink>
+      </div>
+    </div>
+
+    <!-- Top Attori -->
+    <div v-if="stats?.stats_advanced?.actors?.length" class="mt-4">
+      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">I tuoi attori preferiti</h3>
+      <div class="flex flex-wrap gap-2">
+        <NuxtLink
+          v-for="actor in stats.stats_advanced.actors"
+          :key="actor.name"
+          :to="{ path: '/dashboard', query: { cast: actor.name } }"
+          class="px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition rounded-md text-xs text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-300 border border-gray-200 dark:border-gray-600 block w-max"
+        >
+          {{ actor.name }} <span class="text-gray-400 dark:text-gray-500">({{ actor.count }})</span>
+        </NuxtLink>
+      </div>
+    </div>
+
       <!-- 📊 STATISTICHE SOTTO I FILTRI, NELLA STESSA CARD -->
-     <h2 class="text-lg font-semibold mb-1 mt-6">Statistiche</h2>
+     <h2 class="text-lg font-semibold mb-1 mt-6 border-t dark:border-gray-700 pt-4">Statistiche</h2>
      <p class="text-xs text-gray-500 mb-4 pb-2">Visualizza le statistiche della libreria </p>
     <DashboardStats v-if="stats" :stats="stats" />
   </aside>

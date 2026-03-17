@@ -138,6 +138,16 @@ async def movies_stats(user=Depends(get_current_user)):
     ]
     top_directors = await db["movies"].aggregate(dir_pipeline).to_list(length=5)
     
+    # 1.5 Top Actors (Top 5)
+    actor_pipeline = [
+        {"$match": {"user_id": uid, "cast": {"$exists": True, "$not": {"$size": 0}}}},
+        {"$unwind": "$cast"},
+        {"$group": {"_id": "$cast", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 5}
+    ]
+    top_actors = await db["movies"].aggregate(actor_pipeline).to_list(length=5)
+    
     # 2. Release Years Distribution (Ultimi 50 anni, raggruppati)
     # Per semplicità restituiamo raw list, il frontend raggruppa
     year_pipeline = [
@@ -164,7 +174,8 @@ async def movies_stats(user=Depends(get_current_user)):
         "watching": watching,
         "avg_score": avg_score,
         "stats_advanced": {
-            "directors": [{"name": x["_id"], "count": x["count"]} for x in top_directors],
+            "directors": [{"name": x["_id"], "count": x["count"]} for x in top_directors if x["_id"]],
+            "actors": [{"name": x["_id"], "count": x["count"]} for x in top_actors if x["_id"]],
             "years": [{"year": x["_id"], "count": x["count"]} for x in years_dist],
             "scores": [{"score": x["_id"], "count": x["count"]} for x in scores_dist],
         }
@@ -192,6 +203,8 @@ async def list_movies(
     priority_status: str | None = Query(None, regex="^(to_watch|watched|upcoming|watching)$"),
     # 👇 NUOVO: spinge questo status in fondo
     push_last_status: str | None = Query(None, regex="^(to_watch|watched|upcoming|watching)$"),
+    director: str | None = Query(None, description="Filtra per nome del regista"),
+    cast: str | None = Query(None, description="Filtra per nome di un attore nel cast"),
 ):
     and_clauses = [{"user_id": str(user["_id"])}]
     if status:
@@ -206,6 +219,12 @@ async def list_movies(
     if q:
         like = {"$regex": q, "$options": "i"}
         and_clauses.append({"$or": [{"title": like}, {"note": like}]})
+
+    if director:
+        and_clauses.append({"director": director})
+
+    if cast:
+        and_clauses.append({"cast": cast})
 
     filt = {"$and": and_clauses} if len(and_clauses) > 1 else and_clauses[0]
 

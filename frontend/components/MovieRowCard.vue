@@ -74,15 +74,13 @@
 
        <div v-if="movie.director">
   <span class="text-gray-500">Regia:</span>
-  <a
-    :href="directorUrl"
-    target="_blank"
-    rel="noopener"
+  <NuxtLink
+    :to="{ path: '/dashboard', query: { director: movie.director } }"
     class="font-medium text-blue-700 hover:underline"
-    :title="`Apri ${movie.director} su TMDb`"
+    :title="`Filtra libreria per ${movie.director}`"
   >
     {{ movie.director }}
-  </a>
+  </NuxtLink>
 </div>
 
 
@@ -90,7 +88,15 @@
 
         <div v-if="movie.cast?.length" class="col-span-2">
           <span class="text-gray-500">Cast:</span>
-          <span class="font-medium text-gray-900">{{ movie.cast.slice(0,3).join(', ') }}</span>
+          <span class="font-medium text-gray-900">
+            <template v-for="(actor, index) in movie.cast.slice(0,3)" :key="actor">
+              <NuxtLink
+                :to="{ path: '/dashboard', query: { cast: actor } }"
+                class="hover:underline hover:text-purple-600 transition-colors"
+                :title="`Filtra libreria per ${actor}`"
+              >{{ actor }}</NuxtLink><span v-if="index < 2">, </span>
+            </template>
+          </span>
         </div>
         <div v-if="movie.tmdb_id" class="col-span-2">
           <span class="text-gray-500">TMDb:</span>
