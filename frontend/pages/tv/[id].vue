@@ -529,6 +529,24 @@ watch(
   { immediate: true }
 )
 
+// Watch per gestire i cambi di stagione (manualmente tramite select o programmaticamente per autoplay/navigazione)
+watch(
+  selectedSeason,
+  async (newSeason, oldSeason) => {
+    if (!newSeason) return
+    await loadEpisodes()
+    if (oldSeason !== undefined && oldSeason !== newSeason) {
+      if (newSeason > oldSeason) {
+        // Se avanziamo di stagione, iniziamo dal primo episodio
+        selectedEpisode.value = episodes.value[0]?.episode_number ?? 1
+      } else {
+        // Se torniamo indietro di stagione, andiamo all'ultimo episodio
+        selectedEpisode.value = episodes.value[episodes.value.length - 1]?.episode_number ?? 1
+      }
+    }
+  }
+)
+
 async function loadEpisodes() {
   if (!item.value?.tmdb_id || !selectedSeason.value) return
   const prevEpisode = selectedEpisode.value
@@ -545,9 +563,12 @@ const playerUrl = computed(() => {
   const id = item.value?.tmdb_id
   const s = selectedSeason.value
   const e = selectedEpisode.value
-  return (id && s && e)
-    ? `https://vixsrc.to/tv/${id}/${s}/${e}?lang=it`
-    : null
+  if (!id || !s || !e) return null
+  let url = `https://vixsrc.to/tv/${id}/${s}/${e}?lang=it`
+  if (autoplayEnabled.value) {
+    url += '&autoplay=1'
+  }
+  return url
 })
 
 const tmdbIdNum = computed(() => {
@@ -669,22 +690,33 @@ onUnmounted(() => {
 function handlePlayerMessage(event) {
   let data = event.data
   
-  // A volte i messaggi arrivano come stringhe JSON
+  // Log di debug in console per facilitare l'analisi dei messaggi del player
+  console.log("PopCornNote - Messaggio ricevuto dal player:", data)
+
+  // Gestione stringhe JSON o stringhe semplici
   if (typeof data === 'string') {
     try {
       data = JSON.parse(data)
     } catch (e) {
-      // Non è un JSON valido, ignoriamo
-      return
+      // Se non è JSON, potrebbe essere una stringa diretta come "ended", "videoEnded" o "vidsrc_ended"
+      if (data === 'ended' || data === 'videoEnded' || data === 'vidsrc_ended') {
+        console.log("PopCornNote - Rilevata fine video (stringa):", data)
+        handleEpisodeEnded()
+        return
+      }
     }
   }
 
-  // Filtra solo gli eventi attesi
-  if (data?.type !== 'PLAYER_EVENT') return
-  
-  const payload = data.data
-  
-  if (payload?.event === 'ended') {
+  // Estrae l'evento da diversi possibili formati di oggetto
+  const eventName = data?.event || data?.data?.event || data?.type
+
+  if (
+    eventName === 'ended' ||
+    eventName === 'videoEnded' ||
+    eventName === 'vidsrc_ended' ||
+    (data?.type === 'PLAYER_EVENT' && data?.data?.event === 'ended')
+  ) {
+    console.log("PopCornNote - Rilevata fine video (oggetto):", data)
     handleEpisodeEnded()
   }
 }

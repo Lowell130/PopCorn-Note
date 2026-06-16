@@ -120,8 +120,6 @@ async def unreact_to_activity(activity_id: str, user=Depends(get_current_user)):
     
     return {"success": True}
 
-    return {"success": True}
-
 
 @router.post("/{activity_id}/comments")
 async def add_comment(

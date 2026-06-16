@@ -1,7 +1,7 @@
 # app/routes/admin_tmdb_tools.py
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.config import settings
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_admin
 from app.db import db
 import httpx
 
@@ -18,16 +18,12 @@ def ensure_api_key():
 @router.post("/backfill-tmdb-votes")
 async def backfill_tmdb_votes(
     limit: int = Query(50, ge=1, le=500),
-    user=Depends(get_current_user),
+    admin=Depends(require_admin),
 ):
     """
     Aggiorna tmdb_vote per i film/serie che hanno tmdb_id ma non tmdb_vote.
     Esegue al massimo 'limit' aggiornamenti per chiamata.
     """
-    # opzionale: controllo admin
-    # if not user.get("is_admin"):
-    #     raise HTTPException(status_code=403, detail="Solo admin")
-
     ensure_api_key()
 
     movies_coll = db.movies
