@@ -12,7 +12,7 @@
 <div class="mb-4 flex gap-3">
   <button
     @click="showPicker = !showPicker"
-    class="flex-1 flex items-center justify-between gap-4 px-5 py-3 text-white bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 rounded-lg shadow-md transition-all"
+    class="flex-1 flex items-center justify-between gap-4 px-5 py-3 text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-800 rounded-lg shadow-md transition-all"
   >
     <!-- Left side -->
     <div class="flex items-center gap-3">
@@ -48,7 +48,7 @@
   <!-- Random Picker Button -->
    <button
     @click="showRandomPicker = true"
-    class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3 text-white bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-purple-300 rounded-lg shadow-md transition-all sm:w-auto"
+    class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3 text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 rounded-lg shadow-md transition-all sm:w-auto"
     title="Cosa guardo stasera?"
   >
     <span class="text-xl">🎲</span>

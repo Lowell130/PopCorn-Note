@@ -126,14 +126,40 @@
               </div>
               
               <ClientOnly>
-                <div v-if="playerUrl" class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-500/10 border border-white/10 bg-black relative z-10">
+                <div 
+                  v-if="playerUrl" 
+                  ref="playerContainer"
+                  class="rounded-2xl overflow-hidden shadow-2xl shadow-blue-500/10 border border-white/10 bg-black relative z-10 group"
+                  @mousemove="handleMouseMove"
+                  @mouseleave="handleMouseLeave"
+                >
                   <div class="aspect-video w-full">
                      <iframe
                       :src="playerUrl"
                       class="w-full h-full"
                       allowfullscreen
+                      allow="autoplay; fullscreen; encrypted-media"
                       referrerpolicy="no-referrer"
                     ></iframe>
+                  </div>
+
+                  <!-- Overlay Controls -->
+                  <div 
+                    class="absolute inset-0 z-20 flex items-end justify-center pb-8 transition-opacity duration-300 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent"
+                    :class="showControls ? 'opacity-100' : 'opacity-0'"
+                  >
+                     <!-- Centered Control Pill -->
+                     <div class="flex items-center gap-4 px-5 py-2.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10 shadow-2xl pointer-events-auto transform transition hover:scale-105 hover:bg-black/70">
+                        <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Schermo intero</span>
+                        <button 
+                          @click="toggleFullscreen"
+                          class="p-2 rounded-full bg-white/5 hover:bg-white/20 transition text-white"
+                          :title="isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'"
+                        >
+                           <svg v-if="!isFullscreen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                           <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.25m4.75 0v4.75m0-4.75l-4.75 4.75M14 10h4.75m-4.75 0V5.25m0 4.75l4.75-4.75"></path></svg>
+                        </button>
+                     </div>
                   </div>
                 </div>
                 <div v-else class="h-64 flex items-center justify-center bg-gray-900 rounded-2xl border border-gray-800 text-gray-500">
@@ -329,14 +355,74 @@ const tmdbIdNum = computed(() => {
 const { refreshToken } = useAuth()
 let refreshInterval = null
 
+const showControls = ref(false)
+let controlsTimeout = null
+
+function handleMouseMove() {
+  showControls.value = true
+  if (controlsTimeout) clearTimeout(controlsTimeout)
+  controlsTimeout = setTimeout(() => {
+    showControls.value = false
+  }, 3000)
+}
+
+function handleMouseLeave() {
+  if (controlsTimeout) clearTimeout(controlsTimeout)
+  showControls.value = false
+}
+
+const playerContainer = ref(null)
+const isFullscreen = ref(false)
+
+function toggleFullscreen() {
+  if (!playerContainer.value) {
+    toast.show('error', 'Player non disponibile')
+    return
+  }
+
+  const doc = document
+  const el = playerContainer.value
+  
+  // Cross-browser fullscreen element check
+  const fullscreenElement = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement
+
+  if (!fullscreenElement) {
+    // Request Fullscreen (Cross-browser)
+    const requestFs = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen
+    
+    if (requestFs) {
+      requestFs.call(el).catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`)
+        toast.show('error', `Errore Fullscreen: ${err.message}`)
+      })
+    } else {
+      toast.show('error', 'Fullscreen non supportato dal browser')
+    }
+  } else {
+    // Exit Fullscreen (Cross-browser)
+    const exitFs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen
+    
+    if (exitFs) {
+      exitFs.call(doc)
+    }
+  }
+}
+
+function onFullscreenChange() {
+  const doc = document
+  isFullscreen.value = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement)
+}
+
 onMounted(() => {
   refreshInterval = setInterval(() => {
     refreshToken()
   }, 9 * 60 * 1000) 
+  document.addEventListener('fullscreenchange', onFullscreenChange)
 })
 
 onUnmounted(() => {
   if (refreshInterval) clearInterval(refreshInterval)
+  document.removeEventListener('fullscreenchange', onFullscreenChange)
 })
 
 
