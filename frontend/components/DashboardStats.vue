@@ -1,15 +1,13 @@
 <template>
-  <div class="text-black text-sm mb-4">
-    <p class="text-xs font-semibold text-gray-500 mb-2">Statistiche libreria</p>
-
+  <div class="text-white text-sm">
     <div class="space-y-3">
       <!-- Riga: Film -->
       <div>
         <div class="flex items-center justify-between text-xs mb-1">
-          <span class="text-gray-600">Film</span>
-          <span class="font-medium">{{ mTotalMovies }}</span>
+          <span class="text-gray-400">Film</span>
+          <span class="font-bold text-white">{{ mTotalMovies }}</span>
         </div>
-        <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
           <div
             class="h-full rounded-full bg-blue-500 transition-all"
             :style="{ width: moviesPct + '%' }"
@@ -20,10 +18,10 @@
       <!-- Riga: Serie -->
       <div>
         <div class="flex items-center justify-between text-xs mb-1">
-          <span class="text-gray-600">Serie</span>
-          <span class="font-medium">{{ mTotalSeries }}</span>
+          <span class="text-gray-400">Serie TV</span>
+          <span class="font-bold text-white">{{ mTotalSeries }}</span>
         </div>
-        <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
           <div
             class="h-full rounded-full bg-yellow-500 transition-all"
             :style="{ width: seriesPct + '%' }"
@@ -34,10 +32,10 @@
       <!-- Riga: Visti -->
       <div>
         <div class="flex items-center justify-between text-xs mb-1">
-          <span class="text-gray-600">Visti</span>
-          <span class="font-medium">{{ mWatched }}</span>
+          <span class="text-gray-400">Visti</span>
+          <span class="font-bold text-white">{{ mWatched }}</span>
         </div>
-        <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
           <div
             class="h-full rounded-full bg-purple-500 transition-all"
             :style="{ width: watchedPct + '%' }"
@@ -48,10 +46,10 @@
       <!-- Riga: Da vedere -->
       <div>
         <div class="flex items-center justify-between text-xs mb-1">
-          <span class="text-gray-600">Da vedere</span>
-          <span class="font-medium">{{ mToWatch }}</span>
+          <span class="text-gray-400">Da vedere</span>
+          <span class="font-bold text-white">{{ mToWatch }}</span>
         </div>
-        <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
           <div
             class="h-full rounded-full bg-green-500 transition-all"
             :style="{ width: toWatchPct + '%' }"
@@ -60,9 +58,9 @@
       </div>
 
       <!-- Riga: Score medio -->
-      <div class="pt-1 border-t border-gray-100 mt-1">
+      <div class="pt-2 border-t border-white/10 mt-1">
         <div class="flex items-center justify-between text-xs mb-1">
-          <span class="text-gray-600 flex items-center gap-1">
+          <span class="text-gray-400 flex items-center gap-1">
             <svg
               class="w-3.5 h-3.5 text-yellow-400"
               viewBox="0 0 20 20"
@@ -75,11 +73,11 @@
             </svg>
             Score medio
           </span>
-          <span class="font-medium">
+          <span class="font-bold text-white">
             {{ mAvgScoreLabel }}
           </span>
         </div>
-        <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
           <div
             class="h-full rounded-full bg-red-500 transition-all"
             :style="{ width: avgScorePct + '%' }"

@@ -1,7 +1,7 @@
 <template>
   <div v-if="recommendations.length" class="mb-8 animate-fade-in">
     <div class="flex items-center gap-2 mb-3 px-1">
-      <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+      <h3 class="text-lg font-semibold text-white">
         ✨ Perché hai aggiunto <span class="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">{{ sourceMovie?.title }}</span>
       </h3>
     </div>
@@ -11,7 +11,7 @@
       <button 
         v-if="canScrollLeft"
         @click="scroll('left')"
-        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg text-gray-800 dark:text-white hover:scale-110 transition opacity-0 group-hover:opacity-100 disabled:opacity-0"
+        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm rounded-full shadow-lg text-white hover:scale-110 transition opacity-0 group-hover:opacity-100 disabled:opacity-0"
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -21,7 +21,7 @@
       <button 
         v-if="canScrollRight"
         @click="scroll('right')"
-        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg text-gray-800 dark:text-white hover:scale-110 transition opacity-0 group-hover:opacity-100 disabled:opacity-0"
+        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm rounded-full shadow-lg text-white hover:scale-110 transition opacity-0 group-hover:opacity-100 disabled:opacity-0"
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -41,7 +41,7 @@
           class="flex-shrink-0 w-36 snap-start group/card relative"
         >
           <!-- Card -->
-          <div class="relative aspect-[2/3] rounded-xl overflow-hidden shadow-md transition-transform hover:scale-105 bg-gray-200">
+          <div class="relative aspect-[2/3] rounded-xl overflow-hidden shadow-md transition-transform hover:scale-105 bg-white/5 border border-white/10">
             <img 
               v-if="rec.poster_url" 
               :src="rec.poster_url" 
@@ -75,12 +75,12 @@
 
           <!-- Title -->
           <div class="mt-2">
-            <h4 class="text-xs font-medium text-gray-900 dark:text-gray-100 truncate" :title="rec.title">
+            <h4 class="text-xs font-bold text-white truncate" :title="rec.title">
               {{ rec.title }}
             </h4>
-            <div class="flex items-center justify-between text-[10px] text-gray-500">
+            <div class="flex items-center justify-between text-[10px] text-gray-400">
               <span>{{ rec.release_year || 'N/A' }}</span>
-              <span v-if="rec.vote_average" class="flex items-center gap-0.5 text-amber-500">
+              <span v-if="rec.vote_average" class="flex items-center gap-0.5 text-amber-400">
                 ★ {{ rec.vote_average.toFixed(1) }}
               </span>
             </div>
@@ -89,7 +89,7 @@
       </div>
       
       <!-- Gradient Fade Edges (optional polish) -->
-      <div class="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none lg:hidden"></div>
+      <div class="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none lg:hidden"></div>
     </div>
   </div>
 </template>

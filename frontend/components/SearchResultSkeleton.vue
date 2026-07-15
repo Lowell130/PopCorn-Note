@@ -1,5 +1,5 @@
 <template>
-  <li class="py-3 px-3 flex items-start gap-3 rounded-lg border border-gray-100 bg-white">
+  <li class="py-3 px-3 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md">
     <!-- Poster skeleton -->
     <SkeletonLoader width="4rem" height="6rem" borderRadius="0.25rem" class="flex-shrink-0" />
 

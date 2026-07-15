@@ -1,8 +1,8 @@
 <template>
   <article class="w-full">
-    <div class="rounded-lg bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full h-full flex flex-col">
+    <div class="rounded-2xl bg-white/5 border border-white/10 p-4 shadow-lg backdrop-blur-sm w-full h-full flex flex-col">
       <!-- Poster area -->
-      <div class="w-full aspect-[2/3] overflow-hidden rounded relative mb-4">
+      <div class="w-full aspect-[2/3] overflow-hidden rounded-xl relative mb-4">
         <SkeletonLoader height="100%" width="100%" borderRadius="0" />
       </div>
 

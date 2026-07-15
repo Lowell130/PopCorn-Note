@@ -1,60 +1,60 @@
 <!-- pages/index.vue -->
 <template>
   <div>
-     <span v-if="user" class="text-gray-500 text-left font-normal">Ciao, <span class="font-semibold text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">{{ user.username || user.email }}</span>, ecco
-        </span>
-    <div>
-      <h1 class="text-2xl font-semibold text-black mb-6">la tua Dashboard</h1>
-      
-    </div>
-
-<!-- Action Bar -->
-<div class="mb-4 flex gap-3">
-  <button
-    @click="showPicker = !showPicker"
-    class="flex-1 flex items-center justify-between gap-4 px-5 py-3 text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-800 rounded-lg shadow-md transition-all"
-  >
-    <!-- Left side -->
-    <div class="flex items-center gap-3">
-      <div class="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 border border-white/30 text-lg">
-        🎬
-      </div>
-      <span class="text-sm sm:text-base font-medium">
-        {{ showPicker ? 'Chiudi ricerca' : 'Aggiungi Film o Serie TV' }}
+    <div class="mb-6 space-y-1">
+      <span v-if="user" class="text-gray-400 text-sm font-normal">
+        Ciao, <span class="font-bold text-transparent bg-clip-text bg-gradient-to-r to-emerald-400 from-sky-400">{{ user.username || user.email }}</span>, ecco
       </span>
+      <h1 class="text-3xl font-extrabold text-white tracking-tight">la tua Dashboard</h1>
     </div>
 
-    <!-- Right side -->
-    <div class="flex items-center gap-2 text-xs sm:text-sm opacity-90">
-      <span class="hidden sm:inline">Dati completi da TMDb</span>
-      <svg
-        class="w-4 h-4 transform transition-transform duration-300"
-        :class="showPicker ? 'rotate-180' : ''"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
+    <!-- Action Bar -->
+    <div class="mb-6 flex gap-3">
+      <button
+        @click="showPicker = !showPicker"
+        class="flex-1 flex items-center justify-between gap-4 px-5 py-3 text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 focus:outline-none rounded-xl shadow-lg transition-all backdrop-blur-md hover:scale-102"
       >
-        <path
-          d="M6 9l6 6 6-6"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+        <!-- Left side -->
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 flex items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 text-lg select-none">
+            🎬
+          </div>
+          <span class="text-sm sm:text-base font-semibold">
+            {{ showPicker ? 'Chiudi ricerca' : 'Aggiungi Film o Serie TV' }}
+          </span>
+        </div>
+
+        <!-- Right side -->
+        <div class="flex items-center gap-2 text-xs sm:text-sm opacity-90">
+          <span class="hidden sm:inline font-medium">Dati completi da TMDb</span>
+          <svg
+            class="w-4 h-4 transform transition-transform duration-300"
+            :class="showPicker ? 'rotate-180' : ''"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+      </button>
+      
+      <!-- Random Picker Button -->
+      <button
+        @click="showRandomPicker = true"
+        class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 focus:outline-none rounded-xl shadow-lg transition-all backdrop-blur-md sm:w-auto hover:scale-102"
+        title="Cosa guardo stasera?"
+      >
+        <span class="text-xl">🎲</span>
+        <span class="hidden sm:inline font-semibold">Fai scegliere al fato</span>
+      </button>
     </div>
-  </button>
-  
-  <!-- Random Picker Button -->
-   <button
-    @click="showRandomPicker = true"
-    class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3 text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 rounded-lg shadow-md transition-all sm:w-auto"
-    title="Cosa guardo stasera?"
-  >
-    <span class="text-xl">🎲</span>
-    <span class="hidden sm:inline font-medium">Fai scegliere al fato</span>
-  </button>
-</div>
 
 <!-- Random Picker Modal -->
 <Transition name="fade-slide">

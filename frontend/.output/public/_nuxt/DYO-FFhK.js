@@ -1,0 +1,1 @@
+import{ab as l}from"./EJDPLNA-.js";let e;const r=()=>{const t=l("toast_msg",()=>null),s=l("toast_type",()=>"success");function o(a="success",c=""){const u=String(c??"").trim();if(!u){t.value=null;return}s.value=a,t.value=u,e&&clearTimeout(e),e=setTimeout(()=>{t.value=null},3e3)}function n(){e&&clearTimeout(e),t.value=null}return{msg:t,type:s,show:o,close:n}};export{r as u};

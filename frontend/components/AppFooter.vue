@@ -1,37 +1,86 @@
 <template>
-  <footer class="p-4 bg-white md:p-8 lg:p-10 dark:bg-gray-800">
-    <div class="mx-auto max-w-screen-xl text-center">
-      <!-- Logo + nome -->
-      <!-- <a href="/" class="flex justify-center items-center text-2xl font-semibold text-gray-900 dark:text-white">
-        <svg class="mr-2 h-8 w-8 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C9.243 2 7 4.243 7 7c0 1.654 1.346 3 3 3h1v11a1 1 0 1 0 2 0V10h1c1.654 0 3-1.346 3-3 0-2.757-2.243-5-5-5z"/>
-        </svg>
-        PopCornNote
-      </a> -->
+  <footer class="py-16 bg-slate-950/60 border-t border-white/5 relative z-10 text-gray-400 text-sm">
+    <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 pb-12">
+      <!-- Col 1: Brand & Desc -->
+      <div class="md:col-span-5 space-y-4">
+        <NuxtLink to="/" class="flex items-center gap-3 text-2xl font-bold text-white hover:text-purple-400 transition-colors">
+          <span>🍿</span> PopCornNote
+        </NuxtLink>
+        <p class="text-gray-400 leading-relaxed max-w-sm text-xs sm:text-sm">
+          PopCornNote è la tua centrale di controllo per film e serie TV. Cerca con TMDb, organizza la tua libreria per stato, analizza i tuoi gusti e condividi con una community di appassionati.
+        </p>
+        <!-- Social Icons (Monochromatic SVG) -->
+        <div class="flex gap-4 pt-2">
+          <a href="#" class="text-gray-500 hover:text-purple-400 transition-colors" aria-label="Github">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-purple-400 transition-colors" aria-label="Twitter">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </a>
+        </div>
+      </div>
 
-        <NuxtLink to="/" class="flex justify-center items-center text-2xl font-semibold text-gray-900 dark:text-white">🍿 PopCornNote</NuxtLink>
+      <!-- Col 2: Navigation Links -->
+      <div class="md:col-span-3 space-y-4">
+        <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Applicativo</h4>
+        <ul class="space-y-2">
+          <li>
+            <NuxtLink to="/" class="hover:text-purple-400 transition-colors">Dashboard</NuxtLink>
+          </li>
+          <li>
+            <NuxtLink to="/watchlist" class="hover:text-purple-400 transition-colors">Watchlist</NuxtLink>
+          </li>
+          <li>
+            <NuxtLink to="/stats" class="hover:text-purple-400 transition-colors">Statistiche</NuxtLink>
+          </li>
+        </ul>
+      </div>
 
-      <!-- Descrizione -->
-      <p class="my-6 text-gray-500 dark:text-gray-400">
-        PopCornNote è la tua app per gestire film e serie TV: cerca, organizza e tieni traccia di ciò che guardi.
-      </p>
+      <!-- Col 3: Social & Content -->
+      <div class="md:col-span-2 space-y-4">
+        <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Community</h4>
+        <ul class="space-y-2">
+          <li>
+            <NuxtLink to="/community" class="hover:text-purple-400 transition-colors">Feed Globale</NuxtLink>
+          </li>
+          <li>
+            <NuxtLink to="/news" class="hover:text-purple-400 transition-colors">Ultime News</NuxtLink>
+          </li>
+        </ul>
+      </div>
 
-      <!-- Credits -->
-      <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">
-        © {{ new Date().getFullYear() }} PopCornNote. Tutti i diritti riservati.
+      <!-- Col 4: Legal & API -->
+      <div class="md:col-span-2 space-y-4">
+        <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Info</h4>
+        <p class="text-[11px] text-gray-500 leading-normal">
+          Tutti i dati e le immagini dei film sono forniti da <a href="https://www.themoviedb.org" target="_blank" class="text-sky-400 hover:underline">TMDb</a>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Copyright Divider line -->
+    <div class="max-w-7xl mx-auto px-6 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+      <span>© {{ new Date().getFullYear() }} PopCornNote. Tutti i diritti riservati.</span>
+      <span class="flex gap-4">
+        <a href="#" class="hover:text-white transition-colors">Privacy</a>
+        <a href="#" class="hover:text-white transition-colors">Termini</a>
       </span>
     </div>
 
-    <!-- Pulsante Torna su -->
+    <!-- Pulsante Torna su (Glassmorphic Scroll to Top) -->
     <transition name="fade">
       <button
         v-if="showScrollTop"
         @click="scrollToTop"
-        class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gray-600 text-white shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-800"
+        class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 backdrop-blur-md shadow-lg hover:bg-purple-500/20 hover:scale-105 transition-all outline-none"
         aria-label="Torna su"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
         </svg>
       </button>
     </transition>
@@ -42,11 +91,13 @@
 const showScrollTop = ref(false)
 
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 
 function handleScroll() {
-  showScrollTop.value = window.scrollY > 200
+  showScrollTop.value = window.scrollY > 250
 }
 
 onMounted(() => {
@@ -61,7 +112,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 .fade-enter-from,
 .fade-leave-to {

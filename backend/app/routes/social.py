@@ -23,6 +23,29 @@ async def get_feed(limit: int = 50, user=Depends(get_current_user)):
     activities = await cursor.to_list(length=limit)
     return [_normalize(a) for a in activities]
 
+@router.get("/leaderboard")
+async def get_leaderboard(user=Depends(get_current_user)):
+    """
+    Ritorna la lista degli utenti registrati con il conteggio dei film/serie salvati.
+    """
+    cursor = db["users"].find({}, {"email": 1, "username": 1, "_id": 1, "is_admin": 1})
+    users = await cursor.to_list(length=100)
+    
+    leaderboard = []
+    for u in users:
+        u_id = str(u["_id"])
+        movies_count = await db["movies"].count_documents({"user_id": u_id})
+        name = u.get("username") or u["email"].split("@")[0]
+        leaderboard.append({
+            "id": u_id,
+            "username": name,
+            "movies_count": movies_count,
+            "is_admin": u.get("is_admin", False)
+        })
+    
+    leaderboard.sort(key=lambda x: x["movies_count"], reverse=True)
+    return leaderboard[:10]
+
 @router.post("/post", response_model=Activity)
 async def create_post(
     content: str = Body(..., embed=True),

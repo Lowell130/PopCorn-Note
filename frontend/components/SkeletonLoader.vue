@@ -1,5 +1,5 @@
 <template>
-  <div :class="['bg-gray-200 dark:bg-gray-700 animate-pulse', roundedClass]" :style="styleObject"></div>
+  <div :class="['bg-white/10 animate-pulse', roundedClass]" :style="styleObject"></div>
 </template>
 
 <script setup>

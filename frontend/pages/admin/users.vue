@@ -4,8 +4,8 @@
     <!-- Header + pulsanti TMDb -->
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-semibold text-black">User Management</h1>
-        <p class="text-sm text-gray-500">
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">User Management</h1>
+        <p class="text-sm text-gray-400">
           Gestisci utenti e avvia strumenti di manutenzione TMDb.
         </p>
       </div>
@@ -97,8 +97,8 @@
     <div v-else-if="error" class="text-red-600">Error: {{ error }}</div>
 
     <div v-else class="relative overflow-x-auto shadow rounded-xl">
-      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <table class="w-full text-sm text-left text-gray-300">
+        <thead class="text-xs text-gray-400 uppercase bg-white/5 border-b border-white/10">
           <tr>
             <th class="px-6 py-3">Username</th>
             <th class="px-6 py-3">Email</th>
@@ -117,14 +117,14 @@
           <tr
             v-for="u in users"
             :key="u.id"
-            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+            class="bg-transparent border-b border-white/5 text-gray-300 hover:bg-white/5 transition-colors"
           >
-            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+            <th scope="row" class="px-6 py-4 font-bold text-white whitespace-nowrap">
               {{ u.username || '—' }}
             </th>
             <td class="px-6 py-4">{{ u.email }}</td>
             <td class="px-6 py-4">
-              <span :class="u.is_admin ? 'text-emerald-700 font-semibold' : 'text-gray-500'">
+              <span :class="u.is_admin ? 'text-emerald-400 font-semibold' : 'text-gray-500'">
                 {{ u.is_admin ? 'Yes' : 'No' }}
               </span>
             </td>
@@ -180,40 +180,40 @@
       class="fixed inset-0 z-20 flex items-center justify-center bg-black/50 p-4"
       @click.self="closeEdit"
     >
-      <div class="w-full max-w-lg bg-white text-black rounded-xl shadow p-5">
-        <h2 class="text-lg font-semibold mb-4">Edit user</h2>
+      <div class="w-full max-w-lg bg-slate-900 border border-white/10 text-white rounded-2xl shadow-2xl p-6 backdrop-blur-md">
+        <h2 class="text-lg font-bold mb-4">Edit user</h2>
 
         <div class="space-y-3">
           <div>
-            <label class="block text-sm mb-1">Email</label>
-            <input v-model="form.email" type="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Email</label>
+            <input v-model="form.email" type="email" class="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition" />
           </div>
           <div>
-            <label class="block text-sm mb-1">Username</label>
-            <input v-model="form.username" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Username</label>
+            <input v-model="form.username" type="text" class="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition" />
           </div>
           <div>
-            <label class="block text-sm mb-1">Password (leave blank to keep)</label>
-            <input v-model="form.password" type="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Password (leave blank to keep)</label>
+            <input v-model="form.password" type="password" class="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition" />
           </div>
           <div class="flex items-center gap-2">
-            <input id="is_admin" v-model="form.is_admin" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-            <label for="is_admin" class="text-sm">Administrator</label>
+            <input id="is_admin" v-model="form.is_admin" type="checkbox" class="w-4 h-4 text-purple-600 bg-white/5 border border-white/10 rounded focus:ring-purple-500 focus:ring-2" />
+            <label for="is_admin" class="text-sm font-medium">Administrator</label>
           </div>
 
-          <div v-if="editError" class="text-sm text-red-600">{{ editError }}</div>
+          <div v-if="editError" class="text-sm text-red-400 font-semibold">{{ editError }}</div>
         </div>
 
-        <div class="mt-5 flex justify-end gap-2">
+        <div class="mt-6 flex justify-end gap-2 border-t border-white/5 pt-4">
           <button
-          class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+            class="px-4 py-2 text-sm font-semibold rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition"
             @click="closeEdit"
             :disabled="savingId === editingUser?.id"
           >
             Cancel
           </button>
           <button
-           class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            class="px-4 py-2 text-sm font-semibold rounded-xl text-green-300 bg-green-500/10 border border-green-500/20 hover:bg-green-500/20 transition disabled:opacity-50"
             @click="saveEdit"
             :disabled="savingId === editingUser?.id"
           >

@@ -9,10 +9,10 @@
 const props = defineProps({ status: { type: String, required: true } })
 
 const map = {
-  to_watch: { label: 'DA VEDERE', cls: 'shadow-sm bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300' },
-  watched:  { label: 'VISTO',     cls: 'shadow-sm bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-sm dark:bg-purple-900 dark:text-purple-300' },
-  upcoming: { label: 'IN USCITA', cls: 'shadow-sm bg-pink-100 text-pink-800 text-xs font-medium px-2.5 py-0.5 rounded-sm dark:bg-pink-900 dark:text-pink-300' },
-  watching: {label: 'IN VISIONE', cls: 'shadow-sm bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300'}
+  to_watch: { label: 'DA VEDERE', cls: 'bg-sky-500/10 border border-sky-500/20 text-sky-400 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm select-none' },
+  watched:  { label: 'VISTO',     cls: 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm select-none' },
+  upcoming: { label: 'IN USCITA', cls: 'bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm select-none' },
+  watching: { label: 'IN VISIONE', cls: 'bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm select-none' }
 }
 const label = computed(() => map[props.status]?.label || props.status)
 const classes = computed(() => map[props.status]?.cls || 'bg-gray-100 text-gray-800')

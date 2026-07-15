@@ -1,19 +1,36 @@
 <template>
   <div class="max-w-7xl mx-auto px-6 py-8">
-    <h1 class="text-3xl font-bold mb-8 text-white">La mia Watchlist</h1>
+    <h1 class="text-3xl font-extrabold mb-8 text-white tracking-tight">La mia Watchlist</h1>
 
-    <div v-if="loading" class="text-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+    <!-- Guide Banner (Explain Watchlist) -->
+    <div class="bg-purple-950/20 border border-purple-500/30 p-6 rounded-2xl flex items-start gap-4 shadow-xl backdrop-blur-md mb-8">
+      <div class="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-purple-300 flex-shrink-0 select-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+        </svg>
+      </div>
+      <div class="space-y-1 text-left">
+        <h4 class="text-sm font-bold text-white">Cos'è la tua Watchlist?</h4>
+        <p class="text-xs text-gray-300 leading-relaxed">
+          La Watchlist è la tua lista dei desideri personale. Qui vengono salvati i film e le serie TV che hai intenzione di guardare in futuro. 
+          Puoi salvare elementi qui cliccando sul segnalibro di aggiunta in Dashboard o sfogliando i titoli caldi della community nella sezione News. 
+          Usa questa sezione come promemoria per pianificare le tue prossime serate cinema!
+        </p>
+      </div>
     </div>
 
-    <div v-else-if="!watchlist || watchlist.length === 0" class="text-center py-20 text-gray-500">
-      <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div v-if="loading" class="text-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
+    </div>
+
+    <div v-else-if="!watchlist || watchlist.length === 0" class="text-center py-20 text-gray-400">
+      <svg class="w-16 h-16 mx-auto mb-4 opacity-30 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
       </svg>
-      <p class="text-xl">La tua watchlist è vuota.</p>
+      <p class="text-xl font-bold text-white">La tua watchlist è vuota.</p>
       <p class="mt-2 text-sm">Salva film e serie per guardarli più tardi.</p>
       <div class="mt-6">
-        <NuxtLink to="/" class="px-6 py-2 bg-blue-600 rounded-full text-white font-medium hover:bg-blue-700 transition">
+        <NuxtLink to="/dashboard" class="inline-flex px-6 py-2.5 bg-purple-500/20 border border-purple-500/40 text-purple-300 rounded-full font-semibold hover:bg-purple-500/30 transition hover:scale-105 duration-200">
           Sfoglia catalogo
         </NuxtLink>
       </div>
@@ -23,7 +40,7 @@
       <div
         v-for="item in watchlist"
         :key="item.id"
-        class="group relative bg-gray-900 rounded-xl overflow-hidden shadow-lg transition hover:scale-105 hover:shadow-xl hover:z-10"
+        class="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-lg transition hover:scale-105 hover:shadow-xl hover:z-10"
       >
         <!-- Poster Link -->
         <NuxtLink :to="item.type === 'movie' ? `/movies/${item.id}` : `/tv/${item.id}`" class="block aspect-[2/3] relative">
@@ -34,7 +51,7 @@
             class="w-full h-full object-cover transition duration-300 group-hover:opacity-75"
             loading="lazy"
           />
-          <div v-else class="w-full h-full bg-gray-800 flex items-center justify-center text-gray-600">
+          <div v-else class="w-full h-full bg-white/5 flex items-center justify-center text-gray-500">
             N/A
           </div>
           
@@ -51,8 +68,8 @@
           class="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-600 text-white rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
           title="Rimuovi dalla Watchlist"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>

@@ -1,22 +1,22 @@
 <template>
-  <div class="flex items-center gap-1 flex-wrap">
+  <div class="flex items-center gap-2 flex-wrap select-none">
     <button
       v-for="reaction in reactionTypes"
       :key="reaction.type"
       @click="toggleReaction(reaction.type)"
       :class="[
-        'flex items-center gap-1 px-2 py-1 rounded-full text-sm transition-all',
+        'flex items-center gap-1.5 bg-transparent border-0 outline-none transition-all duration-150 cursor-pointer p-0.5',
         hasUserReacted(reaction.type) 
-          ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-500' 
-          : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+          ? 'scale-125 opacity-100 filter drop-shadow-[0_0_6px_rgba(168,85,247,0.7)]' 
+          : 'opacity-50 hover:opacity-100 hover:scale-110'
       ]"
       :title="reaction.label"
     >
-      <span class="text-base">{{ reaction.emoji }}</span>
+      <span class="text-lg select-none">{{ reaction.emoji }}</span>
       <span 
         v-if="getCount(reaction.type) > 0" 
-        class="text-xs font-medium"
-        :class="hasUserReacted(reaction.type) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300'"
+        class="text-xs font-bold"
+        :class="hasUserReacted(reaction.type) ? 'text-purple-400' : 'text-gray-400'"
       >
         {{ getCount(reaction.type) }}
       </span>

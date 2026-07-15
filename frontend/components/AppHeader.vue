@@ -1,44 +1,43 @@
 <template>
   <nav 
-    class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/5 bg-black/70 backdrop-blur-xl"
+    class="fixed z-50 transition-all duration-300 top-0 left-0 w-full border-b border-white/5 bg-slate-950/80 backdrop-blur-xl md:top-4 md:left-1/2 md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-7xl md:rounded-2xl md:border md:border-white/10 md:shadow-lg md:shadow-black/25"
   >
-    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-6 h-16 md:h-18 flex items-center justify-between">
       
       <!-- Brand -->
       <NuxtLink to="/" class="group flex items-center gap-3 relative z-[70]">
-        <span class="text-3xl transform group-hover:scale-110 transition-transform duration-300">🍿</span>
-        <span class="font-bold text-xl tracking-tight text-white group-hover:text-blue-400 transition-colors">
+        <span class="text-2xl transform group-hover:scale-110 transition-transform duration-300">🍿</span>
+        <span class="font-bold text-lg tracking-tight text-white group-hover:text-purple-400 transition-colors">
           PopCornNote
         </span>
       </NuxtLink>
 
       <!-- Desktop Menu -->
-      <div class="hidden md:flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-6">
         <!-- Links -->
         <template v-if="isLoggedIn">
-          <NuxtLink to="/" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Dashboard</NuxtLink>
-
-          <NuxtLink to="/watchlist" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Watchlist</NuxtLink>
-          <NuxtLink to="/news" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">News</NuxtLink>
-          <NuxtLink to="/stats" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Statistiche</NuxtLink>
-          <NuxtLink to="/community" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Community</NuxtLink>
-          <NuxtLink v-if="isAdmin" to="/admin/users" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider text-yellow-400 hover:!text-yellow-300" active-class="!text-white">Admin</NuxtLink>
+          <NuxtLink to="/" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Dashboard</NuxtLink>
+          <NuxtLink to="/watchlist" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Watchlist</NuxtLink>
+          <NuxtLink to="/news" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">News</NuxtLink>
+          <NuxtLink to="/stats" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Statistiche</NuxtLink>
+          <NuxtLink to="/community" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Community</NuxtLink>
+          <NuxtLink v-if="isAdmin" to="/admin/users" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider text-yellow-400 hover:!text-yellow-300" active-class="!text-purple-400">Admin</NuxtLink>
         </template>
 
         <!-- Support Button -->
         <SupportButton variant="solid" label="Sostienici" class="mr-2" />
 
         <!-- Auth Buttons -->
-        <div class="flex items-center gap-3 ml-2 pl-2 border-l border-white/10">
+        <div class="flex items-center gap-4 ml-2 pl-4 border-l border-white/10">
           <template v-if="!isLoggedIn">
-            <NuxtLink to="/login" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Accedi</NuxtLink>
-            <NuxtLink to="/register" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-medium transition-all shadow-lg shadow-blue-900/20 hover:shadow-blue-900/40">
+            <NuxtLink to="/login" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Accedi</NuxtLink>
+            <NuxtLink to="/register" class="px-5 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 font-semibold rounded-xl text-xs transition-all shadow-lg hover:scale-102">
               Inizia gratis
             </NuxtLink>
           </template>
           <template v-else>
-            <NuxtLink to="/settings" class="text-xs font-medium text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-white">Impostazioni</NuxtLink>
-            <button @click="onLogout" class="px-3 py-1 border border-white/20 hover:bg-white/10 text-white rounded-full text-[10px] font-medium transition-all">
+            <NuxtLink to="/settings" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Impostazioni</NuxtLink>
+            <button @click="onLogout" class="px-4 py-1.5 border border-white/20 hover:bg-white/10 text-white rounded-xl text-xs font-semibold transition-all">
               Logout
             </button>
           </template>
@@ -85,21 +84,23 @@
       >
         <div 
           v-if="open" 
-          class="fixed inset-y-0 left-0 z-[5001] w-4/5 max-w-sm bg-gray-900 border-r border-white/10 shadow-3xl md:hidden overflow-y-auto"
+          class="fixed inset-y-0 left-0 z-[5001] w-4/5 max-w-sm bg-slate-950/95 border-r border-white/10 shadow-3xl md:hidden overflow-y-auto backdrop-blur-xl"
         >
           <div class="flex flex-col p-6 pt-10 space-y-2">
             <!-- Close Button Header in Drawer for easier closing -->
-             <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
-                <span class="text-xl font-bold text-white tracking-tight">PopCornNote</span>
-                <button @click="open = false" class="p-2 text-gray-400 hover:text-white transition">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
+              <span class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <span>🍿</span> PopCornNote
+              </span>
+              <button @click="open = false" class="p-2 text-gray-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
             </div>
 
             <template v-if="!isLoggedIn">
               <div class="space-y-4 px-2">
-                 <NuxtLink to="/login" class="text-xl font-bold text-white block" @click="closeOnMobile">Accedi</NuxtLink>
-                 <NuxtLink to="/register" class="text-center w-full block px-6 py-3 bg-blue-600 rounded-full text-white font-bold shadow-lg" @click="closeOnMobile">Inizia gratis</NuxtLink>
+                <NuxtLink to="/login" class="text-lg font-bold text-white block hover:text-purple-400 transition-colors" @click="closeOnMobile">Accedi</NuxtLink>
+                <NuxtLink to="/register" class="text-center w-full block px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-xl text-purple-300 font-bold shadow-lg" @click="closeOnMobile">Inizia gratis</NuxtLink>
               </div>
             </template>
 
@@ -108,24 +109,23 @@
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Menu</span>
               </div>
               
-              <NuxtLink to="/watchlist" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
-                 Watchlist
-              </NuxtLink>
-
-              <NuxtLink to="/" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
+              <NuxtLink to="/" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                 Dashboard
               </NuxtLink>
-              <NuxtLink to="/news" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
+              <NuxtLink to="/watchlist" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
+                 Watchlist
+              </NuxtLink>
+              <NuxtLink to="/news" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                 News
               </NuxtLink>
-              <NuxtLink to="/stats" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
+              <NuxtLink to="/stats" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                  Statistiche
               </NuxtLink>
-              <NuxtLink to="/community" class="group flex items-center px-3 py-3 text-lg font-medium text-gray-300 rounded-xl hover:bg-white/10 hover:text-white transition-all" @click="closeOnMobile">
+              <NuxtLink to="/community" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                  Community
               </NuxtLink>
-               <NuxtLink v-if="isAdmin" to="/admin/users" class="group flex items-center px-3 py-3 text-lg font-medium text-yellow-500 rounded-xl hover:bg-yellow-500/10 transition-all" @click="closeOnMobile">
-                 Admin Panel
+              <NuxtLink v-if="isAdmin" to="/admin/users" class="group flex items-center px-3 py-3 text-lg font-semibold text-yellow-500 rounded-xl hover:bg-yellow-500/10 transition-all" @click="closeOnMobile">
+                Admin Panel
               </NuxtLink>
 
               <div class="h-px bg-white/10 my-4 mx-3"></div>
@@ -134,19 +134,19 @@
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Account</span>
               </div>
 
-              <NuxtLink to="/settings" class="group flex items-center px-3 py-3 text-base font-medium text-gray-400 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
+              <NuxtLink to="/settings" class="group flex items-center px-3 py-3 text-base font-semibold text-gray-400 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                 Impostazioni
               </NuxtLink>
               
-              <button @click="onLogout" class="w-full text-left group flex items-center px-3 py-3 text-base font-medium text-red-500 rounded-xl hover:bg-red-500/10 transition-all">
+              <button @click="onLogout" class="w-full text-left group flex items-center px-3 py-3 text-base font-semibold text-red-400 rounded-xl hover:bg-red-500/10 transition-all">
                 Esci
               </button>
               
-               <div class="h-px bg-white/10 my-4 mx-3"></div>
+              <div class="h-px bg-white/10 my-4 mx-3"></div>
 
-               <div class="px-3">
-                 <SupportButton label="Sostienici" class="w-full justify-center" />
-               </div>
+              <div class="px-3">
+                <SupportButton label="Sostienici" class="w-full justify-center" />
+              </div>
             </template>
           </div>
         </div>
@@ -180,5 +180,4 @@ watch(open, (val) => {
 </script>
 
 <style scoped>
-/* Removed @apply rules to prevent build errors. Styles are now inline. */
 </style>

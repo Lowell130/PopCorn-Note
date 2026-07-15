@@ -1,32 +1,34 @@
 <!-- components/MovieFiltersSidebar.vue -->
 <template>
-<aside class="bg-white p-4 rounded-lg top-6 self-start text-gray-800 shadow-sm dark:border-gray-700 dark:bg-gray-800 w-full">
-    <h2 class="text-lg font-semibold mb-1">Filtri</h2>
-    <p class="text-xs text-gray-500 mb-4">
-      Affina la tua libreria per titolo, stato e tipo.
-    </p>
+  <aside class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-xl text-white w-full space-y-6">
+    <div>
+      <h2 class="text-lg font-bold tracking-tight text-white mb-1">Filtri</h2>
+      <p class="text-xs text-gray-400">
+        Affina la tua libreria per titolo, stato e tipo.
+      </p>
+    </div>
 
-    <div class="space-y-3">
+    <div class="space-y-4">
       <!-- Search -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 mb-1">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Cerca
         </label>
         <input
           v-model="qProxy"
           placeholder="Titolo o nota…"
-          class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder-gray-500"
         />
       </div>
 
       <!-- Tipo -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 mb-1">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Tipo
         </label>
         <select
           v-model="kindProxy"
-          class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
+          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-900 [&>option]:text-white"
         >
           <option value="">Tutti</option>
           <option value="movie">Solo film</option>
@@ -36,12 +38,12 @@
 
       <!-- Stato -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 mb-1">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Stato
         </label>
         <select
           v-model="statusProxy"
-          class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
+          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-900 [&>option]:text-white"
         >
           <option value="">Tutti</option>
           <option value="to_watch">Da vedere</option>
@@ -53,12 +55,12 @@
 
       <!-- Ordinamento -->
       <div>
-        <label class="block text-xs font-medium text-gray-500 mb-1">
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Ordina per
         </label>
         <select
           v-model="sortByProxy"
-          class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5"
+          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-900 [&>option]:text-white"
         >
           <option value="created_at_desc">Recenti</option>
           <option value="title_asc">Titolo A→Z</option>
@@ -68,10 +70,10 @@
     </div>
 
     <!-- Reset -->
-    <div class="mt-5 flex justify-between items-center">
+    <div class="flex justify-between items-center pt-2">
       <button
         type="button"
-        class="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+        class="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
         @click="$emit('reset')"
       >
         <svg
@@ -80,62 +82,66 @@
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          stroke-width="2"
         >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
-            stroke-width="2"
-            d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
           />
         </svg>
-        Reset filtri
+        <span>Reset filtri</span>
       </button>
     </div>
 
     <!-- Top Registi -->
-    <div v-if="stats?.stats_advanced?.directors?.length" class="mt-6 border-t dark:border-gray-700 pt-4">
-      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">I tuoi registi preferiti</h3>
+    <div v-if="stats?.stats_advanced?.directors?.length" class="border-t border-white/10 pt-4">
+      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">I tuoi registi preferiti</h3>
       <div class="flex flex-wrap gap-2">
         <NuxtLink
           v-for="dir in stats.stats_advanced.directors"
           :key="dir.name"
           :to="{ path: '/dashboard', query: { director: dir.name } }"
-          class="px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition rounded-md text-xs text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-300 border border-gray-200 dark:border-gray-600 block w-max"
+          class="px-2.5 py-1 bg-white/5 hover:bg-purple-500/10 text-gray-300 hover:text-purple-300 border border-white/5 hover:border-purple-500/30 transition rounded-lg text-xs font-medium block w-max"
         >
-          {{ dir.name }} <span class="text-gray-400 dark:text-gray-500">({{ dir.count }})</span>
+          {{ dir.name }} <span class="text-gray-500">({{ dir.count }})</span>
         </NuxtLink>
       </div>
     </div>
 
     <!-- Top Attori -->
-    <div v-if="stats?.stats_advanced?.actors?.length" class="mt-4">
+    <div v-if="stats?.stats_advanced?.actors?.length" class="space-y-3">
       <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">I tuoi attori preferiti</h3>
       <div class="flex flex-wrap gap-2">
         <NuxtLink
           v-for="actor in stats.stats_advanced.actors"
           :key="actor.name"
           :to="{ path: '/dashboard', query: { cast: actor.name } }"
-          class="px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition rounded-md text-xs text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-300 border border-gray-200 dark:border-gray-600 block w-max"
+          class="px-2.5 py-1 bg-white/5 hover:bg-purple-500/10 text-gray-300 hover:text-purple-300 border border-white/5 hover:border-purple-500/30 transition rounded-lg text-xs font-medium block w-max"
         >
-          {{ actor.name }} <span class="text-gray-400 dark:text-gray-500">({{ actor.count }})</span>
+          {{ actor.name }} <span class="text-gray-500">({{ actor.count }})</span>
         </NuxtLink>
       </div>
     </div>
 
-      <!-- 📊 STATISTICHE SOTTO I FILTRI, NELLA STESSA CARD -->
-     <h2 class="text-lg font-semibold mb-1 mt-6 border-t dark:border-gray-700 pt-4">Statistiche</h2>
-     <p class="text-xs text-gray-500 mb-4 pb-2">Visualizza le statistiche della libreria </p>
-    <DashboardStats v-if="stats" :stats="stats" />
+    <!-- 📊 STATISTICHE SOTTO I FILTRI, NELLA STESSA CARD -->
+    <div class="border-t border-white/10 pt-4">
+      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Statistiche</h3>
+      <p class="text-[10px] text-gray-500 mb-4">Panoramica rapida della tua libreria</p>
+      <DashboardStats v-if="stats" :stats="stats" />
+    </div>
   </aside>
 </template>
 
 <script setup>
+import DashboardStats from "@/components/DashboardStats.vue"
+
 const props = defineProps({
   q: { type: String, default: '' },
   status: { type: String, default: '' },
   kind: { type: String, default: '' },
   sortBy: { type: String, default: 'created_at_desc' },
-  stats: { type: Object, default: null }   // 👈 NUOVO
+  stats: { type: Object, default: null }
 })
 
 const emit = defineEmits([
