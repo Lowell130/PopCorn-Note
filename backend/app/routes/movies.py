@@ -127,6 +127,18 @@ async def movies_stats(user=Depends(get_current_user)):
     agg = await db["movies"].aggregate(pipeline).to_list(length=1)
     avg_score = round(agg[0]["avg"], 1) if agg else None
 
+    # 4. Total watchtime (in minutes) for watched items
+    watchtime_pipeline = [
+        {"$match": {
+            "user_id": uid,
+            "status": "watched",
+            "runtime": {"$type": "number", "$gt": 0}
+        }},
+        {"$group": {"_id": None, "total_runtime": {"$sum": "$runtime"}}}
+    ]
+    watchtime_agg = await db["movies"].aggregate(watchtime_pipeline).to_list(length=1)
+    total_watchtime = watchtime_agg[0]["total_runtime"] if watchtime_agg else 0
+
     # --- AGGREGAZIONI AVANZATE ---
     
     # 1. Top Directors (Top 5)
@@ -173,6 +185,7 @@ async def movies_stats(user=Depends(get_current_user)):
         "upcoming": upcoming,
         "watching": watching,
         "avg_score": avg_score,
+        "total_watchtime": total_watchtime,
         "stats_advanced": {
             "directors": [{"name": x["_id"], "count": x["count"]} for x in top_directors if x["_id"]],
             "actors": [{"name": x["_id"], "count": x["count"]} for x in top_actors if x["_id"]],

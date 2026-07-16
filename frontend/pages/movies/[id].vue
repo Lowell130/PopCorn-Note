@@ -344,7 +344,7 @@ async function completeFromTmdb() {
 
 const playerUrl = computed(() => {
   const id = movie.value?.tmdb_id
-  return id ? `https://vixsrc.to/movie/${id}?lang=it` : null
+  return id ? `https://vixsrc.to/movie/${id}?lang=it&autoplay=1` : null
 })
 
 const tmdbIdNum = computed(() => {

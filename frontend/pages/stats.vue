@@ -54,7 +54,7 @@
       </div>
 
       <!-- KPI Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div class="bg-white/5 p-5 rounded-2xl shadow-sm border border-blue-500/20 text-left">
            <div class="text-xs text-blue-400 font-bold uppercase mb-1">Film Totali</div>
            <div class="text-3xl font-black text-white">{{ stats.total_movies }}</div>
@@ -66,6 +66,10 @@
         <div class="bg-white/5 p-5 rounded-2xl shadow-sm border border-purple-500/20 text-left">
            <div class="text-xs text-purple-400 font-bold uppercase mb-1">Da Vedere</div>
            <div class="text-3xl font-black text-white">{{ stats.to_watch }}</div>
+        </div>
+        <div class="bg-white/5 p-5 rounded-2xl shadow-sm border border-sky-500/20 text-left">
+           <div class="text-xs text-sky-400 font-bold uppercase mb-1">Tempo di Visione</div>
+           <div class="text-2xl sm:text-3xl font-black text-white truncate">{{ formattedWatchtime }}</div>
         </div>
         <div class="bg-white/5 p-5 rounded-2xl shadow-sm border border-amber-500/20 text-left">
            <div class="text-xs text-amber-400 font-bold uppercase mb-1">Score Medio</div>
@@ -169,6 +173,20 @@ const { apiFetch } = useApi()
 
 const loading = ref(true)
 const stats = ref(null)
+
+const formattedWatchtime = computed(() => {
+  const mins = stats.value?.total_watchtime || 0
+  if (mins === 0) return '0m'
+  const days = Math.floor(mins / 1440)
+  const hours = Math.floor((mins % 1440) / 60)
+  const remainingMins = mins % 60
+  
+  const parts = []
+  if (days > 0) parts.push(`${days}g`)
+  if (hours > 0) parts.push(`${hours}h`)
+  if (remainingMins > 0 || parts.length === 0) parts.push(`${remainingMins}m`)
+  return parts.join(' ')
+})
 
 const directorsData = ref(null)
 const yearsData = ref(null)

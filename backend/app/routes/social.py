@@ -46,6 +46,67 @@ async def get_leaderboard(user=Depends(get_current_user)):
     leaderboard.sort(key=lambda x: x["movies_count"], reverse=True)
     return leaderboard[:10]
 
+@router.get("/profile/{username}")
+async def get_public_profile(username: str):
+    """
+    Ritorna le statistiche pubbliche e la lista dei film visti di un utente.
+    Accessibile pubblicamente (senza login).
+    """
+    import re
+    # Cerca per username
+    user_doc = await db["users"].find_one({"username": re.compile(f"^{re.escape(username)}$", re.IGNORECASE)})
+    
+    # Fallback se non trovato: controlla i prefissi delle email
+    if not user_doc:
+        all_users = await db["users"].find({}, {"email": 1, "username": 1, "_id": 1}).to_list(length=500)
+        for u in all_users:
+            email_part = u["email"].split("@")[0]
+            if email_part.lower() == username.lower():
+                user_doc = u
+                break
+                
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="Utente non trovato")
+        
+    uid = str(user_doc["_id"])
+    
+    total_movies = await db["movies"].count_documents({
+        "user_id": uid,
+        "$or": [{"kind": "movie"}, {"kind": {"$exists": False}}]
+    })
+    total_series = await db["movies"].count_documents({"user_id": uid, "kind": "tv"})
+    watched = await db["movies"].count_documents({"user_id": uid, "status": "watched"})
+    
+    # Watchtime calcolato per i visti
+    watchtime_pipeline = [
+        {"$match": {
+            "user_id": uid,
+            "status": "watched",
+            "runtime": {"$type": "number", "$gt": 0}
+        }},
+        {"$group": {"_id": None, "total": {"$sum": "$runtime"}}}
+    ]
+    watchtime_agg = await db["movies"].aggregate(watchtime_pipeline).to_list(length=1)
+    total_watchtime = watchtime_agg[0]["total"] if watchtime_agg else 0
+
+    cursor = db["movies"].find({"user_id": uid, "status": "watched"}).sort("release_year", -1)
+    movies = await cursor.to_list(length=100)
+    
+    def clean_movie(m):
+        m["id"] = str(m["_id"])
+        m.pop("_id", None)
+        m.pop("user_id", None)
+        return m
+        
+    return {
+        "username": user_doc.get("username") or user_doc["email"].split("@")[0],
+        "total_movies": total_movies,
+        "total_series": total_series,
+        "watched": watched,
+        "total_watchtime": total_watchtime,
+        "movies": [clean_movie(m) for m in movies]
+    }
+
 @router.post("/post", response_model=Activity)
 async def create_post(
     content: str = Body(..., embed=True),

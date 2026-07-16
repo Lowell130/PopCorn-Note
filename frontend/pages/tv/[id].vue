@@ -444,26 +444,26 @@ const autoplayEnabled = ref(true)
 const canNext = computed(() => {
   if (!episodes.value.length) return false
   // C'è un episodio dopo quello corrente?
-  const curr = selectedEpisode.value
-  const hasNextInSeason = episodes.value.some(e => e.episode_number === curr + 1)
+  const curr = Number(selectedEpisode.value)
+  const hasNextInSeason = episodes.value.some(e => Number(e.episode_number) === curr + 1)
   if (hasNextInSeason) return true
   
   // C'è una stagione successiva?
-  const currSeas = selectedSeason.value
-  const hasNextSeason = seasons.value.some(s => s.season_number === currSeas + 1)
+  const currSeas = Number(selectedSeason.value)
+  const hasNextSeason = seasons.value.some(s => Number(s.season_number) === currSeas + 1)
   return hasNextSeason
 })
 
 const canPrev = computed(() => {
   if (!episodes.value.length) return false
-  const curr = selectedEpisode.value
+  const curr = Number(selectedEpisode.value)
   // C'è un episodio prima?
-  const hasPrevInSeason = episodes.value.some(e => e.episode_number === curr - 1)
+  const hasPrevInSeason = episodes.value.some(e => Number(e.episode_number) === curr - 1)
   if (hasPrevInSeason) return true
   
   // C'è una stagione precedente?
-  const currSeas = selectedSeason.value
-  const hasPrevSeason = seasons.value.some(s => s.season_number === currSeas - 1)
+  const currSeas = Number(selectedSeason.value)
+  const hasPrevSeason = seasons.value.some(s => Number(s.season_number) === currSeas - 1)
   return hasPrevSeason
 })
 
@@ -471,14 +471,14 @@ const canPrev = computed(() => {
 async function nextEpisode() {
   if (!canNext.value) return
   
-  const currentEpNum = selectedEpisode.value
-  const nextEp = episodes.value.find(e => e.episode_number === currentEpNum + 1)
+  const currentEpNum = Number(selectedEpisode.value)
+  const nextEp = episodes.value.find(e => Number(e.episode_number) === currentEpNum + 1)
   
   if (nextEp) {
-    selectedEpisode.value = nextEp.episode_number
+    selectedEpisode.value = Number(nextEp.episode_number)
   } else {
     // Next season
-    selectedSeason.value = selectedSeason.value + 1
+    selectedSeason.value = Number(selectedSeason.value) + 1
     // Il watcher gestirà il caricamento
   }
 }
@@ -486,14 +486,14 @@ async function nextEpisode() {
 async function prevEpisode() {
   if (!canPrev.value) return
 
-  const currentEpNum = selectedEpisode.value
-  const prevEp = episodes.value.find(e => e.episode_number === currentEpNum - 1)
+  const currentEpNum = Number(selectedEpisode.value)
+  const prevEp = episodes.value.find(e => Number(e.episode_number) === currentEpNum - 1)
   
   if (prevEp) {
-    selectedEpisode.value = prevEp.episode_number
+    selectedEpisode.value = Number(prevEp.episode_number)
   } else {
     // Prev season
-    const prevSeasNum = selectedSeason.value - 1
+    const prevSeasNum = Number(selectedSeason.value) - 1
     if (prevSeasNum < 1) return
     
     selectedSeason.value = prevSeasNum
@@ -560,6 +560,7 @@ async function loadEpisodes() {
 }
 
 const playerUrl = computed(() => {
+  if (!initializedSeasons.value) return null
   const id = item.value?.tmdb_id
   const s = selectedSeason.value
   const e = selectedEpisode.value
@@ -592,7 +593,10 @@ async function markCurrentAsWatched() {
   try {
     const updated = await apiFetch(`/movies/${item.value.id}/progress`, {
       method: 'PUT',
-      body: { season: selectedSeason.value, episode: selectedEpisode.value }
+      body: { 
+        season: Number(selectedSeason.value), 
+        episode: Number(selectedEpisode.value) 
+      }
     })
     item.value = updated
     toast?.show?.('success', `Segnato S${selectedSeason.value} • E${selectedEpisode.value} come visto`)
@@ -730,22 +734,20 @@ async function handleEpisodeEnded() {
   if (!autoplayEnabled.value) return
 
   // 2. Calcola prossimo episodio
-  const currentEpNum = selectedEpisode.value
-  const currentSeasonNum = selectedSeason.value
+  const currentEpNum = Number(selectedEpisode.value)
+  const currentSeasonNum = Number(selectedSeason.value)
   
   // Cerca nell'array episodi corrente se c'è un successivo
-  // episodes.value è ordinato? Di solito sì da TMDB, ma cerchiamo per sicurezza
-  // Assumiamo che episode_number sia sequenziale
-  const nextInSeason = episodes.value.find(e => e.episode_number === currentEpNum + 1)
+  const nextInSeason = episodes.value.find(e => Number(e.episode_number) === currentEpNum + 1)
   
   if (nextInSeason) {
     // Caso semplice: prossimo episodio nella stessa stagione
     toast?.show?.('info', `Riproduzione episodio successivo: S${currentSeasonNum} E${nextInSeason.episode_number}`, 3000)
-    selectedEpisode.value = nextInSeason.episode_number
+    selectedEpisode.value = Number(nextInSeason.episode_number)
   } else {
     // Caso fine stagione: cerchiamo la prossima stagione
     const nextSeasNum = currentSeasonNum + 1
-    const nextSeasonExists = seasons.value.find(s => s.season_number === nextSeasNum)
+    const nextSeasonExists = seasons.value.find(s => Number(s.season_number) === nextSeasNum)
     
     if (nextSeasonExists) {
       toast?.show?.('info', `Inizio prossima stagione: S${nextSeasNum}`, 3000)
