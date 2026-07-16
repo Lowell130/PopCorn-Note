@@ -76,13 +76,34 @@ async def health_check():
 async def healthz():
     return {"ok": True}
 
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    origin = request.headers.get("origin")
+    headers = {}
+    if origin:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=headers,
+    )
+
 @app.exception_handler(Exception)
 async def all_exception_handler(request: Request, exc: Exception):
     # stampa lo stacktrace nei log (utile su Cloud Run)
     print("==== ERRORE INTERNO ====")
     traceback.print_exc()
     print("========================")
+    origin = request.headers.get("origin")
+    headers = {}
+    if origin:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal Server Error"},
+        headers=headers,
     )

@@ -5,9 +5,22 @@ from app.dependencies import get_current_user
 import httpx
 import asyncio
 from app.db import db
+import re
+from typing import Optional
 
 router = APIRouter(prefix="/tmdb", tags=["TMDb"])
 BASE = "https://api.themoviedb.org/3"
+
+def safe_release_year(date_str: Optional[str]) -> Optional[int]:
+    if not date_str or not isinstance(date_str, str):
+        return None
+    match = re.match(r"^\d{4}", date_str.strip())
+    if match:
+        try:
+            return int(match.group(0))
+        except ValueError:
+            pass
+    return None
 
 def ensure_api_key():
     if not settings.TMDB_API_KEY:
@@ -59,7 +72,7 @@ async def tmdb_search(
                 title = item.get("name")
                 date_ = item.get("first_air_date")
 
-            release_year = int(date_[:4]) if date_ and len(date_) >= 4 else None
+            release_year = safe_release_year(date_)
             poster_url = f"https://image.tmdb.org/t/p/w92{item['poster_path']}" if item.get("poster_path") else None
 
             results.append({
@@ -108,7 +121,7 @@ async def tmdb_details(tmdb_id: int, user=Depends(get_current_user)):
 
     poster_url = f"https://image.tmdb.org/t/p/w500{d['poster_path']}" if d.get("poster_path") else None
     release_date = d.get("release_date")
-    release_year = int(release_date[:4]) if release_date and len(release_date) >= 4 else None
+    release_year = safe_release_year(release_date)
 
     return {
         "kind": "movie",
@@ -143,7 +156,7 @@ async def tmdb_tv_details(tmdb_id: int, user=Depends(get_current_user)):
 
     poster_url = f"https://image.tmdb.org/t/p/w500{d['poster_path']}" if d.get("poster_path") else None
     first_air_date = d.get("first_air_date")
-    release_year = int(first_air_date[:4]) if first_air_date and len(first_air_date) >= 4 else None
+    release_year = safe_release_year(first_air_date)
 
     # “director”: per le serie uso il primo "created_by" (showrunner) se presente
     director = None
@@ -298,7 +311,7 @@ async def tmdb_trending(
             "kind": "movie" if mtype == "movie" else ("tv" if mtype == "tv" else None),
             "title": title,
             "release_date": release_date,
-            "release_year": int(release_date[:4]) if release_date else None,
+            "release_year": safe_release_year(release_date),
             "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
             "overview": m.get("overview") or None,
             "vote_average": m.get("vote_average"),
@@ -345,7 +358,7 @@ async def tmdb_popular(
             "kind": "movie" if media == "movie" else "tv",
             "title": title,
             "release_date": release_date,
-            "release_year": int(release_date[:4]) if release_date else None,
+            "release_year": safe_release_year(release_date),
             "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
             "overview": m.get("overview") or None,
             "vote_average": m.get("vote_average"),
@@ -406,7 +419,7 @@ async def movie_recommendations(
             "kind": "movie",
             "title": title,
             "release_date": release_date,
-            "release_year": int(release_date[:4]) if release_date else None,
+            "release_year": safe_release_year(release_date),
             "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
             "overview": m.get("overview") or None,
             "vote_average": m.get("vote_average"),
@@ -464,7 +477,7 @@ async def tv_recommendations(
             "kind": "tv",
             "title": title,
             "release_date": first_air,
-            "release_year": int(first_air[:4]) if first_air else None,
+            "release_year": safe_release_year(first_air),
             "poster_url": f"{base_img}{m['poster_path']}" if m.get("poster_path") else None,
             "overview": m.get("overview") or None,
             "vote_average": m.get("vote_average"),
