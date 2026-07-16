@@ -52,21 +52,22 @@
               No Poster
             </div>
 
-            <!-- Overlay Actions -->
-            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover/card:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+            <!-- Bottom Actions Bar (always visible on mobile, hover on desktop) -->
+            <div class="absolute bottom-0 inset-x-0 bg-slate-950/90 backdrop-blur-md p-1.5 flex gap-1 justify-between items-center transition-opacity duration-300 md:opacity-0 md:group-hover/card:opacity-100 opacity-100">
               <button 
                 @click="addRecommendation(rec)"
-                class="w-full py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-full shadow-lg transform transition-transform active:scale-95 flex items-center justify-center gap-1"
+                class="flex-1 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold rounded-lg shadow-sm flex items-center justify-center gap-1 active:scale-95 disabled:opacity-60"
                 :disabled="addingId === rec.id"
               >
-                <span v-if="addingId === rec.id" class="animate-spin">⌛</span>
+                <!-- Premium theme-aligned inline spinner -->
+                <span v-if="addingId === rec.id" class="animate-spin border-2 border-white border-t-transparent rounded-full w-3 h-3"></span>
                 <span v-else>+ Aggiungi</span>
               </button>
               
               <a 
                 :href="`https://www.themoviedb.org/${rec.kind === 'tv' ? 'tv' : 'movie'}/${rec.tmdb_id}`"
                 target="_blank"
-                class="w-full py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-medium rounded-full text-center backdrop-blur-sm"
+                class="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white text-[10px] font-medium rounded-lg text-center backdrop-blur-sm"
               >
                 Info
               </a>
@@ -194,10 +195,10 @@ async function addRecommendation(rec) {
     recommendations.value = recommendations.value.filter(r => r.id !== rec.id)
     
   } catch (e) {
-    console.error('Add rec error', e)
     if (e.response?.status === 409) {
       toast?.show?.('error', 'Già presente nella lista!')
     } else {
+      console.error('Add rec error', e)
       toast?.show?.('error', 'Errore durante l\'aggiunta')
     }
   } finally {

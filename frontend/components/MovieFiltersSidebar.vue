@@ -1,6 +1,12 @@
 <!-- components/MovieFiltersSidebar.vue -->
 <template>
-  <aside class="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-xl text-white w-full space-y-6">
+  <component
+    :is="flat ? 'div' : 'aside'"
+    :class="[
+      'text-white w-full space-y-6',
+      flat ? 'p-0 bg-transparent border-0 shadow-none' : 'bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-xl'
+    ]"
+  >
     <div>
       <h2 class="text-lg font-bold tracking-tight text-white mb-1">Filtri</h2>
       <p class="text-xs text-gray-400">
@@ -14,11 +20,18 @@
         <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Cerca
         </label>
-        <input
-          v-model="qProxy"
-          placeholder="Titolo o nota…"
-          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder-gray-500"
-        />
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </span>
+          <input
+            v-model="qProxy"
+            placeholder="Titolo o nota…"
+            class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-10 pr-3 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder-gray-500 outline-none"
+          />
+        </div>
       </div>
 
       <!-- Tipo -->
@@ -26,14 +39,21 @@
         <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Tipo
         </label>
-        <select
-          v-model="kindProxy"
-          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-900 [&>option]:text-white"
-        >
-          <option value="">Tutti</option>
-          <option value="movie">Solo film</option>
-          <option value="tv">Solo serie</option>
-        </select>
+        <div class="relative">
+          <select
+            v-model="kindProxy"
+            class="appearance-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
+          >
+            <option value="">Tutti</option>
+            <option value="movie">Solo film</option>
+            <option value="tv">Solo serie</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       <!-- Stato -->
@@ -41,16 +61,23 @@
         <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Stato
         </label>
-        <select
-          v-model="statusProxy"
-          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-900 [&>option]:text-white"
-        >
-          <option value="">Tutti</option>
-          <option value="to_watch">Da vedere</option>
-          <option value="watched">Visto</option>
-          <option value="upcoming">In uscita</option>
-          <option value="watching">In visione</option>
-        </select>
+        <div class="relative">
+          <select
+            v-model="statusProxy"
+            class="appearance-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
+          >
+            <option value="">Tutti</option>
+            <option value="to_watch">Da vedere</option>
+            <option value="watched">Visto</option>
+            <option value="upcoming">In uscita</option>
+            <option value="watching">In visione</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       <!-- Ordinamento -->
@@ -58,14 +85,21 @@
         <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           Ordina per
         </label>
-        <select
-          v-model="sortByProxy"
-          class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl p-2.5 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-900 [&>option]:text-white"
-        >
-          <option value="created_at_desc">Recenti</option>
-          <option value="title_asc">Titolo A→Z</option>
-          <option value="score_desc">Score alto</option>
-        </select>
+        <div class="relative">
+          <select
+            v-model="sortByProxy"
+            class="appearance-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
+          >
+            <option value="created_at_desc">Recenti</option>
+            <option value="title_asc">Titolo A→Z</option>
+            <option value="score_desc">Score alto</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
+            <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -130,7 +164,7 @@
       <p class="text-[10px] text-gray-500 mb-4">Panoramica rapida della tua libreria</p>
       <DashboardStats v-if="stats" :stats="stats" />
     </div>
-  </aside>
+  </component>
 </template>
 
 <script setup>
@@ -141,7 +175,8 @@ const props = defineProps({
   status: { type: String, default: '' },
   kind: { type: String, default: '' },
   sortBy: { type: String, default: 'created_at_desc' },
-  stats: { type: Object, default: null }
+  stats: { type: Object, default: null },
+  flat: { type: Boolean, default: false }
 })
 
 const emit = defineEmits([

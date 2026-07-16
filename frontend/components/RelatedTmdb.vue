@@ -209,11 +209,11 @@ async function quickAdd(it) {
     if (toast?.show) toast.show('success', `"${saved.title}" aggiunto!`)
     else alert(`"${saved.title}" aggiunto!`)
   } catch (e) {
-    console.error('quickAdd error', e)
     if (e?.response?.status === 409) {
       if (toast?.show) toast.show('error', 'Questo titolo è già presente nella tua collezione!')
       else alert('Questo titolo è già presente nella tua collezione!')
     } else {
+      console.error('quickAdd error', e)
       if (toast?.show) toast.show('error', 'Errore durante aggiunta')
       else alert('Errore durante aggiunta')
     }

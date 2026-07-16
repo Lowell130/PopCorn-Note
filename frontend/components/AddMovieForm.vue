@@ -214,9 +214,10 @@ async function submit () {
     reset()
     emit('added', created)
   } catch (e) {
-    console.error(e)
     if (e?.response?.status === 409) {
       toast?.show?.('error', 'Questo titolo è già presente nella tua collezione!')
+    } else {
+      console.error(e)
     }
   } finally {
     loading.value = false

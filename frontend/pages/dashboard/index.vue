@@ -155,23 +155,19 @@
 
     <!-- Pannello -->
     <div
-      class="relative h-full w-80 bg-white dark:bg-gray-800 p-4 overflow-y-auto shadow-lg drawer-scroll"
+      class="relative h-full w-80 bg-slate-950/95 border-r border-white/10 p-6 overflow-y-auto shadow-2xl drawer-scroll text-white backdrop-blur-md"
     >
-      <div class="flex items-center justify-between mb-4">
-        <h5 class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
+      <div class="flex items-center justify-between mb-6">
+        <h5 class="text-lg font-bold tracking-tight text-white uppercase">
           Filtri
         </h5>
         <button
           type="button"
           @click="isFiltersOpen = false"
-          class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          class="text-gray-400 bg-white/5 hover:bg-white/10 border border-white/10 hover:text-white rounded-xl p-2 inline-flex items-center justify-center transition-all"
         >
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clip-rule="evenodd"
-            />
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
           <span class="sr-only">Chiudi</span>
         </button>
@@ -183,6 +179,7 @@
         v-model:kind="kind"
         v-model:sortBy="sortBy"
         :stats="stats"
+        :flat="true"
         @reset="resetFilters"
       />
     </div>

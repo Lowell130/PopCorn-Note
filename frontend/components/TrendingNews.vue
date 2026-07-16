@@ -289,10 +289,10 @@ async function quickAdd(it) {
 
     toast?.show?.('success', `"${saved.title}" aggiunto!`)
   } catch (e) {
-    console.error('quickAdd trending error', e)
     if (e?.response?.status === 409) {
       toast?.show?.('error', 'Questo titolo è già presente nella tua collezione!')
     } else {
+      console.error('quickAdd trending error', e)
       toast?.show?.('error', 'Errore durante l\'aggiunta')
     }
   } finally {

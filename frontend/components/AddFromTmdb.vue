@@ -362,10 +362,10 @@ async function pick (item) {
     toast?.show?.('success', `"${saved.title}" aggiunto alla tua lista`)
     close()
   } catch (e) {
-    console.error('[TMDb] details/save error:', e)
     if (e?.response?.status === 409) {
       toast?.show?.('error', 'Questo titolo è già presente nella tua collezione!')
     } else {
+      console.error('[TMDb] details/save error:', e)
       toast?.show?.('error', 'Errore durante aggiunta da TMDb')
     }
   } finally {
