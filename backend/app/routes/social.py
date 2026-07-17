@@ -14,12 +14,12 @@ def _normalize(doc):
     return doc
 
 @router.get("/feed", response_model=List[Activity])
-async def get_feed(limit: int = 50, user=Depends(get_current_user)):
+async def get_feed(limit: int = 20, skip: int = 0, user=Depends(get_current_user)):
     """
-    Restituisce il feed globale delle attività.
+    Restituisce il feed globale delle attività paginato.
     Accessibile SOLO agli utenti registrati.
     """
-    cursor = db["activities"].find().sort("created_at", -1).limit(limit)
+    cursor = db["activities"].find().sort("created_at", -1).skip(skip).limit(limit)
     activities = await cursor.to_list(length=limit)
     return [_normalize(a) for a in activities]
 

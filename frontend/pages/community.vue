@@ -45,7 +45,7 @@
       <!-- Left Column: Compose & Activities -->
       <div class="col-span-1 lg:col-span-8 space-y-6">
         <!-- Compose Box -->
-        <div class="bg-white/5 border border-white/10 p-4 rounded-2xl shadow-xl animate-fade-in backdrop-blur-md">
+        <div class="bg-white/5 border border-white/10 p-4 rounded-2xl shadow-xl animate-fade-in">
             <textarea
                 v-model="newPostContent"
                 rows="2"
@@ -77,6 +77,17 @@
                 @deleted="onDeleted"
                 @reaction-updated="onReactionUpdated"
             />
+
+            <!-- Spinner caricamento altro feed -->
+            <div v-if="loadingMore" class="py-6 text-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
+              <p class="text-xs text-gray-500 mt-2 font-semibold uppercase tracking-wider">Caricamento altre attività...</p>
+            </div>
+
+            <!-- Fine feed banner -->
+            <div v-if="!hasMore && feed.length > 0" class="py-8 text-center text-gray-500 text-sm font-semibold select-none border-t border-white/5 mt-4">
+              Hai raggiunto la fine del feed! 🎉
+            </div>
             
             <div v-if="feed.length === 0" class="text-center py-12 text-gray-400">
                 <div class="text-4xl mb-2">🦗</div>
@@ -179,6 +190,12 @@ const newPostContent = ref('')
 const leaderboard = ref([])
 const loadingLeaderboard = ref(true)
 
+// Paginazione Infinite Scroll
+const limit = 20
+const skip = ref(0)
+const hasMore = ref(true)
+const loadingMore = ref(false)
+
 function onDeleted(id) {
     feed.value = feed.value.filter(i => i.id !== id)
     toast?.show?.('success', 'Post eliminato')
@@ -187,7 +204,10 @@ function onDeleted(id) {
 
 async function onReactionUpdated(activityId) {
     try {
-        const allFeed = await apiFetch('/social/feed')
+        // Recupera abbastanza elementi per coprire quelli caricati in locale
+        const allFeed = await apiFetch('/social/feed', {
+            query: { limit: Math.max(100, feed.value.length) }
+        })
         const updated = allFeed.find(item => item.id === activityId || item._id === activityId)
         if (updated) {
             const idx = feed.value.findIndex(i => i.id === activityId)
@@ -202,14 +222,56 @@ async function onReactionUpdated(activityId) {
 
 async function loadFeed() {
     loading.value = true
+    skip.value = 0
+    hasMore.value = true
     try {
-        const res = await apiFetch('/social/feed')
+        const res = await apiFetch('/social/feed', {
+            query: { limit, skip: skip.value }
+        })
         feed.value = res.map(i => ({...i, id: i.id || i._id}))
+        if (res.length < limit) {
+            hasMore.value = false
+        }
     } catch (e) {
         console.error("Feed error", e)
     } finally {
         loading.value = false
     }
+}
+
+async function loadMoreFeed() {
+    if (loadingMore.value || !hasMore.value) return
+    loadingMore.value = true
+    try {
+        const nextSkip = skip.value + limit
+        const res = await apiFetch('/social/feed', {
+            query: { limit, skip: nextSkip }
+        })
+        const mapped = res.map(i => ({...i, id: i.id || i._id}))
+        
+        // Evita duplicati nel feed
+        const existingIds = new Set(feed.value.map(f => f.id))
+        const uniqueNext = mapped.filter(item => !existingIds.has(item.id))
+        
+        feed.value.push(...uniqueNext)
+        skip.value = nextSkip
+        
+        if (res.length < limit) {
+            hasMore.value = false
+        }
+    } catch (e) {
+        console.error("Load more feed error", e)
+    } finally {
+        loadingMore.value = false
+    }
+}
+
+function handleScroll() {
+  const scrollPosition = window.innerHeight + window.scrollY
+  const threshold = document.documentElement.scrollHeight - 200
+  if (scrollPosition >= threshold) {
+    loadMoreFeed()
+  }
 }
 
 async function loadLeaderboard() {
@@ -262,6 +324,11 @@ function getAvatarColor(name) {
 onMounted(() => {
     loadFeed()
     loadLeaderboard()
+    window.addEventListener('scroll', handleScroll)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('scroll', handleScroll)
 })
 </script>
 

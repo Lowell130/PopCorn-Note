@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl flex gap-3 md:gap-4 animate-fade-in-up backdrop-blur-md text-white">
+  <div class="bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl flex gap-3 md:gap-4 animate-fade-in-up text-white">
     
     <!-- Avatar -->
     <div class="flex-shrink-0">
