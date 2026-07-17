@@ -92,6 +92,83 @@
     </div>
     <!-- <h1 class="text-2xl font-semibold text-black mb-6">User Management</h1> -->
 
+    <!-- Sezione Community Simulator -->
+    <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/60 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+      <div>
+        <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <span class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </span>
+          Community Simulator
+        </h2>
+        <p class="text-xs text-gray-400 mb-4">
+          Popola la community di utenti fittizi per testare le funzionalità social del sito (liste, recensioni, feed di attività, commenti e reazioni reciproche).
+        </p>
+
+        <!-- Stats -->
+        <div class="flex gap-4 mb-4">
+          <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex-1">
+            <span class="block text-xs font-semibold text-gray-500 uppercase">Utenti Fake</span>
+            <span class="text-2xl font-extrabold text-indigo-400">{{ fakeUsersCount }}</span>
+          </div>
+          <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex-1">
+            <span class="block text-xs font-semibold text-gray-500 uppercase">Utenti Reali</span>
+            <span class="text-2xl font-extrabold text-emerald-400">{{ realUsersCount }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col justify-between gap-4">
+        <!-- Controls -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Quantità da Generare</label>
+          <div class="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
+            <input type="range" v-model.number="fakeCount" min="1" max="50" class="w-full accent-indigo-500 bg-white/10 rounded-lg appearance-none cursor-pointer" />
+            <span class="text-lg font-bold text-white w-8 text-right">{{ fakeCount }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="space-y-2">
+          <div class="flex gap-3">
+            <button
+              @click="generateFakeUsers"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 transition disabled:opacity-50"
+              :disabled="generatorRunning"
+            >
+              <svg v-if="generatorRunning" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path>
+              </svg>
+              <span>{{ generatorRunning ? 'Generazione in corso…' : 'Genera Utenti' }}</span>
+            </button>
+
+            <!-- Reset button (double tap confirm) -->
+            <button
+              @click="handleDeleteFake"
+              class="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold rounded-xl transition"
+              :class="deleteConfirmedOnce ? 'bg-red-700 hover:bg-red-800 text-white animate-pulse' : 'bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20'"
+              :disabled="generatorRunning"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              <span>{{ deleteConfirmedOnce ? 'Confermi pulizia totale?' : 'Pulisci Fake' }}</span>
+            </button>
+          </div>
+
+          <!-- Messages -->
+          <div v-if="generatorMessage" class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5">
+            {{ generatorMessage }}
+          </div>
+          <div v-if="generatorError" class="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2.5">
+            {{ generatorError }}
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div v-if="loading" class="opacity-70">Loading…</div>
     <div v-else-if="error" class="text-red-600">Error: {{ error }}</div>
@@ -119,8 +196,9 @@
             :key="u.id"
             class="bg-transparent border-b border-white/5 text-gray-300 hover:bg-white/5 transition-colors"
           >
-            <th scope="row" class="px-6 py-4 font-bold text-white whitespace-nowrap">
-              {{ u.username || '—' }}
+            <th scope="row" class="px-6 py-4 font-bold text-white whitespace-nowrap flex items-center gap-2">
+              <span>{{ u.username || '—' }}</span>
+              <span v-if="u.is_fake" class="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold select-none uppercase tracking-wider">Fake</span>
             </th>
             <td class="px-6 py-4">{{ u.email }}</td>
             <td class="px-6 py-4">
@@ -260,6 +338,70 @@ const backfillStats = reactive({
   lastUpdated: null,
   lastRemaining: null,
 })
+
+// 🔹 Stato per simulatore community (Fake Users)
+const fakeCount = ref(10)
+const generatorRunning = ref(false)
+const generatorMessage = ref('')
+const generatorError = ref('')
+const deleteConfirmedOnce = ref(false)
+let deleteConfirmTimer = null
+
+const fakeUsersCount = computed(() => users.value.filter(u => u.is_fake).length)
+const realUsersCount = computed(() => users.value.filter(u => !u.is_fake).length)
+
+async function generateFakeUsers() {
+  if (generatorRunning.value) return
+  generatorRunning.value = true
+  generatorMessage.value = ''
+  generatorError.value = ''
+  try {
+    const res = await apiFetch('/admin/fake-users/generate', {
+      method: 'POST',
+      query: { count: fakeCount.value }
+    })
+    generatorMessage.value = res.message || 'Utenti fake generati con successo!'
+    // Ricarica la lista utenti
+    await fetchUsers()
+  } catch (e) {
+    generatorError.value = e?.response?._data?.detail || e?.message || 'Errore durante la generazione'
+  } finally {
+    generatorRunning.value = false
+  }
+}
+
+async function handleDeleteFake() {
+  if (generatorRunning.value) return
+  
+  if (!deleteConfirmedOnce.value) {
+    deleteConfirmedOnce.value = true
+    // Resetta dopo 5 secondi
+    deleteConfirmTimer = setTimeout(() => {
+      deleteConfirmedOnce.value = false
+    }, 5000)
+    return
+  }
+  
+  // Esegui cancellazione reale
+  clearTimeout(deleteConfirmTimer)
+  deleteConfirmedOnce.value = false
+  generatorRunning.value = true
+  generatorMessage.value = ''
+  generatorError.value = ''
+  
+  try {
+    const res = await apiFetch('/admin/fake-users', {
+      method: 'DELETE'
+    })
+    generatorMessage.value = res.message || 'Utenti fake rimossi con successo.'
+    // Ricarica la lista utenti
+    await fetchUsers()
+  } catch (e) {
+    generatorError.value = e?.response?._data?.detail || e?.message || 'Errore durante la pulizia'
+  } finally {
+    generatorRunning.value = false
+  }
+}
 
 onMounted(fetchUsers)
 
