@@ -42,7 +42,7 @@
         <div class="relative">
           <select
             v-model="kindProxy"
-            class="appearance-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
+            class="appearance-none bg-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
           >
             <option value="">Tutti</option>
             <option value="movie">Solo film</option>
@@ -64,7 +64,7 @@
         <div class="relative">
           <select
             v-model="statusProxy"
-            class="appearance-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
+            class="appearance-none bg-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
           >
             <option value="">Tutti</option>
             <option value="to_watch">Da vedere</option>
@@ -88,7 +88,7 @@
         <div class="relative">
           <select
             v-model="sortByProxy"
-            class="appearance-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
+            class="appearance-none bg-none w-full bg-white/5 border border-white/10 text-white text-sm rounded-xl py-2.5 pl-3 pr-10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all [&>option]:bg-slate-950 [&>option]:text-white cursor-pointer outline-none"
           >
             <option value="created_at_desc">Recenti</option>
             <option value="title_asc">Titolo A→Z</option>
