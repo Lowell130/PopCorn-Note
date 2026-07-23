@@ -5,7 +5,7 @@
     <div class="max-w-7xl mx-auto px-6 h-16 md:h-18 flex items-center justify-between">
       
       <!-- Brand -->
-      <NuxtLink to="/" class="group flex items-center gap-3 relative z-[70]">
+      <NuxtLink :to="isLoggedIn ? '/dashboard' : '/'" class="group flex items-center gap-3 relative z-[70]">
         <span class="text-2xl transform group-hover:scale-110 transition-transform duration-300">🍿</span>
         <span class="font-bold text-lg tracking-tight text-white group-hover:text-purple-400 transition-colors">
           PopCornNote

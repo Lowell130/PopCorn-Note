@@ -127,7 +127,7 @@
               <div class="pt-2">
                 <NuxtLink 
                   v-if="isLoggedIn"
-                  to="/" 
+                  to="/dashboard" 
                   class="inline-flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white font-bold rounded-2xl shadow-xl shadow-purple-600/30 transition-all transform hover:scale-105 text-sm"
                 >
                   <span>🍿 Prova PopCorn Bot in Dashboard</span>

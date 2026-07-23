@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 pb-12">
       <!-- Col 1: Brand & Desc -->
       <div class="md:col-span-5 space-y-4">
-        <NuxtLink to="/" class="flex items-center gap-3 text-2xl font-bold text-white hover:text-purple-400 transition-colors">
+        <NuxtLink :to="isLoggedIn ? '/dashboard' : '/'" class="flex items-center gap-3 text-2xl font-bold text-white hover:text-purple-400 transition-colors">
           <span>🍿</span> PopCornNote
         </NuxtLink>
         <p class="text-gray-400 leading-relaxed max-w-sm text-xs sm:text-sm">
@@ -75,6 +75,9 @@
 </template>
 
 <script setup>
+const token = useCookie('token', { sameSite: 'lax', path: '/', watch: true })
+const isLoggedIn = computed(() => !!token.value)
+
 const showScrollTop = ref(false)
 
 function scrollToTop() {
