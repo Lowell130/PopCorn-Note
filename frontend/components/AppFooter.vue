@@ -9,19 +9,6 @@
         <p class="text-gray-400 leading-relaxed max-w-sm text-xs sm:text-sm">
           PopCornNote è la tua centrale di controllo per film e serie TV. Cerca con TMDb, organizza la tua libreria per stato, analizza i tuoi gusti e condividi con una community di appassionati.
         </p>
-        <!-- Social Icons (Monochromatic SVG) -->
-        <div class="flex gap-4 pt-2">
-          <a href="#" class="text-gray-500 hover:text-purple-400 transition-colors" aria-label="Github">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-            </svg>
-          </a>
-          <a href="#" class="text-gray-500 hover:text-purple-400 transition-colors" aria-label="Twitter">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-          </a>
-        </div>
       </div>
 
       <!-- Col 2: Navigation Links -->

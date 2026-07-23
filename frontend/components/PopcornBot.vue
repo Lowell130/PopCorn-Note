@@ -246,7 +246,10 @@ const fetchUsage = async () => {
   try {
     const data = await apiFetch('/ai/usage')
     if (data) {
-      usageInfo.value = data
+      usageInfo.value = {
+        ...data,
+        ai_bot_enabled: data.ai_bot_enabled !== false
+      }
     }
   } catch (err) {
     // ignoriamo se non autenticato
@@ -304,7 +307,10 @@ const sendMessage = async () => {
         recommendations: res.recommendations || []
       })
       if (res.usage) {
-        usageInfo.value = res.usage
+        usageInfo.value = {
+          ...res.usage,
+          ai_bot_enabled: res.usage.ai_bot_enabled !== false
+        }
       }
     }
   } catch (err) {
