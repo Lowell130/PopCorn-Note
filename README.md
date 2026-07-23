@@ -1,5 +1,9 @@
 # PopCornNote 🎬
 
+<p align="center">
+  <img src="logo.png" alt="PopCornNote Logo" width="200" />
+</p>
+
 PopCornNote is a web application to manage your movie and TV show collection, track progress, and fetch metadata directly from **TMDb API**.  
 It also integrates with the **VixSrc API** to provide streaming links for TV show episodes.
 
@@ -97,6 +101,12 @@ You can run both the backend and frontend concurrently using the helper script i
 
 To grant admin access, add `"is_admin": true` to a user document in your MongoDB collection.  
 Admins can access the `/admin/users` page to view and manage registered users, simulate community activity, configure PopcornBot AI, and trigger background metadata sync.
+
+---
+
+## 📸 Screenshot
+
+![PopCornNote Dashboard](screenshot_dashboard.jpg)
 
 ---
 
