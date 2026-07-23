@@ -5,8 +5,8 @@ export const useApi = () => {
   const router = useRouter()
 
   const apiFetch = async (path, opts = {}) => {
-    // 👇 se non hai il token e stai chiamando /auth/me → evita direttamente
-    if (!token.value && path === '/auth/me') {
+    // 👇 se non hai il token ed è una chiamata opzionale → evita la chiamata HTTP
+    if (!token.value && (path === '/auth/me' || path.startsWith('/ai'))) {
       return null
     }
 
@@ -20,8 +20,8 @@ export const useApi = () => {
         ...opts,
       })
     } catch (err) {
-      // 👇 intercetta 401 solo se NON stai chiamando /auth/me
-      if (err?.status === 401 && path !== '/auth/me') {
+      // 👇 intercetta 401 solo se NON stai chiamando /auth/me o /ai/usage
+      if (err?.status === 401 && path !== '/auth/me' && path !== '/ai/usage') {
         token.value = null
         router.push('/login')
       }

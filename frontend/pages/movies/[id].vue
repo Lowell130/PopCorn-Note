@@ -259,7 +259,7 @@ const toast = useToast()
 
 // helper: ObjectId valido (24 hex)
 function isValidObjectId(id) {
-  return typeof id === 'string' && /^[a-f0-9]{24}$/i.test(id)
+  return typeof id === 'string' && id.trim().length > 0
 }
 
 // Forza remount della pagina per ogni id

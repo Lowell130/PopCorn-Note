@@ -536,3 +536,68 @@ async def delete_all_fake_users(admin=Depends(require_admin)):
         "deleted_activities": activities_res.deleted_count,
         "message": f"Eliminati con successo {users_res.deleted_count} utenti fake e tutti i loro dati correlati."
     }
+
+
+# ======== IMPOSTAZIONI DI SISTEMA (API KEY & BOT AI) ========
+class SystemSettingsUpdate(BaseModel):
+    ai_provider: Optional[str] = "gemini"
+    ai_api_key: Optional[str] = None
+    ai_model: Optional[str] = "gemini-1.5-flash"
+    ai_daily_limit_free: Optional[int] = Field(1, ge=1)
+
+
+@router.get("/settings")
+async def get_system_settings(admin=Depends(require_admin)):
+    """
+    Recupera le impostazioni di sistema (API Key AI, limiti, provider).
+    La chiave API viene restituita mascherata per sicurezza.
+    """
+    settings_doc = await db["system_settings"].find_one({"_id": "global"}) or {}
+    
+    raw_key = settings_doc.get("ai_api_key") or settings.TMDB_API_KEY  # o env fallback
+    masked_key = ""
+    if raw_key:
+        if len(raw_key) > 8:
+            masked_key = raw_key[:4] + "•" * (len(raw_key) - 8) + raw_key[-4:]
+        else:
+            masked_key = "••••••••"
+
+    return {
+        "ai_provider": settings_doc.get("ai_provider", "gemini"),
+        "ai_api_key_set": bool(raw_key),
+        "ai_api_key_masked": masked_key,
+        "ai_model": settings_doc.get("ai_model", "gemini-1.5-flash"),
+        "ai_daily_limit_free": settings_doc.get("ai_daily_limit_free", 1)
+    }
+
+
+@router.post("/settings")
+async def update_system_settings(
+    settings_data: SystemSettingsUpdate,
+    admin=Depends(require_admin)
+):
+    """
+    Aggiorna le impostazioni di sistema in MongoDB.
+    """
+    update_dict = {}
+    if settings_data.ai_provider is not None:
+        update_dict["ai_provider"] = settings_data.ai_provider
+    if settings_data.ai_api_key is not None and settings_data.ai_api_key.strip() != "":
+        # Se non è una chiave mascherata, salvala
+        if "•" not in settings_data.ai_api_key:
+            update_dict["ai_api_key"] = settings_data.ai_api_key.strip()
+    if settings_data.ai_model is not None:
+        update_dict["ai_model"] = settings_data.ai_model
+    if settings_data.ai_daily_limit_free is not None:
+        update_dict["ai_daily_limit_free"] = settings_data.ai_daily_limit_free
+
+    if update_dict:
+        update_dict["updated_at"] = datetime.utcnow()
+        await db["system_settings"].update_one(
+            {"_id": "global"},
+            {"$set": update_dict},
+            upsert=True
+        )
+
+    return {"message": "Impostazioni salvate con successo"}
+

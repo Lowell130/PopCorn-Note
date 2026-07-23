@@ -16,7 +16,7 @@
       <div class="hidden md:flex items-center gap-6">
         <!-- Links -->
         <template v-if="isLoggedIn">
-          <NuxtLink to="/" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Dashboard</NuxtLink>
+          <NuxtLink to="/dashboard" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Dashboard</NuxtLink>
           <NuxtLink to="/watchlist" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Watchlist</NuxtLink>
           <NuxtLink to="/news" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">News</NuxtLink>
           <NuxtLink to="/stats" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Statistiche</NuxtLink>
@@ -109,7 +109,7 @@
                 <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Menu</span>
               </div>
               
-              <NuxtLink to="/" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
+              <NuxtLink to="/dashboard" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                 Dashboard
               </NuxtLink>
               <NuxtLink to="/watchlist" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">

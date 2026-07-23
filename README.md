@@ -10,9 +10,11 @@ It also integrates with the **VixSrc API** to provide streaming links for TV sho
 - User authentication (JWT-based)
 - Add movies/TV shows manually or via **TMDb API**
 - Track statuses: `to_watch`, `watching`, `watched`, `upcoming`
+- **Release Calendar**: Tracking and precise countdowns for upcoming titles from your collection (excluding already released titles)
+- **PopcornBot (AI Assistant)**: Receive personalized recommendations, trivia, and collection advice from an integrated smart chatbot
 - Rate and add notes
 - Dashboard with user statistics
-- Admin panel to manage users and their stats
+- **Admin Dashboard**: Manage registered users, configure the AI Assistant, simulate community activities (fake users/activities), and sync TMDb metadata in the background (votes, runtimes, overviews, cast, directors, and poster URLs)
 - Streaming integration via **VixSrc API**
 
 ---
@@ -83,12 +85,18 @@ Run the frontend:
 npm run dev
 ```
 
+### ⚡ Quick Start (Windows)
+You can run both the backend and frontend concurrently using the helper script in the root directory:
+```powershell
+./start.ps1
+```
+
 ---
 
 ## 🔑 Admin Access
 
 To grant admin access, add `"is_admin": true` to a user document in your MongoDB collection.  
-Admins can access the `/admin/users` page to view and manage registered users and their stats.
+Admins can access the `/admin/users` page to view and manage registered users, simulate community activity, configure PopcornBot AI, and trigger background metadata sync.
 
 ---
 

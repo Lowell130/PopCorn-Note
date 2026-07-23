@@ -45,8 +45,9 @@ export const useAuth = () => {
       user.value = me
       return me
     } catch (e) {
-      // token non valido/expired → reset
+      // token non valido/expired → reset completo
       user.value = null
+      token.value = null
       return null
     }
   }

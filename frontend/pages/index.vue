@@ -72,8 +72,8 @@
                   <div class="h-12 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-xl flex items-center px-4 text-xs font-semibold select-none gap-2">
                     <span>🎬</span> Aggiungi Film o Serie TV
                   </div>
-                  <div class="h-12 bg-white/5 border border-white/10 text-white/80 rounded-xl flex items-center px-4 text-xs font-semibold select-none gap-2">
-                    <span>🎲</span> Fai scegliere al fato
+                  <div class="h-12 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-xl flex items-center px-4 text-xs font-semibold select-none gap-2">
+                    <span>🍿</span> PopCorn Bot AI
                   </div>
                 </div>
 
@@ -102,62 +102,89 @@
       </div>
     </section>
 
-    <!-- LIVE INTERACTIVE PLAYGROUND (Chiedi al Fato) -->
+    <!-- POPCORN BOT AI SHOWCASE SECTION -->
     <section class="py-24 bg-black/30 border-y border-white/5 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <!-- Background Spotlight -->
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl pointer-events-none"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-purple-500/10 blur-3xl pointer-events-none"></div>
 
-      <div class="mx-auto max-w-5xl">
-        <div class="bg-white/5 border border-white/10 rounded-3xl p-8 sm:p-12 backdrop-blur-md shadow-2xl relative">
+      <div class="mx-auto max-w-6xl">
+        <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-8 sm:p-12 backdrop-blur-xl shadow-2xl relative">
           <div class="grid md:grid-cols-12 gap-10 items-center">
             
             <!-- Left Info -->
-            <div class="md:col-span-7 space-y-6 text-left">
-              <div class="inline-block px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold uppercase tracking-wider">Playground Interattivo</div>
-              <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">Troppo indeciso stasera? <br />Lascia fare al Fato.</h2>
+            <div class="md:col-span-6 space-y-6 text-left">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold uppercase tracking-wider">
+                🍿 Assistente AI Integrato
+              </div>
+              <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+                Non sai cosa guardare stasera? <br />
+                <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-amber-400 bg-clip-text text-transparent">Chiedi a PopCorn Bot.</span>
+              </h2>
               <p class="text-gray-300 leading-relaxed text-sm sm:text-base">
-                La stanchezza da catalogo è reale. PopCornNote risolve i dubbi con un estrattore casuale intelligente integrato. Prova a cliccare il pulsante qui sotto per vedere come funziona in tempo reale direttamente sulla nostra landing page!
+                Il tuo assistente cinefilo personale potenziato da <strong>Intelligenza Artificiale</strong>. Esprime consigli in tempo reale basati sul tuo stato d'animo e dai tuoi film preferiti, permettendoti di salvare i suggerimenti nella tua Watchlist con <strong>1 solo click</strong>!
               </p>
               
-              <button 
-                @click="rollFato" 
-                :disabled="isRolling"
-                class="inline-flex items-center gap-3 px-6 py-4 bg-purple-500/20 hover:bg-purple-500/30 disabled:bg-purple-500/5 border border-purple-500/40 text-purple-300 font-bold rounded-2xl transition-all transform hover:scale-102 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed select-none shadow-lg shadow-purple-500/5"
-              >
-                <span>🎲</span>
-                <span>{{ isRolling ? 'Il Fato sta decidendo...' : 'Fai scegliere al Fato' }}</span>
-              </button>
+              <div class="pt-2">
+                <NuxtLink 
+                  v-if="isLoggedIn"
+                  to="/" 
+                  class="inline-flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white font-bold rounded-2xl shadow-xl shadow-purple-600/30 transition-all transform hover:scale-105 text-sm"
+                >
+                  <span>🍿 Prova PopCorn Bot in Dashboard</span>
+                  <span>➔</span>
+                </NuxtLink>
+                <NuxtLink 
+                  v-else
+                  to="/register" 
+                  class="inline-flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white font-bold rounded-2xl shadow-xl shadow-purple-600/30 transition-all transform hover:scale-105 text-sm"
+                >
+                  <span>✨ Registrati gratis per provare l'AI</span>
+                  <span>➔</span>
+                </NuxtLink>
+              </div>
             </div>
 
-            <!-- Right Terminal / Visual Screen -->
-            <div class="md:col-span-5 w-full">
-              <div class="bg-slate-950/80 border border-white/10 rounded-2xl p-6 min-h-[180px] flex flex-col justify-center items-center text-center relative overflow-hidden shadow-2xl">
-                <!-- Floating corner lights -->
-                <div class="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-purple-500/10 blur-xl"></div>
-                
-                <!-- Rotating Title -->
-                <Transition name="fade-bounce" mode="out-in">
-                  <div :key="selectedMovie" class="space-y-3">
-                    <span class="text-[10px] uppercase font-bold text-gray-500 tracking-widest block">Estrazione Casuale</span>
-                    
-                    <h3 
-                      :class="[
-                        'text-xl sm:text-2xl font-black tracking-tight leading-tight px-4 transition-all duration-300',
-                        isRolling ? 'text-gray-400 scale-95 opacity-80' : 'text-purple-300 scale-100 glow-text'
-                      ]"
-                    >
-                      "{{ selectedMovie }}"
-                    </h3>
+            <!-- Right Interactive Mini-Chat Preview -->
+            <div class="md:col-span-6 w-full">
+              <div class="bg-slate-950/90 border border-white/10 rounded-2xl p-5 shadow-2xl space-y-4 text-left font-sans">
+                <!-- Chat Header -->
+                <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                  <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-amber-500 flex items-center justify-center text-sm shadow-md">🍿</div>
+                  <div>
+                    <h4 class="font-bold text-white text-xs">PopCorn Bot AI</h4>
+                    <span class="text-[10px] text-emerald-400">● Online & Pronto</span>
+                  </div>
+                </div>
 
-                    <!-- Success Tag -->
-                    <div 
-                      v-if="rollResult" 
-                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider animate-pulse-fast mx-auto"
-                    >
-                      <span>✨</span> Scelta Perfetta
+                <!-- User Chat Bubble -->
+                <div class="flex justify-end">
+                  <div class="bg-purple-600 text-white text-xs rounded-2xl rounded-tr-none px-3.5 py-2.5 max-w-[85%] shadow-sm">
+                    Consigliami un thriller avvincente da max 90 minuti! ⏱️
+                  </div>
+                </div>
+
+                <!-- Bot Chat Bubble -->
+                <div class="flex items-start gap-2.5">
+                  <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/30 flex items-center justify-center text-xs shrink-0">🍿</div>
+                  <div class="bg-slate-900 border border-white/10 text-gray-200 text-xs rounded-2xl rounded-tl-none p-3 space-y-2.5 max-w-[90%]">
+                    <p>Ecco un titolo fantastico e ad alto ritmo che fa al caso tuo:</p>
+                    
+                    <!-- Movie Card Mock -->
+                    <div class="bg-slate-950 border border-white/10 rounded-xl p-2.5 flex gap-2.5 items-center">
+                      <div class="w-12 h-16 bg-purple-900/40 rounded-lg flex items-center justify-center text-lg shrink-0 border border-purple-500/20">🎬</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center">
+                          <h5 class="font-bold text-white text-xs truncate">Upgrade</h5>
+                          <span class="text-[10px] font-bold text-amber-400">⭐ 7.5</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400">Fantascienza / Thriller • 2018</p>
+                        <button class="mt-1.5 px-2 py-0.5 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold rounded transition-all">
+                          ➕ Aggiungi alla Watchlist
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </Transition>
+                </div>
               </div>
             </div>
 
@@ -368,9 +395,13 @@
 </template>
 
 <script setup>
+import { useAuth } from '~/composables/useAuth'
+
 definePageMeta({
   layout: 'landing'
 })
+
+const { isLoggedIn } = useAuth()
 
 // Simulated movies for the "Fai scegliere al Fato" playground widget
 const moviePool = [

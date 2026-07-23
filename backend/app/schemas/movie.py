@@ -32,7 +32,7 @@ class MovieCreate(BaseModel):
     poster_url: Optional[str] = None
     director: Optional[str] = None
     cast: Optional[List[str]] = None
-    runtime: Optional[int] = Field(default=None, ge=1, le=600)
+    runtime: Optional[int] = Field(default=None, ge=0, le=600)
     tmdb_id: Optional[int] = Field(default=None, ge=1)
     overview: Optional[str] = None
     tmdb_vote: Optional[float] = Field(default=None, ge=0, le=10)
@@ -60,7 +60,7 @@ class MovieUpdate(BaseModel):
     poster_url: Optional[str] = None
     director: Optional[str] = None
     cast: Optional[List[str]] = None
-    runtime: Optional[int] = Field(default=None, ge=1, le=600)
+    runtime: Optional[int] = Field(default=None, ge=0, le=600)
     tmdb_id: Optional[int] = Field(default=None, ge=1)
     overview: Optional[str] = None
     tmdb_vote: Optional[float] = Field(default=None, ge=0, le=10)

@@ -28,3 +28,13 @@ html, body {
   background-color: #090d16;
   color: #ffffff;
 }
+
+/* Utilities per nascondere le scrollbar grezze del browser */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+

@@ -11,6 +11,7 @@ from app.routes import admin as admin_routes
 from app.db import db
 from app.routes import admin_tmdb_tools
 from app.routes import watchlist  # 👈 Import watchlist
+from app.routes import ai  # 👈 Import AI bot
 
 app = FastAPI(title="PopCornNote API")
 
@@ -45,6 +46,8 @@ app.include_router(social.router) # 👈 Include social
 app.include_router(admin_routes.router)
 app.include_router(admin_tmdb_tools.router)
 app.include_router(watchlist.router) # 👈 Include watchlist
+app.include_router(ai.router) # 👈 Include AI bot
+
 
 @app.on_event("startup")
 async def create_indexes():

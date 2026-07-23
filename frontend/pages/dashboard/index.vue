@@ -45,21 +45,7 @@
         </div>
       </button>
       
-      <!-- Random Picker Button -->
-      <button
-        @click="showRandomPicker = true"
-        class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 focus:outline-none rounded-xl shadow-lg transition-all backdrop-blur-md sm:w-auto hover:scale-102"
-        title="Cosa guardo stasera?"
-      >
-        <span class="text-xl">🎲</span>
-        <span class="hidden sm:inline font-semibold">Fai scegliere al fato</span>
-      </button>
     </div>
-
-<!-- Random Picker Modal -->
-<Transition name="fade-slide">
-  <RandomPickerModal v-if="showRandomPicker" @close="showRandomPicker = false" />
-</Transition>
 
 
 

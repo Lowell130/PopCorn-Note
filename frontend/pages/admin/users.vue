@@ -1,179 +1,241 @@
 <!-- pages/admin/users.vue -->
 <template>
-  <div>
-    <!-- Header + pulsanti TMDb -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 class="text-3xl font-extrabold text-white tracking-tight">User Management</h1>
-        <p class="text-sm text-gray-400">
-          Gestisci utenti e avvia strumenti di manutenzione TMDb.
-        </p>
-      </div>
-
-      <!-- Box strumenti TMDb -->
-      <div class="flex flex-col items-end gap-2 w-full sm:w-auto">
-        <!-- Pulsante principale: aggiorna TUTTI -->
-        <button
-          @click="runFullBackfillTmdbVotes"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-60 w-full sm:w-auto"
-          :disabled="backfillRunning"
-        >
-          <svg
-    v-if="!backfillRunning"
-    class="w-5 h-5 text-white"
-    aria-hidden="true"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-  >
-    <path
-      stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
-    />
-  </svg>
-          <svg
-            v-else
-            class="animate-spin h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"
-            />
-          </svg>
-
-          <span>
-            {{ backfillRunning ? 'Aggiorno tutti i voti TMDb…' : 'Aggiorna tutti i voti TMDb' }}
-          </span>
-        </button>
-
-        <!-- Barra progresso (indeterminata) -->
-        <div v-if="backfillRunning" class="w-full sm:w-64">
-          <div class="h-1.5 w-full bg-purple-100 rounded-full overflow-hidden">
-            <div class="h-full w-1/2 bg-purple-500 animate-pulse"></div>
-          </div>
-        </div>
-
-        <!-- Messaggi -->
-        <div class="text-right w-full sm:w-64 space-y-0.5">
-          <p v-if="backfillStats.totalUpdated > 0" class="text-xs text-emerald-700">
-            Aggiornati finora: {{ backfillStats.totalUpdated }} elementi TMDb
-            <span v-if="backfillStats.batches > 1">
-              ({{ backfillStats.batches }} batch)
-            </span>
-          </p>
-          <p v-if="typeof backfillStats.lastUpdated === 'number'" class="text-xs text-gray-500">
-            Ultimo batch: {{ backfillStats.lastUpdated }} aggiornati
-            <span v-if="typeof backfillStats.lastRemaining === 'number'">
-              – rimanenti stimati: {{ backfillStats.lastRemaining }}
-            </span>
-          </p>
-          <p v-if="backfillMessage" class="text-xs text-emerald-700">
-            {{ backfillMessage }}
-          </p>
-          <p v-if="backfillError" class="text-xs text-red-600">
-            {{ backfillError }}
-          </p>
-        </div>
-      </div>
+  <div class="space-y-8 max-w-7xl mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="border-b border-white/10 pb-6">
+      <h1 class="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+        Pannello di Controllo Admin
+      </h1>
+      <p class="text-sm text-gray-400 mt-1">
+        Gestisci gli utenti registrati, configura l'assistente AI e sincronizza i dati dei film con TMDb.
+      </p>
     </div>
-    <!-- <h1 class="text-2xl font-semibold text-black mb-6">User Management</h1> -->
 
-    <!-- Sezione Community Simulator -->
-    <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/60 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-      <div>
-        <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
-          <span class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
-          </span>
-          Community Simulator
-        </h2>
-        <p class="text-xs text-gray-400 mb-4">
-          Popola la community di utenti fittizi per testare le funzionalità social del sito (liste, recensioni, feed di attività, commenti e reazioni reciproche).
-        </p>
-
-        <!-- Stats -->
-        <div class="flex gap-4 mb-4">
-          <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex-1">
-            <span class="block text-xs font-semibold text-gray-500 uppercase">Utenti Fake</span>
-            <span class="text-2xl font-extrabold text-indigo-400">{{ fakeUsersCount }}</span>
-          </div>
-          <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex-1">
-            <span class="block text-xs font-semibold text-gray-500 uppercase">Utenti Reali</span>
-            <span class="text-2xl font-extrabold text-emerald-400">{{ realUsersCount }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col justify-between gap-4">
-        <!-- Controls -->
-        <div>
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Quantità da Generare</label>
-          <div class="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
-            <input type="range" v-model.number="fakeCount" min="1" max="50" class="w-full accent-indigo-500 bg-white/10 rounded-lg appearance-none cursor-pointer" />
-            <span class="text-lg font-bold text-white w-8 text-right">{{ fakeCount }}</span>
-          </div>
-        </div>
-
-        <!-- Actions -->
+    <!-- Admin Tools Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- CARD 1: Sincronizzazione TMDb -->
+      <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col justify-between gap-4">
         <div class="space-y-2">
-          <div class="flex gap-3">
-            <button
-              @click="generateFakeUsers"
-              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 transition disabled:opacity-50"
-              :disabled="generatorRunning"
-            >
-              <svg v-if="generatorRunning" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="p-1.5 rounded-xl bg-purple-500/20 text-purple-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
-              <span>{{ generatorRunning ? 'Generazione in corso…' : 'Genera Utenti' }}</span>
-            </button>
+            </span>
+            Sincronizzazione TMDb
+          </h2>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            Aggiorna i voti, le durate, le descrizioni e le altre info dei film della collezione allineandoli a TMDb.
+          </p>
+        </div>
 
-            <!-- Reset button (double tap confirm) -->
-            <button
-              @click="handleDeleteFake"
-              class="inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold rounded-xl transition"
-              :class="deleteConfirmedOnce ? 'bg-red-700 hover:bg-red-800 text-white animate-pulse' : 'bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20'"
-              :disabled="generatorRunning"
+        <div class="space-y-4">
+          <!-- Bottone di avvio -->
+          <button
+            @click="runFullBackfillTmdbVotes"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-purple-700 hover:bg-purple-600 focus:outline-none transition disabled:opacity-60 cursor-pointer"
+            :disabled="backfillRunning"
+          >
+            <svg
+              v-if="!backfillRunning"
+              class="w-4 h-4 text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-              <span>{{ deleteConfirmedOnce ? 'Confermi pulizia totale?' : 'Pulisci Fake' }}</span>
-            </button>
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"
+              />
+            </svg>
+            <svg
+              v-else
+              class="animate-spin h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"
+              />
+            </svg>
+
+            <span>
+              {{ backfillRunning ? 'Sincronizzazione dati TMDb in corso…' : 'Sincronizza Voti e Info TMDb' }}
+            </span>
+          </button>
+
+          <!-- Barra progresso -->
+          <div v-if="backfillRunning" class="w-full">
+            <div class="h-1.5 w-full bg-purple-100/10 rounded-full overflow-hidden">
+              <div class="h-full w-1/2 bg-purple-500 animate-pulse"></div>
+            </div>
           </div>
 
-          <!-- Messages -->
-          <div v-if="generatorMessage" class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5">
-            {{ generatorMessage }}
-          </div>
-          <div v-if="generatorError" class="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2.5">
-            {{ generatorError }}
+          <!-- Log Messaggi -->
+          <div class="space-y-1">
+            <p v-if="backfillStats.totalUpdated > 0" class="text-[11px] text-emerald-400">
+              ✔ Aggiornati finora: <span class="font-bold text-white">{{ backfillStats.totalUpdated }}</span> elementi
+              <span v-if="backfillStats.batches > 1">({{ backfillStats.batches }} batch)</span>
+            </p>
+            <p v-if="typeof backfillStats.lastUpdated === 'number'" class="text-[11px] text-gray-400">
+              Ultimo batch: {{ backfillStats.lastUpdated }} aggiornati
+              <span v-if="typeof backfillStats.lastRemaining === 'number'" class="text-purple-300 block mt-0.5">
+                • Rimanenti da sincronizzare: <span class="font-bold text-white">{{ backfillStats.lastRemaining }}</span>
+              </span>
+            </p>
+            <p v-if="backfillMessage" class="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2">
+              {{ backfillMessage }}
+            </p>
+            <p v-if="backfillError" class="text-[11px] text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-2">
+              {{ backfillError }}
+            </p>
           </div>
         </div>
       </div>
+
+      <!-- CARD 2: Community Simulator -->
+      <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col justify-between gap-4">
+        <div class="space-y-2">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="p-1.5 rounded-xl bg-indigo-500/20 text-indigo-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </span>
+            Community Simulator
+          </h2>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            Popola la community con utenti e attività fittizie per testare il feed e le funzioni social.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Stats utenti -->
+          <div class="flex gap-3">
+            <div class="bg-white/5 border border-white/5 rounded-2xl px-4 py-2.5 flex-1">
+              <span class="block text-[10px] font-semibold text-gray-500 uppercase">Fake Users</span>
+              <span class="text-xl font-extrabold text-indigo-400">{{ fakeUsersCount }}</span>
+            </div>
+            <div class="bg-white/5 border border-white/5 rounded-2xl px-4 py-2.5 flex-1">
+              <span class="block text-[10px] font-semibold text-gray-500 uppercase">Real Users</span>
+              <span class="text-xl font-extrabold text-emerald-400">{{ realUsersCount }}</span>
+            </div>
+          </div>
+
+          <!-- Slider quantità -->
+          <div>
+            <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Quantità da Generare</label>
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+              <input type="range" v-model.number="fakeCount" min="1" max="50" class="w-full accent-indigo-500 bg-white/10 rounded-lg appearance-none cursor-pointer" />
+              <span class="text-sm font-bold text-white w-6 text-right">{{ fakeCount }}</span>
+            </div>
+          </div>
+
+          <!-- Pulsanti azioni -->
+          <div class="space-y-2">
+            <div class="flex gap-2">
+              <button
+                @click="generateFakeUsers"
+                class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-500 transition disabled:opacity-50 cursor-pointer"
+                :disabled="generatorRunning"
+              >
+                <svg v-if="generatorRunning" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path>
+                </svg>
+                <span>{{ generatorRunning ? 'Generazione…' : 'Genera Utenti' }}</span>
+              </button>
+
+              <button
+                @click="handleDeleteFake"
+                class="inline-flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-semibold rounded-xl transition cursor-pointer"
+                :class="deleteConfirmedOnce ? 'bg-red-700 hover:bg-red-600 text-white animate-pulse' : 'bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20'"
+                :disabled="generatorRunning"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>{{ deleteConfirmedOnce ? 'Confermi?' : 'Pulisci Fake' }}</span>
+              </button>
+            </div>
+
+            <!-- Messaggi simulator -->
+            <div v-if="generatorMessage" class="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2">
+              {{ generatorMessage }}
+            </div>
+            <div v-if="generatorError" class="text-[11px] text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-2">
+              {{ generatorError }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: PopcornBot AI -->
+      <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col justify-between gap-4">
+        <div class="space-y-2">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span class="p-1.5 rounded-xl bg-slate-500/20 text-slate-300">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </span>
+            Assistente AI PopcornBot
+          </h2>
+          <p class="text-xs text-gray-400 leading-relaxed">
+            Configura il comportamento, la personalità e le impostazioni dei suggerimenti dell'assistente AI.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-white/5 border border-white/5 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
+            <p>• Personalità e tono personalizzati</p>
+            <p>• Supporto per suggerimenti basati sui tuoi gusti</p>
+            <p>• Risposte generate in tempo reale tramite LLM</p>
+          </div>
+
+          <NuxtLink
+            to="/admin/settings"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-slate-800 hover:bg-slate-700 border border-white/10 transition shadow-md cursor-pointer"
+          >
+            <span>🍿 Impostazioni Bot AI</span>
+          </NuxtLink>
+        </div>
+      </div>
+
     </div>
 
-    <div v-if="loading" class="opacity-70">Loading…</div>
-    <div v-else-if="error" class="text-red-600">Error: {{ error }}</div>
+    <!-- User Management Table Section -->
+    <div class="space-y-4 pt-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-white tracking-tight">
+          Gestione Utenti Registrati
+        </h2>
+        <span class="text-xs bg-slate-800 text-slate-300 border border-white/10 rounded-full px-3 py-1 font-semibold">
+          Totale Utenti: {{ users.length }}
+        </span>
+      </div>
 
-    <div v-else class="relative overflow-x-auto shadow rounded-xl">
+      <div v-if="loading" class="opacity-70 text-center py-10">Caricamento in corso…</div>
+      <div v-else-if="error" class="text-red-400 text-center py-10 bg-red-500/10 border border-red-500/20 rounded-2xl">
+        Errore: {{ error }}
+      </div>
+
+      <div v-else class="relative overflow-x-auto shadow-xl border border-white/10 rounded-3xl">
       <table class="w-full text-sm text-left text-gray-300">
         <thead class="text-xs text-gray-400 uppercase bg-white/5 border-b border-white/10">
           <tr>
@@ -251,6 +313,7 @@
         </tbody>
       </table>
     </div>
+  </div>
 
     <!-- Modal Edit -->
     <div
@@ -403,7 +466,10 @@ async function handleDeleteFake() {
   }
 }
 
-onMounted(fetchUsers)
+onMounted(async () => {
+  await fetchUsers()
+  await checkBackfillStatus()
+})
 
 async function fetchUsers() {
   loading.value = true
@@ -489,55 +555,68 @@ async function saveEdit() {
   }
 }
 
-// 🔁 BACKFILL IN LOOP FINO A ESAURIMENTO
+let statusInterval = null
+
+async function checkBackfillStatus() {
+  try {
+    const res = await apiFetch('/admin/tmdb-tools/backfill-status')
+    
+    const wasRunning = backfillRunning.value
+    backfillRunning.value = res.running
+    backfillStats.totalUpdated = res.total_updated
+    backfillStats.lastUpdated = res.last_batch_updated
+    backfillStats.lastRemaining = res.remaining
+    
+    if (res.error) {
+      backfillError.value = res.error
+    }
+    
+    if (wasRunning && !res.running) {
+      if (res.completed) {
+        backfillMessage.value = `Sincronizzazione completata! Aggiornati ${res.total_updated} elementi.`
+      }
+      stopPolling()
+    }
+    
+    if (res.running) {
+      startPolling()
+    }
+  } catch (e) {
+    console.error('Errore nel recupero dello stato di sincronizzazione:', e)
+  }
+}
+
+function startPolling() {
+  if (statusInterval) return
+  statusInterval = setInterval(checkBackfillStatus, 2000)
+}
+
+function stopPolling() {
+  if (statusInterval) {
+    clearInterval(statusInterval)
+    statusInterval = null
+  }
+}
+
+onUnmounted(() => {
+  stopPolling()
+})
+
 async function runFullBackfillTmdbVotes() {
   if (backfillRunning.value) return
 
-  backfillRunning.value = true
   backfillMessage.value = ''
   backfillError.value = ''
   backfillStats.totalUpdated = 0
-  backfillStats.batches = 0
-  backfillStats.lastUpdated = null
-  backfillStats.lastRemaining = null
-
-  const batchSize = 100
-  const maxBatches = 100  // sicurezza per evitare loop infinito
-
+  backfillStats.lastUpdated = 0
+  
   try {
-    for (let i = 0; i < maxBatches; i++) {
-      const res = await apiFetch('/admin/tmdb-tools/backfill-tmdb-votes', {
-        method: 'POST',
-        query: { limit: batchSize, force: false },
-      })
-
-      const updated = res?.updated ?? 0
-      const remaining = res?.remaining
-
-      backfillStats.batches += 1
-      backfillStats.totalUpdated += updated
-      backfillStats.lastUpdated = updated
-      backfillStats.lastRemaining = typeof remaining === 'number' ? remaining : null
-
-      // se il batch non ha aggiornato nulla, fermati
-      if (!updated || updated === 0) break
-
-      // se remaining è 0, fermati
-      if (typeof remaining === 'number' && remaining <= 0) break
-    }
-
-    if (backfillStats.totalUpdated === 0) {
-      backfillMessage.value = 'Nessun elemento TMDb da aggiornare.'
-    } else {
-      backfillMessage.value = `Backfill completato. Aggiornati ${backfillStats.totalUpdated} elementi in ${backfillStats.batches} batch.`
-    }
+    const res = await apiFetch('/admin/tmdb-tools/backfill-tmdb-votes', { method: 'POST' })
+    backfillRunning.value = true
+    backfillStats.lastRemaining = res.state?.remaining
+    startPolling()
   } catch (e) {
-    backfillError.value =
-      e?.response?._data?.detail ||
-      e?.message ||
-      'Errore durante aggiornamento voti TMDb'
-  } finally {
-    backfillRunning.value = false
+    backfillError.value = e?.response?._data?.detail || e?.message || 'Impossibile avviare la sincronizzazione.'
   }
 }
 </script>

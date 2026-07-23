@@ -388,7 +388,7 @@ const toast = useToast?.()
 const savingProgress = ref(false)
 
 function isValidObjectId(id) {
-  return typeof id === 'string' && /^[a-f0-9]{24}$/i.test(id)
+  return typeof id === 'string' && id.trim().length > 0
 }
 
 definePageMeta({

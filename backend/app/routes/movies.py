@@ -67,8 +67,8 @@ async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
 @router.get("/random", response_model=MovieResponse)
 async def get_random_movie(
     user=Depends(get_current_user),
-    status: str = Query("to_watch", regex="^(to_watch|watched|upcoming|watching)$"),
-    kind: str | None = Query(None, regex="^(movie|tv)$"),
+    status: str = Query("to_watch", pattern="^(to_watch|watched|upcoming|watching)$"),
+    kind: str | None = Query(None, pattern="^(movie|tv)$"),
 ):
     """
     Restituisce un film a caso dalla lista dell'utente, filtrato opzionalmente per status (default=to_watch) e kind.
@@ -198,30 +198,138 @@ async def movies_stats(user=Depends(get_current_user)):
 
 @router.get("/{movie_id}", response_model=MovieResponse)
 async def get_movie(movie_id: str, user=Depends(get_current_user)):
-    m = await db["movies"].find_one({"_id": ObjectId(movie_id), "user_id": str(user["_id"])})
+    user_id_str = str(user["_id"])
+    m = None
+    
+    # 1. Prova a cercare per ObjectId (_id)
+    try:
+        if ObjectId.is_valid(movie_id):
+            m = await db["movies"].find_one({"_id": ObjectId(movie_id), "user_id": user_id_str})
+    except Exception:
+        pass
+
+    # 2. Se non trovato per _id, cerca per tmdb_id nella collezione utente
     if not m:
-        raise HTTPException(status_code=404, detail="Movie not found")
+        try:
+            tmdb_val = int(movie_id) if movie_id.isdigit() else movie_id
+            m = await db["movies"].find_one({
+                "user_id": user_id_str,
+                "$or": [{"tmdb_id": tmdb_val}, {"tmdb_id": str(tmdb_val)}]
+            })
+        except Exception:
+            pass
+
+    # 3. Se non presente nel DB utente ed è un tmdb_id valido, recupera da TMDb e importa in 'to_watch'
+    if not m and (movie_id.isdigit() or len(movie_id) < 15):
+        try:
+            tmdb_key = settings.TMDB_API_KEY
+            if tmdb_key:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    # Prova come film
+                    r = await client.get(
+                        f"https://api.themoviedb.org/3/movie/{movie_id}",
+                        params={"api_key": tmdb_key, "language": "it-IT", "append_to_response": "credits"}
+                    )
+                    kind = "movie"
+                    if r.status_code != 200:
+                        # Prova come serie TV
+                        r = await client.get(
+                            f"https://api.themoviedb.org/3/tv/{movie_id}",
+                            params={"api_key": tmdb_key, "language": "it-IT", "append_to_response": "credits"}
+                        )
+                        kind = "tv"
+
+                    if r.status_code == 200:
+                        data = r.json()
+                        title = data.get("title") or data.get("name") or "Sconosciuto"
+                        poster_path = data.get("poster_path")
+                        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None
+                        
+                        date_str = data.get("release_date") or data.get("first_air_date") or ""
+                        release_year = int(date_str[:4]) if date_str and date_str[:4].isdigit() else None
+                        
+                        director = None
+                        cast_list = []
+                        if "credits" in data:
+                            crew = data["credits"].get("crew", [])
+                            for member in crew:
+                                if member.get("job") == "Director":
+                                    director = member.get("name")
+                                    break
+                            cast = data["credits"].get("cast", [])
+                            cast_list = [c.get("name") for c in cast[:5] if c.get("name")]
+
+                        new_movie = {
+                            "user_id": user_id_str,
+                            "tmdb_id": int(movie_id) if movie_id.isdigit() else movie_id,
+                            "title": title,
+                            "kind": kind,
+                            "status": "to_watch",
+                            "poster_url": poster_url,
+                            "release_year": release_year,
+                            "release_date": date_str,
+                            "overview": data.get("overview", ""),
+                            "director": director,
+                            "cast": cast_list,
+                            "runtime": data.get("runtime") or (data.get("episode_run_time")[0] if data.get("episode_run_time") else None),
+                            "tmdb_vote": data.get("vote_average"),
+                            "created_at": datetime.utcnow(),
+                            "updated_at": datetime.utcnow()
+                        }
+                        
+                        try:
+                            res = await db["movies"].insert_one(new_movie)
+                            new_movie["_id"] = res.inserted_id
+                            m = new_movie
+                        except Exception:
+                            # Se già esiste duplicato, recuperalo
+                            m = await db["movies"].find_one({
+                                "user_id": user_id_str,
+                                "$or": [{"tmdb_id": int(movie_id)}, {"tmdb_id": str(movie_id)}]
+                            })
+        except Exception as ex:
+            print("Errore import automatico TMDb:", ex)
+
+    if not m:
+        raise HTTPException(status_code=404, detail="Film o Serie TV non trovato")
     return _normalize(m)
 
 @router.get("/", response_model=List[MovieResponse])
 async def list_movies(
     user=Depends(get_current_user),
-    status: str | None = Query(None, regex="^(to_watch|watched|upcoming|watching)$"),
+    status: str | None = Query(None, pattern="^(to_watch|watched|upcoming|watching)$"),
     q: str | None = None,
-    kind: str | None = Query(None, regex="^(movie|tv)$"),
+    kind: str | None = Query(None, pattern="^(movie|tv)$"),
     limit: int = Query(100, le=1000),
     skip: int = Query(0, ge=0),
     sort: str = Query("created_at_desc"),
     # priorità in alto (come già fatto)
-    priority_status: str | None = Query(None, regex="^(to_watch|watched|upcoming|watching)$"),
+    priority_status: str | None = Query(None, pattern="^(to_watch|watched|upcoming|watching)$"),
     # 👇 NUOVO: spinge questo status in fondo
-    push_last_status: str | None = Query(None, regex="^(to_watch|watched|upcoming|watching)$"),
+    push_last_status: str | None = Query(None, pattern="^(to_watch|watched|upcoming|watching)$"),
     director: str | None = Query(None, description="Filtra per nome del regista"),
     cast: str | None = Query(None, description="Filtra per nome di un attore nel cast"),
+    upcoming_calendar: bool = Query(False, description="Se True, restituisce solo i titoli per il calendario uscite (upcoming o data futura)"),
 ):
     and_clauses = [{"user_id": str(user["_id"])}]
     if status:
         and_clauses.append({"status": status})
+
+    if upcoming_calendar:
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        and_clauses.append({
+            "$or": [
+                {"release_date": {"$gte": today_str}},
+                {
+                    "status": "upcoming",
+                    "$or": [
+                        {"release_date": {"$exists": False}},
+                        {"release_date": None},
+                        {"release_date": ""}
+                    ]
+                }
+            ]
+        })
 
     if kind:
         if kind == "movie":
@@ -248,6 +356,9 @@ async def list_movies(
     elif sort == "score_desc":
         tail_sort = {"score": -1, "created_at": -1}
         sort_spec = [("score", -1), ("created_at", -1)]
+    elif sort == "release_date_asc":
+        tail_sort = {"release_date": 1, "created_at": -1}
+        sort_spec = [("release_date", 1), ("created_at", -1)]
     else:
         tail_sort = {"created_at": -1}
         sort_spec = [("created_at", -1)]

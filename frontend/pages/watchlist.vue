@@ -267,11 +267,11 @@ onMounted(async () => {
 
 async function loadUpcoming() {
   try {
-    const allMovies = await apiFetch('/movies/')
+    const allMovies = await apiFetch('/movies/?upcoming_calendar=true&limit=500')
     const today = new Date().toISOString().split('T')[0]
     
     upcomingItems.value = allMovies
-      .filter(m => m.status === 'upcoming' || (m.release_date && m.release_date >= today))
+      .filter(m => (m.release_date && m.release_date >= today) || (!m.release_date && m.status === 'upcoming'))
       .sort((a, b) => {
         if (!a.release_date) return 1
         if (!b.release_date) return -1

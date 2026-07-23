@@ -29,7 +29,7 @@
         <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Applicativo</h4>
         <ul class="space-y-2">
           <li>
-            <NuxtLink to="/" class="hover:text-purple-400 transition-colors">Dashboard</NuxtLink>
+            <NuxtLink to="/dashboard" class="hover:text-purple-400 transition-colors">Dashboard</NuxtLink>
           </li>
           <li>
             <NuxtLink to="/watchlist" class="hover:text-purple-400 transition-colors">Watchlist</NuxtLink>
