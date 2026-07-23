@@ -1,10 +1,10 @@
 <!-- components/PopcornBot.vue -->
 <template>
-  <div v-if="isLoggedIn">
+  <div v-if="isLoggedIn && usageInfo.ai_bot_enabled">
     <!-- Floating Toggle Button -->
     <button
       @click="toggleChat"
-      class="fixed bottom-20 right-6 z-50 p-4 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white rounded-full shadow-2xl shadow-purple-600/40 transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 group border border-white/20"
+      class="fixed bottom-20 right-6 z-50 p-4 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 bg-no-repeat text-white rounded-full shadow-2xl shadow-purple-600/40 transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 group border border-white/20"
       aria-label="Apri PopCorn Bot AI"
     >
       <span class="text-2xl group-hover:rotate-12 transition-transform duration-300">🍿</span>
@@ -219,7 +219,8 @@ const usageInfo = ref({
   today_count: 0,
   daily_limit: 1,
   remaining: 1,
-  can_request: true
+  can_request: true,
+  ai_bot_enabled: true
 })
 
 const quickPrompts = [

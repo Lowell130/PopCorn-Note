@@ -30,6 +30,7 @@ async def get_ai_usage(current_user: Dict[str, Any] = Depends(get_current_user))
 
     settings_doc = await db["system_settings"].find_one({"_id": "global"}) or {}
     daily_limit = settings_doc.get("ai_daily_limit_free", 1)
+    ai_bot_enabled = settings_doc.get("ai_bot_enabled", True)
 
     usage_doc = await db["ai_usage"].find_one({"user_id": user_id, "date": today_str}) or {}
     today_count = usage_doc.get("count", 0)
@@ -41,7 +42,8 @@ async def get_ai_usage(current_user: Dict[str, Any] = Depends(get_current_user))
         "today_count": today_count,
         "daily_limit": daily_limit if not is_admin else "illimitato",
         "remaining": remaining,
-        "can_request": is_admin or (today_count < daily_limit)
+        "can_request": (is_admin or (today_count < daily_limit)) and ai_bot_enabled,
+        "ai_bot_enabled": ai_bot_enabled
     }
 
 
@@ -229,8 +231,15 @@ async def ai_chat(
     is_admin = bool(current_user.get("is_admin", False))
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-    # 1. Verifica Rate Limiting per utenti non-admin
+    # 1. Verifica se il bot è abilitato e Rate Limiting per utenti non-admin
     settings_doc = await db["system_settings"].find_one({"_id": "global"}) or {}
+    ai_bot_enabled = settings_doc.get("ai_bot_enabled", True)
+    if not ai_bot_enabled:
+        raise HTTPException(
+            status_code=400,
+            detail="Il servizio PopCorn Bot è stato disattivato dall'amministratore."
+        )
+
     daily_limit = settings_doc.get("ai_daily_limit_free", 1)
 
     usage_doc = await db["ai_usage"].find_one({"user_id": user_id, "date": today_str}) or {}

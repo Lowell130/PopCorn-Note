@@ -544,6 +544,7 @@ class SystemSettingsUpdate(BaseModel):
     ai_api_key: Optional[str] = None
     ai_model: Optional[str] = "gemini-1.5-flash"
     ai_daily_limit_free: Optional[int] = Field(1, ge=1)
+    ai_bot_enabled: Optional[bool] = True
 
 
 @router.get("/settings")
@@ -567,7 +568,8 @@ async def get_system_settings(admin=Depends(require_admin)):
         "ai_api_key_set": bool(raw_key),
         "ai_api_key_masked": masked_key,
         "ai_model": settings_doc.get("ai_model", "gemini-1.5-flash"),
-        "ai_daily_limit_free": settings_doc.get("ai_daily_limit_free", 1)
+        "ai_daily_limit_free": settings_doc.get("ai_daily_limit_free", 1),
+        "ai_bot_enabled": settings_doc.get("ai_bot_enabled", True)
     }
 
 
@@ -590,6 +592,8 @@ async def update_system_settings(
         update_dict["ai_model"] = settings_data.ai_model
     if settings_data.ai_daily_limit_free is not None:
         update_dict["ai_daily_limit_free"] = settings_data.ai_daily_limit_free
+    if settings_data.ai_bot_enabled is not None:
+        update_dict["ai_bot_enabled"] = settings_data.ai_bot_enabled
 
     if update_dict:
         update_dict["updated_at"] = datetime.utcnow()
@@ -598,6 +602,5 @@ async def update_system_settings(
             {"$set": update_dict},
             upsert=True
         )
-
     return {"message": "Impostazioni salvate con successo"}
 

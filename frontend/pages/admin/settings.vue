@@ -32,6 +32,24 @@
 
     <!-- Form Impostazioni -->
     <form v-else @submit.prevent="saveSettings" class="space-y-6">
+      <!-- Card Stato Bot AI -->
+      <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="space-y-1">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span>🤖</span> Stato PopCorn Bot
+            </h2>
+            <p class="text-xs text-gray-400">
+              Attiva o disattiva l'assistente virtuale in tutto il sito.
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" v-model="form.ai_bot_enabled" class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+          </label>
+        </div>
+      </div>
+
       <!-- Card Provider & API Key -->
       <div class="bg-slate-900/60 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl space-y-6">
         <h2 class="text-xl font-bold text-white flex items-center gap-2">
@@ -188,7 +206,8 @@ const form = ref({
   ai_provider: 'gemini',
   ai_api_key: '',
   ai_model: 'gemini-2.0-flash',
-  ai_daily_limit_free: 1
+  ai_daily_limit_free: 1,
+  ai_bot_enabled: true
 })
 
 const fetchSettings = async () => {
@@ -200,6 +219,7 @@ const fetchSettings = async () => {
       form.value.ai_provider = data.ai_provider || 'gemini'
       form.value.ai_model = data.ai_model || 'gemini-1.5-flash'
       form.value.ai_daily_limit_free = data.ai_daily_limit_free || 1
+      form.value.ai_bot_enabled = data.ai_bot_enabled !== false
       apiKeyStatus.value = data.ai_api_key_set
       maskedApiKey.value = data.ai_api_key_masked
       if (data.ai_api_key_set) {
