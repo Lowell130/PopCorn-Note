@@ -433,7 +433,13 @@ async function fetchMovies({ reset = false } = {}) {
 // Watch filtri & ricerca → refetch
 watch([q, status, sortBy, kind], () => fetchMovies({ reset: true }))
 
+const handleCollectionUpdated = () => {
+  fetchStats()
+  fetchMovies({ reset: true })
+}
+
 onMounted(() => {
+  document.addEventListener('collection-updated', handleCollectionUpdated)
   fetchStats()                 // carica subito le stats
   fetchMovies({ reset: true }) // e la prima pagina
   observer = new IntersectionObserver((entries) => {
@@ -445,6 +451,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  document.removeEventListener('collection-updated', handleCollectionUpdated)
   if (observer && sentinel.value) observer.unobserve(sentinel.value)
 })
 

@@ -255,7 +255,17 @@ const filteredWatchlist = computed(() => {
   return list
 })
 
+const handleCollectionUpdated = async () => {
+  if (user.value) {
+    await Promise.all([
+      fetchMe(),
+      loadUpcoming()
+    ])
+  }
+}
+
 onMounted(async () => {
+    document.addEventListener('collection-updated', handleCollectionUpdated)
     if (user.value) {
         await Promise.all([
           fetchMe(),
@@ -263,6 +273,10 @@ onMounted(async () => {
         ])
     }
     loading.value = false
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('collection-updated', handleCollectionUpdated)
 })
 
 async function loadUpcoming() {

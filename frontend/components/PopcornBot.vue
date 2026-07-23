@@ -358,6 +358,9 @@ const addToCollection = async (rec) => {
     rec.added = true
     rec.in_user_library = true
     rec.saved_id = saved.id
+    if (import.meta.client) {
+      document.dispatchEvent(new CustomEvent('collection-updated'))
+    }
   } catch (err) {
     if (err?.response?.status === 409 || err?.status === 409) {
       rec.added = true
