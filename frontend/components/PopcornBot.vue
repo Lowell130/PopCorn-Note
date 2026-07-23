@@ -40,12 +40,23 @@
           </div>
         </div>
 
-        <button
-          @click="isOpen = false"
-          class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm"
-        >
-          ✕
-        </button>
+        <div class="flex items-center gap-2">
+          <!-- Clear History Button -->
+          <button
+            v-if="messages.length > 0"
+            @click="clearHistory"
+            class="w-8 h-8 rounded-full bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 flex items-center justify-center transition-colors text-sm"
+            title="Pulisci cronologia chat"
+          >
+            🗑️
+          </button>
+          <button
+            @click="isOpen = false"
+            class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       <!-- Chat Messages Container -->
@@ -92,7 +103,7 @@
             </div>
             <div class="bg-slate-900/80 border border-white/10 text-gray-200 text-sm rounded-2xl rounded-tl-none p-4 max-w-[88%] space-y-3 break-words [overflow-wrap:anywhere]">
               <!-- Text content -->
-              <p class="whitespace-pre-line leading-relaxed text-xs sm:text-sm break-words [overflow-wrap:anywhere]">{{ msg.content }}</p>
+              <p class="whitespace-pre-line leading-relaxed text-xs sm:text-sm break-words [overflow-wrap:anywhere]" v-html="formatMarkdown(msg.content)"></p>
 
               <!-- Movie Recommendation Cards -->
               <div v-if="msg.recommendations && msg.recommendations.length > 0" class="space-y-3 pt-2">
@@ -256,10 +267,34 @@ const fetchUsage = async () => {
   }
 }
 
+const fetchHistory = async () => {
+  if (!isLoggedIn.value) return
+  try {
+    const data = await apiFetch('/ai/history')
+    if (data) {
+      messages.value = data
+    }
+  } catch (err) {
+    console.error('Errore nel recupero dello storico chat:', err)
+  }
+}
+
+const clearHistory = async () => {
+  if (!confirm('Sei sicuro di voler cancellare tutta la cronologia di questa chat?')) return
+  try {
+    await apiFetch('/ai/history', { method: 'DELETE' })
+    messages.value = []
+  } catch (err) {
+    alert('Impossibile cancellare la cronologia della chat.')
+  }
+}
+
 const toggleChat = async () => {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     await fetchUsage()
+    await fetchHistory()
+    await scrollToBottom()
   }
 }
 
@@ -371,6 +406,19 @@ const addToCollection = async (rec) => {
   } finally {
     rec.adding = false
   }
+}
+
+const formatMarkdown = (text) => {
+  if (!text) return ''
+  let escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+  let html = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>')
+  return html
 }
 
 onMounted(() => {

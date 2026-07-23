@@ -300,6 +300,25 @@ async def ai_chat(
     # 5. Arricchisci i suggerimenti con TMDb
     enriched_recommendations = await _enrich_with_tmdb(recommendations_raw, user_movies_tmdb, user_watchlist_tmdb)
 
+    # 5.5 Salva la conversazione nello storico
+    try:
+        user_msg_doc = {
+            "user_id": user_id,
+            "role": "user",
+            "content": payload.message,
+            "created_at": datetime.utcnow()
+        }
+        assistant_msg_doc = {
+            "user_id": user_id,
+            "role": "assistant",
+            "content": clean_reply,
+            "recommendations": enriched_recommendations,
+            "created_at": datetime.utcnow()
+        }
+        await db["ai_chat_history"].insert_many([user_msg_doc, assistant_msg_doc])
+    except Exception as e:
+        print("==== ERRORE SALVATAGGIO STORICO AI ====", e)
+
     # 6. Aggiorna conteggio utilizzi
     new_count = today_count + 1
     await db["ai_usage"].update_one(
@@ -320,3 +339,33 @@ async def ai_chat(
             "remaining": remaining
         }
     }
+
+
+@router.get("/history")
+async def get_ai_history(current_user: Dict[str, Any] = Depends(get_current_user)):
+    """
+    Recupera lo storico chat per l'utente loggato.
+    """
+    user_id = str(current_user["_id"])
+    cursor = db["ai_chat_history"].find({"user_id": user_id}).sort("created_at", 1)
+    messages = await cursor.to_list(length=100)
+    
+    normalized = []
+    for msg in messages:
+        normalized.append({
+            "role": msg["role"],
+            "content": msg["content"],
+            "recommendations": msg.get("recommendations", [])
+        })
+    return normalized
+
+
+@router.delete("/history")
+async def delete_ai_history(current_user: Dict[str, Any] = Depends(get_current_user)):
+    """
+    Cancella lo storico chat per l'utente loggato.
+    """
+    user_id = str(current_user["_id"])
+    await db["ai_chat_history"].delete_many({"user_id": user_id})
+    return {"message": "Cronologia chat cancellata con successo."}
+

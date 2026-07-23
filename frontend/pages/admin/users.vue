@@ -275,10 +275,21 @@
             <td class="px-6 py-4">{{ u.stats?.upcoming ?? 0 }}</td>
             <td class="px-6 py-4">{{ u.stats?.avg_score ?? '—' }}</td>
 
-       <td class="px-6 py-4 space-x-2">
+       <td class="px-6 py-4 space-x-2 flex items-center justify-start">
+  <!-- View Chat AI -->
+  <button
+    class="p-2 rounded-full text-purple-400 hover:text-purple-300 hover:bg-white/5 transition-all"
+    @click="viewUserChat(u)"
+    title="Visualizza Chat AI"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+  </button>
+
   <!-- Edit -->
   <button
-    class="p-2 rounded-full text-gray-400 hover:text-gray-600 disabled:opacity-50"
+    class="p-2 rounded-full text-gray-400 hover:text-gray-300 hover:bg-white/5 transition-all disabled:opacity-50"
     :disabled="savingId === u.id"
     @click="openEdit(u)"
     title="Edit user"
@@ -294,7 +305,7 @@
 
   <!-- Delete -->
   <button
-    class="p-2 rounded-full text-gray-400 hover:text-gray-600 disabled:opacity-50"
+    class="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-white/5 transition-all disabled:opacity-50"
     :disabled="deletingId === u.id || u.id === me?.id"
     @click="confirmDelete(u)"
     title="Delete user"
@@ -364,6 +375,114 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal View Chat -->
+    <div
+      v-if="viewingChatUser"
+      class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+      @click.self="closeChatView"
+    >
+      <div class="w-full max-w-2xl h-[80vh] flex flex-col bg-slate-900 border border-white/10 text-white rounded-3xl shadow-2xl overflow-hidden backdrop-blur-md">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-white/10 bg-slate-950/40 flex items-center justify-between shrink-0">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>🍿</span> Chat AI di {{ viewingChatUser.username || viewingChatUser.email }}
+            </h2>
+            <p class="text-xs text-gray-400 mt-0.5">Storico conversazioni con PopCorn Bot</p>
+          </div>
+          <button
+            class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm"
+            @click="closeChatView"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Chat messages -->
+        <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6 space-y-4 bg-slate-950/20">
+          <div v-if="loadingChat" class="flex flex-col items-center justify-center h-full text-gray-400 gap-3">
+            <div class="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+            <p class="text-xs">Caricamento conversazione in corso...</p>
+          </div>
+          
+          <div v-else-if="chatMessages.length === 0" class="flex flex-col items-center justify-center h-full text-gray-500 gap-2">
+            <span class="text-3xl">🍿</span>
+            <p class="text-xs">Nessuna conversazione registrata per questo utente.</p>
+          </div>
+
+          <div v-else v-for="(msg, index) in chatMessages" :key="index" class="space-y-3">
+            <!-- User message -->
+            <div v-if="msg.role === 'user'" class="flex justify-end">
+              <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm rounded-2xl rounded-tr-none px-4 py-3 max-w-[85%] shadow-md break-words [overflow-wrap:anywhere]">
+                {{ msg.content }}
+              </div>
+            </div>
+
+            <!-- Bot message -->
+            <div v-else class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-xl bg-purple-600/30 border border-purple-500/30 flex items-center justify-center text-base shrink-0">
+                🍿
+              </div>
+              <div class="bg-slate-950/40 border border-white/5 text-gray-200 text-xs sm:text-sm rounded-2xl rounded-tl-none p-4 max-w-[88%] space-y-3 break-words [overflow-wrap:anywhere]">
+                <p class="whitespace-pre-line leading-relaxed break-words [overflow-wrap:anywhere]" v-html="formatMarkdown(msg.content)"></p>
+
+                <!-- Movie Recommendation Cards -->
+                <div v-if="msg.recommendations && msg.recommendations.length > 0" class="space-y-3 pt-2">
+                  <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">🎯 Titoli Consigliati:</p>
+
+                  <div
+                    v-for="(rec, rIdx) in msg.recommendations"
+                    :key="rIdx"
+                    class="bg-slate-900 border border-white/5 rounded-xl p-3 flex gap-3 items-center"
+                  >
+                    <!-- Poster image -->
+                    <img
+                      v-if="rec.poster_path"
+                      :src="getPosterUrl(rec.poster_path)"
+                      :alt="rec.title"
+                      class="w-10 h-14 object-cover rounded-lg shadow-md shrink-0 bg-slate-950 border border-white/10"
+                    />
+                    <div v-else class="w-10 h-14 bg-slate-950 rounded-lg flex items-center justify-center text-lg shrink-0 border border-white/5">
+                      🎬
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0 space-y-1">
+                      <div class="flex items-center justify-between gap-1">
+                        <h4 class="font-bold text-white text-xs truncate">{{ rec.title }}</h4>
+                        <span v-if="rec.vote_average" class="text-[10px] font-bold text-amber-400 flex items-center gap-0.5 shrink-0">
+                          ⭐ {{ Number(rec.vote_average).toFixed(1) }}
+                        </span>
+                      </div>
+
+                      <p class="text-[10px] text-gray-400">
+                        <span class="capitalize">{{ rec.kind === 'tv' ? 'Serie TV' : 'Film' }}</span>
+                        <span v-if="rec.release_year"> • {{ rec.release_year }}</span>
+                      </p>
+
+                      <p v-if="rec.reason" class="text-[10px] text-purple-300/90 line-clamp-1 italic">
+                        "{{ rec.reason }}"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-white/10 bg-slate-950/40 flex justify-end shrink-0">
+          <button
+            class="px-4 py-2 text-sm font-semibold rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition"
+            @click="closeChatView"
+          >
+            Chiudi
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -382,6 +501,11 @@ const deletingId = ref(null)
 const editingUser = ref(null)
 const savingId = ref(null)
 const editError = ref('')
+
+// chat admin state
+const viewingChatUser = ref(null)
+const chatMessages = ref([])
+const loadingChat = ref(false)
 
 // form edit
 const form = reactive({
@@ -518,6 +642,46 @@ function closeEdit() {
   editError.value = ''
 }
 
+async function viewUserChat(u) {
+  viewingChatUser.value = u
+  loadingChat.value = true
+  chatMessages.value = []
+  try {
+    chatMessages.value = await apiFetch(`/admin/users/${u.id}/chat-history`)
+  } catch (e) {
+    console.error('Errore nel recupero della chat dell\'utente:', e)
+    alert('Impossibile caricare lo storico chat dell\'utente.')
+    closeChatView()
+  } finally {
+    loadingChat.value = false
+  }
+}
+
+function closeChatView() {
+  viewingChatUser.value = null
+  chatMessages.value = []
+}
+
+const getPosterUrl = (path) => {
+  if (!path) return null
+  if (path.startsWith('http')) return path
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  return `https://image.tmdb.org/t/p/w500${cleanPath}`
+}
+
+const formatMarkdown = (text) => {
+  if (!text) return ''
+  let escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+  let html = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>')
+  return html
+}
+
 async function saveEdit() {
   if (!editingUser.value) return
   if (editingUser.value.id === me?.value?.id && form.is_admin === false) {
@@ -620,4 +784,25 @@ async function runFullBackfillTmdbVotes() {
   }
 }
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.5);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.8);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(147, 51, 234, 0.5) rgba(255, 255, 255, 0.03);
+}
+</style>
 

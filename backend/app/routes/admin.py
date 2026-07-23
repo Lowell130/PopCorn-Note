@@ -164,7 +164,34 @@ async def delete_user(user_id: str, admin=Depends(require_admin)):
     await db["activities"].delete_many({"user_id": user_id})
     await db["activities"].update_many({}, {"$pull": {"reactions": {"user_id": user_id}}})
     await db["activities"].update_many({}, {"$pull": {"comments": {"user_id": user_id}}})
+    # Elimina lo storico della chat dell'utente
+    await db["ai_chat_history"].delete_many({"user_id": user_id})
     return
+
+
+@router.get("/users/{user_id}/chat-history")
+async def get_user_chat_history(user_id: str, admin=Depends(require_admin)):
+    """
+    Recupera lo storico chat di un qualsiasi utente (solo Admin).
+    """
+    if not ObjectId.is_valid(user_id):
+        raise HTTPException(status_code=400, detail="Invalid user id")
+    user = await db["users"].find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    cursor = db["ai_chat_history"].find({"user_id": user_id}).sort("created_at", 1)
+    messages = await cursor.to_list(length=200)
+    
+    normalized = []
+    for msg in messages:
+        normalized.append({
+            "role": msg["role"],
+            "content": msg["content"],
+            "recommendations": msg.get("recommendations", [])
+        })
+    return normalized
+
 
 
 # ======== GENERATORE UTENTI FAKE & SIMULAZIONE COMMUNITY ========
@@ -527,8 +554,12 @@ async def delete_all_fake_users(admin=Depends(require_admin)):
         {"$pull": {"comments": {"user_id": {"$in": fake_ids}}}}
     )
 
+    # 3.5 Rimuovi storico chat degli utenti fake
+    await db["ai_chat_history"].delete_many({"user_id": {"$in": fake_ids}})
+
     # 4. Elimina gli utenti
     users_res = await db["users"].delete_many({"is_fake": True})
+
 
     return {
         "deleted_users": users_res.deleted_count,
