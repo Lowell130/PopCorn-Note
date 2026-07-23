@@ -19,7 +19,7 @@
     <!-- Chat Drawer Window -->
     <div
       v-if="isOpen"
-      class="fixed bottom-[152px] right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] max-h-[620px] h-[calc(100vh-10rem)] bg-slate-950/95 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300"
+      class="fixed bottom-[152px] right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] max-h-[620px] h-[calc(100vh-10rem)] gradient-border rounded-3xl shadow-2xl backdrop-blur-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300"
     >
       <!-- Header -->
       <div class="px-5 py-4 border-b border-white/10 bg-slate-900/80 flex items-center justify-between">
@@ -387,6 +387,12 @@ onMounted(() => {
 .no-scrollbar {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
+}
+.gradient-border {
+  border: 2px solid transparent;
+  background: 
+    linear-gradient(to bottom, rgba(2, 6, 23, 0.96), rgba(2, 6, 23, 0.96)) padding-box,
+    linear-gradient(to right, #9333ea, #db2777, #f59e0b) border-box;
 }
 </style>
 
