@@ -109,9 +109,10 @@
               {{ showKey ? '🙈' : '👁️' }}
             </button>
           </div>
-          <div class="mt-2 flex items-center justify-between text-xs">
-            <span v-if="apiKeyStatus" class="text-emerald-400 font-medium">
-              ✓ Chiave attualmente impostata: {{ maskedApiKey }}
+          <div class="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+            <span v-if="apiKeyStatus" class="text-emerald-400 font-medium break-all">
+              ✓ Chiave attualmente impostata: 
+              <code class="font-mono text-[11px] bg-slate-950 px-1.5 py-0.5 rounded border border-white/5 inline-block select-all">{{ maskedApiKey }}</code>
             </span>
             <span v-else class="text-amber-400 font-medium">
               ⚠️ Nessuna chiave salvata (il bot userà risposte di esempio mock)
@@ -120,7 +121,7 @@
               v-if="form.ai_provider === 'gemini'"
               href="https://aistudio.google.com/app/apikey"
               target="_blank"
-              class="text-purple-400 hover:underline flex items-center gap-1"
+              class="text-purple-400 hover:underline flex items-center gap-1 shrink-0 font-medium"
             >
               Ottieni API Key Gemini gratis ↗
             </a>
@@ -128,7 +129,7 @@
               v-else
               href="https://platform.openai.com/api-keys"
               target="_blank"
-              class="text-purple-400 hover:underline flex items-center gap-1"
+              class="text-purple-400 hover:underline flex items-center gap-1 shrink-0 font-medium"
             >
               Ottieni API Key OpenAI ↗
             </a>
