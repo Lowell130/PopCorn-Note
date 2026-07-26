@@ -33,6 +33,68 @@
       </div>
     </div>
 
+    <!-- Cambia Password Card -->
+    <div class="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md text-white shadow-xl">
+      <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
+        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+        </svg>
+        Cambia Password
+      </h2>
+
+      <form @submit.prevent="changePassword" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Password Corrente</label>
+          <input
+            v-model="passwordForm.currentPassword"
+            type="password"
+            placeholder="••••••••"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+            required
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Nuova Password</label>
+            <input
+              v-model="passwordForm.newPassword"
+              type="password"
+              placeholder="••••••••"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Conferma Nuova Password</label>
+            <input
+              v-model="passwordForm.confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button
+            :disabled="changingPassword"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs transition cursor-pointer shadow-md shadow-purple-500/5 hover:scale-102 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="changingPassword" class="flex items-center justify-center gap-2">
+              <svg class="animate-spin h-4 w-4 text-purple-300" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"/>
+              </svg>
+              Aggiornamento in corso...
+            </span>
+            <span v-else>Aggiorna Password</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
     <!-- Esporta i tuoi Dati -->
     <div class="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md text-white shadow-xl">
       <h2 class="text-xl font-bold mb-2 text-white flex items-center gap-2">
@@ -212,6 +274,48 @@ const toast = useToast?.()
 
 const showDeleteConfirm = ref(false)
 const loading = ref(false)
+
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+const changingPassword = ref(false)
+
+async function changePassword() {
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    toast?.show?.('error', 'Le password non coincidono!')
+    return
+  }
+  
+  if (passwordForm.value.newPassword.length < 6) {
+    toast?.show?.('error', 'La nuova password deve essere di almeno 6 caratteri!')
+    return
+  }
+
+  changingPassword.value = true
+  try {
+    await apiFetch('/auth/change-password', {
+      method: 'POST',
+      body: {
+        current_password: passwordForm.value.currentPassword,
+        new_password: passwordForm.value.newPassword
+      }
+    })
+    toast?.show?.('success', 'Password modificata con successo!')
+    passwordForm.value = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    }
+  } catch (e) {
+    console.error('Password change error', e)
+    const errorMsg = e.data?.detail || 'Errore durante la modifica della password'
+    toast?.show?.('error', errorMsg)
+  } finally {
+    changingPassword.value = false
+  }
+}
 
 const emailPrefix = computed(() => user.value?.email ? user.value.email.split('@')[0] : '')
 

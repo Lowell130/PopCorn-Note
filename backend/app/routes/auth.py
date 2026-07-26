@@ -1,6 +1,6 @@
 #app/routes/auth.py
 from fastapi import APIRouter, HTTPException, Depends
-from app.schemas.user import UserCreate, UserLogin
+from app.schemas.user import UserCreate, UserLogin, ChangePassword
 from app.utils.auth import hash_password, verify_password, create_access_token
 from app.db import db
 from app.dependencies import get_current_user
@@ -25,6 +25,29 @@ async def delete_account(user=Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
     
     return
+
+
+@router.post("/change-password")
+async def change_password(data: ChangePassword, user=Depends(get_current_user)):
+    """
+    Consente all'utente di cambiare la propria password.
+    """
+    # 1. Verifica la password attuale
+    if not verify_password(data.current_password, user["hashed_password"]):
+        raise HTTPException(status_code=400, detail="La password corrente non è corretta")
+    
+    # 2. Verifica che la nuova password non sia identica a quella vecchia
+    if verify_password(data.new_password, user["hashed_password"]):
+        raise HTTPException(status_code=400, detail="La nuova password deve essere diversa da quella attuale")
+    
+    # 3. Hash e aggiorna la password
+    hashed_pw = hash_password(data.new_password)
+    res = await db["users"].update_one(
+        {"_id": user["_id"]},
+        {"$set": {"hashed_password": hashed_pw}}
+    )
+    
+    return {"detail": "Password aggiornata con successo"}
 
 
 @router.post("/register")

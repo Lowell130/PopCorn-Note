@@ -21,3 +21,8 @@ class UserOut(BaseModel):
     username: str
     watchlist: list[dict] = []
     is_admin: bool = False
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
