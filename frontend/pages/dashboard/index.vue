@@ -85,7 +85,7 @@
 </div>
 
     <!-- Active Filters Badges -->
-    <div v-if="directorFilter || castFilter" class="mb-4 flex gap-2 flex-wrap">
+    <div v-if="directorFilter || castFilter || tagFilter" class="mb-4 flex gap-2 flex-wrap">
       <div v-if="directorFilter" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-sm">
         <span>Regista: <strong>{{ directorFilter }}</strong></span>
         <button @click="clearDirectorFilter" class="hover:bg-blue-200 p-0.5 rounded-full">
@@ -95,6 +95,12 @@
       <div v-if="castFilter" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 text-sm">
         <span>Attore: <strong>{{ castFilter }}</strong></span>
         <button @click="clearCastFilter" class="hover:bg-purple-200 p-0.5 rounded-full">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div v-if="tagFilter" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-pink-50 text-pink-700 border border-pink-200 text-sm">
+        <span>Tag: <strong>#{{ tagFilter }}</strong></span>
+        <button @click="clearTagFilter" class="hover:bg-pink-200 p-0.5 rounded-full">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
@@ -344,6 +350,7 @@ const isFiltersOpen = ref(false) // 👈 AGGIUNGI QUESTO
 
 const directorFilter = ref(route.query.director || '')
 const castFilter = ref(route.query.cast || '')
+const tagFilter = ref(route.query.tag || '')
 
 // sync with route changes
 watch(() => route.query, (newQuery) => {
@@ -353,6 +360,10 @@ watch(() => route.query, (newQuery) => {
   }
   if (newQuery.cast !== castFilter.value) {
     castFilter.value = newQuery.cast || ''
+    fetchMovies({ reset: true })
+  }
+  if (newQuery.tag !== tagFilter.value) {
+    tagFilter.value = newQuery.tag || ''
     fetchMovies({ reset: true })
   }
 })
@@ -369,6 +380,14 @@ function clearCastFilter() {
   castFilter.value = ''
   const query = { ...route.query }
   delete query.cast
+  router.push({ query })
+  fetchMovies({ reset: true })
+}
+
+function clearTagFilter() {
+  tagFilter.value = ''
+  const query = { ...route.query }
+  delete query.tag
   router.push({ query })
   fetchMovies({ reset: true })
 }
@@ -418,6 +437,7 @@ async function fetchMovies({ reset = false } = {}) {
     if (kind.value) params.set('kind', kind.value)
     if (directorFilter.value) params.set('director', directorFilter.value)
     if (castFilter.value) params.set('cast', castFilter.value)
+    if (tagFilter.value) params.set('tag', tagFilter.value)
     if (!status.value) params.set('priority_status', 'watching') // priorità "watching" in cima
     params.set('push_last_status', 'watched') // "watched" sempre in fondo
 

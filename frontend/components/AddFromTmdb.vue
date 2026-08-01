@@ -351,6 +351,7 @@ async function pick (item) {
       tmdb_id: details.tmdb_id || item.id,
       overview: details.overview || null,
       tmdb_vote: details.vote_average ?? item.vote_average ?? null,
+      tags: Array.isArray(details.tags) ? details.tags : null,
     }
 
     const saved = await apiFetch('/movies/', {

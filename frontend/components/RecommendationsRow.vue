@@ -180,7 +180,8 @@ async function addRecommendation(rec) {
       runtime: details.runtime ?? null,
       tmdb_id: details.tmdb_id || rec.id,
       overview: details.overview || null,
-      tmdb_vote: details.vote_average ?? null
+      tmdb_vote: details.vote_average ?? null,
+      tags: Array.isArray(details.tags) ? details.tags : null
     }
 
     const saved = await apiFetch('/movies/', {

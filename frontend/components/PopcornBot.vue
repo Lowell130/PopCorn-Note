@@ -382,7 +382,8 @@ const addToCollection = async (rec) => {
       runtime: details?.runtime || null,
       tmdb_id: rec.tmdb_id ? Number(rec.tmdb_id) : null,
       overview: details?.overview || rec.overview || null,
-      tmdb_vote: details?.vote_average || rec.vote_average || null
+      tmdb_vote: details?.vote_average || rec.vote_average || null,
+      tags: Array.isArray(details?.tags) ? details.tags : null
     }
 
     const saved = await apiFetch('/movies/', {

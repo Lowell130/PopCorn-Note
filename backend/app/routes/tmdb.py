@@ -123,6 +123,9 @@ async def tmdb_details(tmdb_id: int, user=Depends(get_current_user)):
     release_date = d.get("release_date")
     release_year = safe_release_year(release_date)
 
+    genres = d.get("genres", [])
+    tags = [g.get("name").lower() for g in genres if g.get("name")]
+
     return {
         "kind": "movie",
         "tmdb_id": d.get("id"),
@@ -134,7 +137,8 @@ async def tmdb_details(tmdb_id: int, user=Depends(get_current_user)):
         "runtime": d.get("runtime"),
         "director": director,
         "cast": cast_list,
-        "vote_average": d.get("vote_average"),  # 👈 AGGIUNTO
+        "vote_average": d.get("vote_average"),
+        "tags": tags,
     }
 
 # -------------------------
@@ -176,6 +180,9 @@ async def tmdb_tv_details(tmdb_id: int, user=Depends(get_current_user)):
     if er:
         runtime = er[0]
 
+    genres = d.get("genres", [])
+    tags = [g.get("name").lower() for g in genres if g.get("name")]
+
     return {
         "kind": "tv",
         "tmdb_id": d.get("id"),
@@ -190,7 +197,8 @@ async def tmdb_tv_details(tmdb_id: int, user=Depends(get_current_user)):
         "cast": cast_list,
         # opzionale: info stagioni (conteggio)
         "number_of_seasons": d.get("number_of_seasons"),
-         "vote_average": d.get("vote_average"),  # 👈 AGGIUNTO
+         "vote_average": d.get("vote_average"),
+         "tags": tags,
     }
 
 # -------------------------

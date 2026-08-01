@@ -158,6 +158,21 @@
       </div>
     </div>
 
+    <!-- Top Tags -->
+    <div v-if="stats?.stats_advanced?.tags?.length" class="border-t border-white/10 pt-4">
+      <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">I tuoi tag preferiti</h3>
+      <div class="flex flex-wrap gap-2">
+        <NuxtLink
+          v-for="tag in stats.stats_advanced.tags"
+          :key="tag.name"
+          :to="{ path: '/dashboard', query: { tag: tag.name } }"
+          class="px-2.5 py-1 bg-white/5 hover:bg-purple-500/10 text-gray-300 hover:text-purple-300 border border-white/5 hover:border-purple-500/30 transition rounded-lg text-xs font-medium block w-max"
+        >
+          #{{ tag.name }} <span class="text-gray-500">({{ tag.count }})</span>
+        </NuxtLink>
+      </div>
+    </div>
+
     <!-- 📊 STATISTICHE SOTTO I FILTRI, NELLA STESSA CARD -->
     <div class="border-t border-white/10 pt-4">
       <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Statistiche</h3>

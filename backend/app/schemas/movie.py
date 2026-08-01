@@ -25,6 +25,7 @@ class MovieCreate(BaseModel):
     score: Optional[int] = Field(default=None, ge=1, le=10)
     liked: Optional[Liked] = None
     note: Optional[str] = None
+    tags: Optional[List[str]] = None
 
     # campi informativi (riusati anche per le serie: mappiamo first_air_date -> release_date/year)
     release_year: Optional[int] = Field(default=None, ge=1888, le=2100)
@@ -54,6 +55,7 @@ class MovieUpdate(BaseModel):
     score: Optional[int] = Field(default=None, ge=1, le=10)
     liked: Optional[Liked] = None
     note: Optional[str] = None
+    tags: Optional[List[str]] = None
 
     release_year: Optional[int] = Field(default=None, ge=1888, le=2100)
     release_date: Optional[str] = None

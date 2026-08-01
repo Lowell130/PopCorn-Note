@@ -1,6 +1,6 @@
 #app/models/movie.py
 from pydantic import BaseModel
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 
 class Movie(BaseModel):
     id: Optional[str] = None
@@ -12,3 +12,4 @@ class Movie(BaseModel):
     user_id: str
        # voto medio TMDB (0–10 con decimali)
     tmdb_vote: Optional[float] = None  # 👈 NUOVO
+    tags: Optional[List[str]] = None

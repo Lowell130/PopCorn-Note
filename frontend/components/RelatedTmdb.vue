@@ -194,7 +194,8 @@ async function quickAdd(it) {
       runtime: details.runtime ?? null,
       tmdb_id: details.tmdb_id || it.id,
       overview: details.overview || null,
-      tmdb_vote: details.vote_average ?? item.vote_average ?? null,  // 👈 AGGIUNTO
+      tmdb_vote: details.vote_average ?? item.vote_average ?? null,
+      tags: Array.isArray(details.tags) ? details.tags : null,
     }
 
     const saved = await apiFetch('/movies/', { method: 'POST', body })

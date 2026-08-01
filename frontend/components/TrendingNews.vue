@@ -282,6 +282,7 @@ async function quickAdd(it) {
       tmdb_id: details.tmdb_id || it.id,
       overview: details.overview || null,
       tmdb_vote: details.vote_average ?? it.vote_average ?? null,
+      tags: Array.isArray(details.tags) ? details.tags : null,
     }
     const saved = await apiFetch('/movies/', { method: 'POST', body })
     const idx = items.value.findIndex(x => keyOf(x) === keyOf(it))

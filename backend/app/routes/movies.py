@@ -34,6 +34,25 @@ async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
     movie_dict["created_at"] = now
     movie_dict["updated_at"] = now
 
+    # Se il film ha tmdb_id ma non ha tag, recuperiamoli da TMDb in automatico
+    if movie_dict.get("tmdb_id") and not movie_dict.get("tags"):
+        try:
+            tmdb_key = settings.TMDB_API_KEY
+            if tmdb_key:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    tmdb_id = movie_dict["tmdb_id"]
+                    kind = movie_dict["kind"]
+                    url = f"https://api.themoviedb.org/3/tv/{tmdb_id}" if kind == "tv" else f"https://api.themoviedb.org/3/movie/{tmdb_id}"
+                    r = await client.get(url, params={"api_key": tmdb_key, "language": "it-IT"})
+                    if r.status_code == 200:
+                        data = r.json()
+                        genres = data.get("genres", [])
+                        tags = [g.get("name").lower() for g in genres if g.get("name")]
+                        if tags:
+                            movie_dict["tags"] = tags
+        except Exception as e:
+            print(f"Errore auto-tagging backend: {e}")
+
     try:
         result = await db["movies"].insert_one(movie_dict)
     except DuplicateKeyError:
@@ -177,6 +196,16 @@ async def movies_stats(user=Depends(get_current_user)):
     ]
     scores_dist = await db["movies"].aggregate(score_pipeline).to_list(length=11)
 
+    # 3.5 Tag Distribution (Top 20)
+    tag_pipeline = [
+        {"$match": {"user_id": uid, "tags": {"$exists": True, "$not": {"$size": 0}}}},
+        {"$unwind": "$tags"},
+        {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 20}
+    ]
+    top_tags = await db["movies"].aggregate(tag_pipeline).to_list(length=20)
+
     return {
         "total_movies": total_movies,
         "total_series": total_series,
@@ -191,6 +220,7 @@ async def movies_stats(user=Depends(get_current_user)):
             "actors": [{"name": x["_id"], "count": x["count"]} for x in top_actors if x["_id"]],
             "years": [{"year": x["_id"], "count": x["count"]} for x in years_dist],
             "scores": [{"score": x["_id"], "count": x["count"]} for x in scores_dist],
+            "tags": [{"name": x["_id"], "count": x["count"]} for x in top_tags if x["_id"]],
         }
     }
 
@@ -259,6 +289,9 @@ async def get_movie(movie_id: str, user=Depends(get_current_user)):
                             cast = data["credits"].get("cast", [])
                             cast_list = [c.get("name") for c in cast[:5] if c.get("name")]
 
+                        genres = data.get("genres", [])
+                        tags = [g.get("name").lower() for g in genres if g.get("name")]
+
                         new_movie = {
                             "user_id": user_id_str,
                             "tmdb_id": int(movie_id) if movie_id.isdigit() else movie_id,
@@ -273,6 +306,7 @@ async def get_movie(movie_id: str, user=Depends(get_current_user)):
                             "cast": cast_list,
                             "runtime": data.get("runtime") or (data.get("episode_run_time")[0] if data.get("episode_run_time") else None),
                             "tmdb_vote": data.get("vote_average"),
+                            "tags": tags,
                             "created_at": datetime.utcnow(),
                             "updated_at": datetime.utcnow()
                         }
@@ -309,6 +343,7 @@ async def list_movies(
     push_last_status: str | None = Query(None, pattern="^(to_watch|watched|upcoming|watching)$"),
     director: str | None = Query(None, description="Filtra per nome del regista"),
     cast: str | None = Query(None, description="Filtra per nome di un attore nel cast"),
+    tag: str | None = Query(None, description="Filtra per tag"),
     upcoming_calendar: bool = Query(False, description="Se True, restituisce solo i titoli per il calendario uscite (upcoming o data futura)"),
 ):
     and_clauses = [{"user_id": str(user["_id"])}]
@@ -339,13 +374,16 @@ async def list_movies(
 
     if q:
         like = {"$regex": q, "$options": "i"}
-        and_clauses.append({"$or": [{"title": like}, {"note": like}]})
+        and_clauses.append({"$or": [{"title": like}, {"note": like}, {"tags": like}]})
 
     if director:
         and_clauses.append({"director": director})
 
     if cast:
         and_clauses.append({"cast": cast})
+
+    if tag:
+        and_clauses.append({"tags": tag})
 
     filt = {"$and": and_clauses} if len(and_clauses) > 1 else and_clauses[0]
 
