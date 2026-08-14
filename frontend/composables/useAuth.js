@@ -14,6 +14,7 @@ export const useAuth = () => {
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => !!user.value?.is_admin)   // <— AGGIUNTO
+  const isPremium = computed(() => !!user.value?.is_premium)
 
   async function register(payload) {
     return await apiFetch('/auth/register', { method: 'POST', body: payload })
@@ -80,5 +81,5 @@ export const useAuth = () => {
     }
   }
 
-  return { user, token, isLoggedIn, isAdmin, register, login, logout, init, fetchMe, refreshToken }
+  return { user, token, isLoggedIn, isAdmin, isPremium, register, login, logout, init, fetchMe, refreshToken }
 }

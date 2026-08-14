@@ -7,6 +7,8 @@ class Activity(BaseModel):
     id: Optional[str] = None
     user_id: str
     username: str
+    user_is_admin: Optional[bool] = False
+    user_is_premium: Optional[bool] = False
     type: Literal["post", "add_movie", "rate_movie"]
     content: Optional[str] = None
     

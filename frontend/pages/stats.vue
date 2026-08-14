@@ -1,30 +1,56 @@
 <template>
-  <div class="max-w-6xl mx-auto py-10 px-4 space-y-8">
+  <div class="max-w-6xl mx-auto py-10 px-4 space-y-8 relative">
     
-    <!-- Header Hero -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
-      <div>
-         <h2 class="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-1">
-            Analytics
-         </h2>
-         <h1 class="text-4xl font-extrabold text-white tracking-tight">
-            Le tue Statistiche
-         </h1>
-         <p class="text-gray-400 mt-2">
-            Analizza le tue abitudini di visione e scopri cosa ti piace davvero.
-         </p>
+    <!-- Lock Overlay for Guests -->
+    <div v-if="!isLoggedIn" class="absolute inset-0 z-50 flex flex-col items-center justify-start pt-32 bg-slate-950/70 p-4 text-center backdrop-blur-md rounded-3xl">
+      <div class="max-w-md bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl space-y-5 transform transition hover:scale-[1.02] duration-300">
+        <div class="inline-flex p-3.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25 shadow-lg shadow-purple-500/5 animate-pulse mx-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">Statistiche Personali Bloccate 📊</h2>
+        <p class="text-xs md:text-sm text-gray-300 leading-relaxed">
+          Crea un account per sbloccare la tua area Analytics. Potrai analizzare i tuoi registi preferiti, visualizzare la timeline delle visioni per decenni, e scoprire la tua curva di gradimento dei voti!
+        </p>
+        <div class="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+          <NuxtLink to="/register" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold rounded-2xl shadow-xl shadow-purple-600/20 transition transform hover:scale-105 duration-200">
+            Registrati gratis
+          </NuxtLink>
+          <NuxtLink to="/login" class="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-2xl hover:bg-white/10 transition text-xs font-bold transform hover:scale-105 duration-200">
+            Accedi
+          </NuxtLink>
+        </div>
       </div>
-      
-      <NuxtLink 
-        to="/dashboard" 
-        class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-300 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition hover:scale-102 duration-150 shadow-md"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-        </svg>
-        Torna alla Dashboard
-      </NuxtLink>
     </div>
+
+    <!-- Main Content Container (blurred if guest) -->
+    <div :class="{ 'blur-md select-none pointer-events-none': !isLoggedIn }" class="space-y-8">
+      
+      <!-- Header Hero -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+        <div>
+           <h2 class="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-1">
+              Analytics
+           </h2>
+           <h1 class="text-4xl font-extrabold text-white tracking-tight">
+              Le tue Statistiche
+           </h1>
+           <p class="text-gray-400 mt-2">
+              Analizza le tue abitudini di visione e scopri cosa ti piace davvero.
+           </p>
+        </div>
+        
+        <NuxtLink 
+          :to="isLoggedIn ? '/dashboard' : '/'" 
+          class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-300 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition hover:scale-102 duration-150 shadow-md"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          {{ isLoggedIn ? 'Torna alla Dashboard' : 'Torna alla Home' }}
+        </NuxtLink>
+      </div>
 
     <!-- Loading State -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-32 space-y-4 text-gray-400">
@@ -161,15 +187,48 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
 import Spinner from '@/components/Spinner.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import DoughnutChart from '@/components/charts/DoughnutChart.vue'
+import { useAuth } from '~/composables/useAuth'
 
 definePageMeta({ layout: 'wide' })
 const { apiFetch } = useApi()
+const { isLoggedIn } = useAuth()
+
+const mockStats = {
+  total_movies: 154,
+  watched: 98,
+  to_watch: 46,
+  total_watchtime: 14220, // 9g 21h
+  avg_score: 7.8,
+  stats_advanced: {
+    directors: [
+      { name: "Christopher Nolan", count: 8 },
+      { name: "Quentin Tarantino", count: 6 },
+      { name: "Martin Scorsese", count: 5 },
+      { name: "Steven Spielberg", count: 5 },
+      { name: "Stanley Kubrick", count: 4 }
+    ],
+    years: [
+      { year: 1990, count: 12 },
+      { year: 2000, count: 28 },
+      { year: 2010, count: 48 },
+      { year: 2020, count: 10 }
+    ],
+    scores: [
+      { score: 6, count: 15 },
+      { score: 7, count: 32 },
+      { score: 8, count: 42 },
+      { score: 9, count: 18 },
+      { score: 10, count: 5 }
+    ]
+  }
+}
 
 const loading = ref(true)
 const stats = ref(null)
@@ -227,6 +286,13 @@ const doutOptions = {
 }
 
 onMounted(async () => {
+  if (!isLoggedIn.value) {
+    stats.value = mockStats
+    prepareCharts(mockStats.stats_advanced)
+    loading.value = false
+    return
+  }
+
   try {
     const res = await apiFetch('/movies/stats')
     stats.value = res

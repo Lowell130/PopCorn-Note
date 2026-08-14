@@ -193,81 +193,99 @@
                   </div>
               </div>
 
-
-
-
-
                <!-- Player Frame and Controls Wrapper -->
                <ClientOnly>
-                <div 
-                  v-if="playerUrl" 
-                  ref="playerContainer" 
-                  class="rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 bg-black relative z-10 min-h-[200px] md:min-h-[360px] group"
-                  @mousemove="handleMouseMove"
-                  @mouseleave="handleMouseLeave"
-                >
-                  <div class="aspect-video w-full relative z-0">
-                     <iframe
-                      ref="playerIframe"
-                      :key="playerUrl"
-                      :src="playerUrl"
-                      class="w-full h-full"
-                      allowfullscreen
-                      allow="autoplay; fullscreen; encrypted-media"
-                      referrerpolicy="no-referrer"
-                    ></iframe>
-                  </div>
-
-                  <!-- Overlay Controls (Visible on mouse move) -->
+                 <div v-if="isPremiumOrAdmin" class="w-full">
                   <div 
-                    class="absolute inset-0 z-20 flex items-end justify-center pb-8 transition-opacity duration-300 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent"
-                    :class="showControls ? 'opacity-100' : 'opacity-0'"
+                    v-if="playerUrl" 
+                    ref="playerContainer" 
+                    class="rounded-2xl overflow-hidden shadow-2xl shadow-purple-900/20 border border-white/10 bg-black relative z-10 min-h-[200px] md:min-h-[360px] group"
+                    @mousemove="handleMouseMove"
+                    @mouseleave="handleMouseLeave"
                   >
-                     
-                     <!-- Centered Control Pill -->
-                     <div class="flex items-center gap-6 px-6 py-3 rounded-full bg-black/50 backdrop-blur-md border border-white/10 shadow-2xl pointer-events-auto transform transition hover:scale-105 hover:bg-black/70">
-                        
-                        <!-- Autoplay Toggle -->
-                        <div class="flex items-center gap-3 border-r border-white/10 pr-6">
-                           <label class="inline-flex items-center cursor-pointer">
-                              <input type="checkbox" v-model="autoplayEnabled" class="sr-only peer">
-                              <div class="relative w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
-                              <span class="ms-2 text-xs font-bold text-gray-200 uppercase tracking-wider">Autoplay</span>
-                            </label>
-                        </div>
+                    <div class="aspect-video w-full relative z-0">
+                       <iframe
+                        ref="playerIframe"
+                        :key="playerUrl"
+                        :src="playerUrl"
+                        class="w-full h-full"
+                        allowfullscreen
+                        allow="autoplay; fullscreen; encrypted-media"
+                        referrerpolicy="no-referrer"
+                      ></iframe>
+                    </div>
 
-                        <!-- Navigation & Fullscreen -->
-                        <div class="flex items-center gap-3">
-                           <button 
-                             @click="prevEpisode"
-                             :disabled="!canPrev"
-                             class="p-2 rounded-full bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition text-white"
-                             title="Episodio precedente"
-                           >
-                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg> <!-- Material Design Skip Previous -->
-                           </button>
-       
-                           <button 
-                             @click="nextEpisode"
-                             :disabled="!canNext"
-                             class="p-2 rounded-full bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition text-white"
-                             title="Episodio successivo"
-                           >
-                              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg> <!-- Material Design Skip Next -->
-                           </button>
-       
-                           <!-- Fullscreen Toggle -->
-                           <button 
-                             @click="toggleFullscreen"
-                             class="ml-2 p-2 rounded-full bg-white/5 hover:bg-white/20 transition text-white"
-                             :title="isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'"
-                           >
-                              <svg v-if="!isFullscreen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-                              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.25m4.75 0v4.75m0-4.75l-4.75 4.75M14 10h4.75m-4.75 0V5.25m0 4.75l4.75-4.75"></path></svg>
-                           </button>
-                        </div>
+                    <!-- Overlay Controls (Visible on mouse move) -->
+                    <div 
+                      class="absolute inset-0 z-20 flex items-end justify-center pb-8 transition-opacity duration-300 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent"
+                      :class="showControls ? 'opacity-100' : 'opacity-0'"
+                    >
+                       
+                       <!-- Centered Control Pill -->
+                       <div class="flex items-center gap-6 px-6 py-3 rounded-full bg-black/50 backdrop-blur-md border border-white/10 shadow-2xl pointer-events-auto transform transition hover:scale-105 hover:bg-black/70">
+                          
+                          <!-- Autoplay Toggle -->
+                          <div class="flex items-center gap-3 border-r border-white/10 pr-6">
+                             <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" v-model="autoplayEnabled" class="sr-only peer">
+                                <div class="relative w-9 h-5 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-500 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                                <span class="ms-2 text-xs font-bold text-gray-200 uppercase tracking-wider">Autoplay</span>
+                              </label>
+                          </div>
 
-                     </div>
+                          <!-- Navigation & Fullscreen -->
+                          <div class="flex items-center gap-3">
+                             <button 
+                               @click="prevEpisode"
+                               :disabled="!canPrev"
+                               class="p-2 rounded-full bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition text-white"
+                               title="Episodio precedente"
+                             >
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg> <!-- Material Design Skip Previous -->
+                             </button>
+          
+                             <button 
+                               @click="nextEpisode"
+                               :disabled="!canNext"
+                               class="p-2 rounded-full bg-white/5 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition text-white"
+                               title="Episodio successivo"
+                             >
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg> <!-- Material Design Skip Next -->
+                             </button>
+          
+                             <!-- Fullscreen Toggle -->
+                             <button 
+                               @click="toggleFullscreen"
+                               class="ml-2 p-2 rounded-full bg-white/5 hover:bg-white/20 transition text-white"
+                               :title="isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'"
+                             >
+                                <svg v-if="!isFullscreen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.25m4.75 0v4.75m0-4.75l-4.75 4.75M14 10h4.75m-4.75 0V5.25m0 4.75l4.75-4.75"></path></svg>
+                             </button>
+                          </div>
+
+                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Premium Locked Box -->
+                <div v-else class="aspect-video w-full flex flex-col items-center justify-center bg-slate-950/80 rounded-2xl border border-white/10 text-center p-6 backdrop-blur-md relative overflow-hidden group min-h-[200px] md:min-h-[360px]">
+                  <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 rounded-2xl opacity-70 group-hover:opacity-100 transition duration-1000"></div>
+                  
+                  <div class="relative z-10 space-y-4 max-w-md">
+                    <div class="inline-flex p-3.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25 shadow-lg shadow-purple-500/5 animate-pulse">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-bold text-white tracking-tight">Riproduzione Riservata 🌟</h3>
+                    <p class="text-xs md:text-sm text-gray-400 leading-relaxed">
+                      La visione in streaming dei film e delle serie TV è riservata ai sostenitori di PopCornNote. Esegui una donazione su Ko-fi per sbloccare il player istantaneamente!
+                    </p>
+                    <div class="pt-2 flex justify-center">
+                      <SupportButton class="scale-105 hover:scale-110 transition-all duration-300" />
+                    </div>
                   </div>
                 </div>
               </ClientOnly>
@@ -595,6 +613,7 @@ async function loadEpisodes() {
 }
 
 const playerUrl = computed(() => {
+  if (!isPremiumOrAdmin.value) return null
   if (!initializedSeasons.value) return null
   const id = item.value?.tmdb_id
   const s = selectedSeason.value
@@ -646,7 +665,12 @@ async function markCurrentAsWatched() {
 
 
 // Heartbeat sessione
-const { refreshToken } = useAuth()
+const { refreshToken, isPremium, isAdmin } = useAuth()
+
+const isPremiumOrAdmin = computed(() => {
+  return !!(isPremium.value || isAdmin.value)
+})
+
 let refreshInterval = null
 
 const showControls = ref(false)

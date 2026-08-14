@@ -22,12 +22,13 @@ class AdminUserUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=2, max_length=50)
     password: Optional[str] = Field(None, min_length=6)
     is_admin: Optional[bool] = None
+    is_premium: Optional[bool] = None
 
 
 # ======== LISTA UTENTI + STATS ========
 @router.get("/users")
 async def list_users_with_stats(admin=Depends(require_admin)):
-    users_cur = db["users"].find({}, {"email": 1, "username": 1, "is_admin": 1, "is_fake": 1})
+    users_cur = db["users"].find({}, {"email": 1, "username": 1, "is_admin": 1, "is_fake": 1, "is_premium": 1})
     users = await users_cur.to_list(length=10000)
 
     pipe = [
@@ -70,6 +71,7 @@ async def list_users_with_stats(admin=Depends(require_admin)):
                 "email": u.get("email"),
                 "username": u.get("username"),
                 "is_admin": bool(u.get("is_admin", False)),
+                "is_premium": bool(u.get("is_premium", False)),
                 "is_fake": bool(u.get("is_fake", False)),
                 "stats": {
                     "total": s.get("total", 0),
@@ -121,9 +123,12 @@ async def admin_update_user(
     if payload.is_admin is not None:
         update_doc["is_admin"] = bool(payload.is_admin)
 
+    if payload.is_premium is not None:
+        update_doc["is_premium"] = bool(payload.is_premium)
+
     if not update_doc:
         user = await db["users"].find_one(
-            {"_id": ObjectId(user_id)}, {"email": 1, "username": 1, "is_admin": 1}
+            {"_id": ObjectId(user_id)}, {"email": 1, "username": 1, "is_admin": 1, "is_premium": 1}
         )
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -136,7 +141,7 @@ async def admin_update_user(
         raise HTTPException(status_code=404, detail="User not found")
 
     updated = await db["users"].find_one(
-        {"_id": ObjectId(user_id)}, {"email": 1, "username": 1, "is_admin": 1}
+        {"_id": ObjectId(user_id)}, {"email": 1, "username": 1, "is_admin": 1, "is_premium": 1}
     )
     updated["id"] = str(updated["_id"])
     updated.pop("_id", None)

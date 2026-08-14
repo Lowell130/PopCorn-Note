@@ -38,8 +38,18 @@
               Profilo Pubblico Condiviso
             </span>
             
-            <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight">
-              Collezione di <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">{{ profile.username }}</span>
+            <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight flex items-center flex-wrap gap-2.5">
+              <span>Collezione di</span>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">{{ profile.username }}</span>
+              <span v-if="profile.is_admin" class="text-xs bg-purple-500/20 text-purple-300 px-2.5 py-0.5 rounded-full border border-purple-500/30 font-bold select-none whitespace-nowrap inline-flex items-center gap-1">
+                👑 Staff
+              </span>
+              <span v-else-if="profile.is_premium" class="text-xs bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-500/30 font-bold select-none whitespace-nowrap inline-flex items-center gap-1">
+                🌟 Premium
+              </span>
+              <span v-else class="text-xs bg-gray-500/20 text-gray-400 px-2.5 py-0.5 rounded-full border border-gray-500/30 font-bold select-none whitespace-nowrap inline-flex items-center gap-1">
+                Free
+              </span>
             </h1>
             <p class="text-xs text-gray-400 font-medium">
               Sfoglia i titoli visti, le ore dedicate ed i preferiti consigliati da {{ profile.username }}.

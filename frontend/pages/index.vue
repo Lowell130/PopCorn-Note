@@ -145,45 +145,65 @@
             </div>
 
             <!-- Right Interactive Mini-Chat Preview -->
-            <div class="md:col-span-6 w-full">
-              <div class="bg-slate-950/90 border border-white/10 rounded-2xl p-5 shadow-2xl space-y-4 text-left font-sans">
-                <!-- Chat Header -->
-                <div class="flex items-center gap-3 border-b border-white/10 pb-3">
-                  <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-amber-500 flex items-center justify-center text-sm shadow-md">🍿</div>
-                  <div>
-                    <h4 class="font-bold text-white text-xs">PopCorn Bot AI</h4>
-                    <span class="text-[10px] text-emerald-400">● Online & Pronto</span>
+            <div class="md:col-span-6 w-full relative group">
+              <!-- Blurred background spotlight effect -->
+              <div class="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-amber-500/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+              
+              <div class="relative bg-slate-950/90 border border-white/10 rounded-2xl p-5 shadow-2xl space-y-4 text-left font-sans overflow-hidden">
+                <!-- Inner Chat content that gets blurred if guest -->
+                <div :class="{ 'blur-sm select-none pointer-events-none': !isLoggedIn }" class="space-y-4">
+                  <!-- Chat Header -->
+                  <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-amber-500 flex items-center justify-center text-sm shadow-md">🍿</div>
+                    <div>
+                      <h4 class="font-bold text-white text-xs">PopCorn Bot AI</h4>
+                      <span class="text-[10px] text-emerald-400">● Online & Pronto</span>
+                    </div>
                   </div>
-                </div>
 
-                <!-- User Chat Bubble -->
-                <div class="flex justify-end">
-                  <div class="bg-purple-600 text-white text-xs rounded-2xl rounded-tr-none px-3.5 py-2.5 max-w-[85%] shadow-sm">
-                    Consigliami un thriller avvincente da max 90 minuti! ⏱️
+                  <!-- User Chat Bubble -->
+                  <div class="flex justify-end">
+                    <div class="bg-purple-600 text-white text-xs rounded-2xl rounded-tr-none px-3.5 py-2.5 max-w-[85%] shadow-sm">
+                      Consigliami un thriller avvincente da max 90 minuti! ⏱️
+                    </div>
                   </div>
-                </div>
 
-                <!-- Bot Chat Bubble -->
-                <div class="flex items-start gap-2.5">
-                  <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/30 flex items-center justify-center text-xs shrink-0">🍿</div>
-                  <div class="bg-slate-900 border border-white/10 text-gray-200 text-xs rounded-2xl rounded-tl-none p-3 space-y-2.5 max-w-[90%]">
-                    <p>Ecco un titolo fantastico e ad alto ritmo che fa al caso tuo:</p>
-                    
-                    <!-- Movie Card Mock -->
-                    <div class="bg-slate-950 border border-white/10 rounded-xl p-2.5 flex gap-2.5 items-center">
-                      <div class="w-12 h-16 bg-purple-900/40 rounded-lg flex items-center justify-center text-lg shrink-0 border border-purple-500/20">🎬</div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-center">
-                          <h5 class="font-bold text-white text-xs truncate">Upgrade</h5>
-                          <span class="text-[10px] font-bold text-amber-400">⭐ 7.5</span>
+                  <!-- Bot Chat Bubble -->
+                  <div class="flex items-start gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/30 flex items-center justify-center text-xs shrink-0">🍿</div>
+                    <div class="bg-slate-900 border border-white/10 text-gray-200 text-xs rounded-2xl rounded-tl-none p-3 space-y-2.5 max-w-[90%]">
+                      <p>Ecco un titolo fantastico e ad alto ritmo che fa al caso tuo:</p>
+                      
+                      <!-- Movie Card Mock -->
+                      <div class="bg-slate-950 border border-white/10 rounded-xl p-2.5 flex gap-2.5 items-center">
+                        <div class="w-12 h-16 bg-purple-900/40 rounded-lg flex items-center justify-center text-lg shrink-0 border border-purple-500/20">🎬</div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex justify-between items-center">
+                            <h5 class="font-bold text-white text-xs truncate">Upgrade</h5>
+                            <span class="text-[10px] font-bold text-amber-400">⭐ 7.5</span>
+                          </div>
+                          <p class="text-[10px] text-gray-400">Fantascienza / Thriller • 2018</p>
+                          <button class="mt-1.5 px-2 py-0.5 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold rounded transition-all">
+                            ➕ Aggiungi alla Watchlist
+                          </button>
                         </div>
-                        <p class="text-[10px] text-gray-400">Fantascienza / Thriller • 2018</p>
-                        <button class="mt-1.5 px-2 py-0.5 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold rounded transition-all">
-                          ➕ Aggiungi alla Watchlist
-                        </button>
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <!-- Overlay with lock and CTA if Guest -->
+                <div v-if="!isLoggedIn" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/70 p-6 rounded-2xl text-center backdrop-blur-xs">
+                  <div class="p-3 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-full mb-3 shadow-lg animate-bounce">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <h4 class="text-white font-bold text-sm mb-1">PopCorn Bot AI</h4>
+                  <p class="text-xs text-gray-400 max-w-[220px] mb-4">Registrati gratis per sbloccare l'AI ed ottenere consigli personali basati sulle tue visioni.</p>
+                  <NuxtLink to="/register" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold rounded-xl shadow-lg transition transform hover:scale-105 duration-200">
+                    Sblocca gratis
+                  </NuxtLink>
                 </div>
               </div>
             </div>
@@ -244,10 +264,13 @@
         <!-- Story 2: Analytics (Text left on mobile, right on desktop) -->
         <div class="grid md:grid-cols-12 gap-12 items-center pt-32">
           <!-- Visual Mockup (First on Desktop) -->
-          <div class="md:col-span-6 w-full order-last md:order-first">
-            <div class="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md shadow-2xl relative overflow-hidden">
-              <!-- Simulated charts -->
-              <div class="space-y-6 text-left">
+          <div class="md:col-span-6 w-full order-last md:order-first relative group">
+            <!-- Blurred background spotlight effect -->
+            <div class="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-purple-500/20 rounded-3xl blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+            
+            <div class="relative bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-xl shadow-2xl overflow-hidden min-h-[220px] flex flex-col justify-center">
+              <!-- Inner Charts content that gets blurred if guest -->
+              <div :class="{ 'blur-sm select-none pointer-events-none': !isLoggedIn }" class="space-y-6 text-left">
                 <h4 class="text-sm font-bold text-white flex items-center gap-2 select-none">📊 Statistiche Generi</h4>
                 <div class="space-y-3">
                   <div>
@@ -278,6 +301,20 @@
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <!-- Overlay with lock and CTA if Guest -->
+              <div v-if="!isLoggedIn" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/70 p-6 rounded-3xl text-center backdrop-blur-xs">
+                <div class="p-3 bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-full mb-3 shadow-lg animate-pulse">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h4 class="text-white font-bold text-sm mb-1">Analisi Personale</h4>
+                <p class="text-xs text-gray-400 max-w-[220px] mb-4">Registrati gratis per sbloccare i report grafici, la timeline e le abitudini di visione.</p>
+                <NuxtLink to="/register" class="px-5 py-2 bg-gradient-to-r from-sky-600 to-purple-600 hover:from-sky-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg transition transform hover:scale-105 duration-200">
+                  Sblocca gratis
+                </NuxtLink>
               </div>
             </div>
           </div>
@@ -361,6 +398,59 @@
           <div class="p-4">
             <div class="text-4xl font-extrabold text-emerald-400 mb-2">100%</div>
             <div class="text-gray-400 font-semibold text-sm tracking-widest uppercase">Gratuito e open-source</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ & SEO GUIDE SECTION -->
+    <section class="py-24 bg-black/10 px-4 sm:px-6 lg:px-8 border-t border-white/5 relative">
+      <div class="mx-auto max-w-4xl">
+        <div class="text-center mb-16">
+          <h2 class="text-sm font-semibold text-purple-400 uppercase tracking-widest mb-2">Guida & Domande Frequenti</h2>
+          <h3 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Tutto quello che c'è da sapere su PopCornNote</h3>
+          <p class="text-gray-400 mt-2 text-sm">Scopri come ottenere il massimo dalla tua watchlist intelligente e tracciare la tua passione per il cinema.</p>
+        </div>
+
+        <div class="space-y-10 text-left">
+          <!-- FAQ 1 -->
+          <div class="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+            <h4 class="text-lg font-bold text-white mb-3">Cos'è PopCornNote e come ti aiuta a organizzare le tue visioni?</h4>
+            <p class="text-gray-300 leading-relaxed text-sm">
+              PopCornNote è un diario del cinema e un tracker di serie TV gratuito e open-source progettato per gli appassionati di cinema e televisione. Ti consente di organizzare la tua watchlist personale in un unico spazio elegante, dicendo addio ai fogli Excel disordinati o ai blocchi note cartacei. Grazie all'integrazione nativa con TMDb (The Movie Database), puoi importare descrizioni, trailer, poster e cast con un solo click.
+            </p>
+          </div>
+
+          <!-- FAQ 2 -->
+          <div class="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+            <h4 class="text-lg font-bold text-white mb-3">Quali sono i vantaggi di utilizzare PopCornNote rispetto ad altre app come Letterboxd o TV Time?</h4>
+            <p class="text-gray-300 leading-relaxed text-sm">
+              A differenza di altre piattaforme, PopCornNote unisce in un'unica applicazione sia il tracciamento dei film che quello delle serie TV (episodio per episodio), eliminando la necessità di utilizzare applicazioni separate. Inoltre, offre statistiche personali dettagliate e un assistente virtuale basato sull'Intelligenza Artificiale per suggerirti cosa guardare stasera basandosi sulla tua libreria. PopCornNote rispetta la tua privacy e ti consente di esportare i tuoi dati in formato CSV in qualsiasi momento.
+            </p>
+          </div>
+
+          <!-- FAQ 3 -->
+          <div class="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+            <h4 class="text-lg font-bold text-white mb-3">Come funziona il tracciamento degli episodi delle serie TV?</h4>
+            <p class="text-gray-300 leading-relaxed text-sm">
+              Tenere traccia del tuo progresso di visione è semplicissimo. Quando aggiungi una serie TV, puoi aggiornare la stagione e l'episodio in cui ti trovi con un solo click nella tua dashboard personale. Il sistema memorizzerà la tua ultima visualizzazione nel database, permettendoti di riprendere la visione esattamente da dove l'avevi interrotta, senza il rischio di fare confusione o subire spoiler.
+            </p>
+          </div>
+
+          <!-- FAQ 4 -->
+          <div class="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+            <h4 class="text-lg font-bold text-white mb-3">Posso usare PopCornNote per ricevere consigli personalizzati basati su IA?</h4>
+            <p class="text-gray-300 leading-relaxed text-sm">
+              Sì! Il nostro assistente virtuale <strong>PopCorn Bot AI</strong> analizza i film e le serie TV che hai salvato nella tua collezione e le tue votazioni da 1 a 10 per proporti raccomandazioni su misura in lingua italiana. Puoi chiedergli di suggerirti un film in base al tuo umore attuale o alla durata desiderata, e salvare i consigli direttamente nella tua watchlist con un click.
+            </p>
+          </div>
+
+          <!-- FAQ 5 -->
+          <div class="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+            <h4 class="text-lg font-bold text-white mb-3">Posso condividere la mia collezione di film e serie TV pubblicamente?</h4>
+            <p class="text-gray-300 leading-relaxed text-sm">
+              Assolutamente. Ogni utente registrato ottiene una pagina di condivisione pubblica ottimizzata per i motori di ricerca. Puoi inviare questo link ad amici e familiari per mostrare loro cosa hai visto, i tuoi film preferiti e le recensioni che hai scritto, facilitando lo scambio di consigli sul cinema.
+            </p>
           </div>
         </div>
       </div>
@@ -488,6 +578,55 @@ useHead({
           "ratingValue": "4.8",
           "ratingCount": "150"
         }
+      })
+    },
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Cos'è PopCornNote e come ti aiuta a organizzare le tue visioni?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "PopCornNote è un diario del cinema e un tracker di serie TV gratuito e open-source progettato per gli appassionati di cinema e televisione. Ti consente di organizzare la tua watchlist personale con schede ricche di dettagli da TMDb."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Quali sono i vantaggi di utilizzare PopCornNote rispetto ad altre app come Letterboxd o TV Time?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A differenza di altre piattaforme, PopCornNote unisce in un'unica applicazione sia il tracciamento dei film che quello delle serie TV, eliminando la necessità di utilizzare applicazioni separate, ed offre statistiche avanzate ed un assistente AI."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Come funziona il tracciamento degli episodi delle serie TV?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Quando aggiungi una serie TV, puoi aggiornare la stagione e l'episodio in cui ti trovi con un solo click. Il sistema memorizzerà il tuo stato per permetterti di riprendere la visione esattamente da dove ti eri fermato."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Posso usare PopCornNote per ricevere consigli personalizzati basati su IA?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sì! Il nostro assistente virtuale PopCorn Bot AI analizza i film e le serie TV salvate nella tua collezione e le tue votazioni da 1 a 10 per proporti raccomandazioni su misura in lingua italiana."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Posso condividere la mia collezione di film e serie TV pubblicamente?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Assolutamente. Ogni utente registrato ottiene una pagina di condivisione pubblica ottimizzata per i motori di ricerca, utile per mostrare la propria collezione ed opinioni ad amici e familiari."
+            }
+          }
+        ]
       })
     }
   ]

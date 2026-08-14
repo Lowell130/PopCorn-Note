@@ -127,10 +127,16 @@
                   {{ u.username[0].toUpperCase() }}
                 </div>
                 <div class="flex flex-col">
-                  <span class="text-sm font-semibold text-gray-200 line-clamp-1 flex items-center gap-1">
+                  <span class="text-sm font-semibold text-gray-200 line-clamp-1 flex items-center flex-wrap gap-1">
                     {{ u.username }}
-                    <span v-if="u.is_admin" class="text-[9px] bg-purple-500/20 text-purple-300 px-1 py-0.5 rounded border border-purple-500/30 font-bold select-none">
-                      Staff
+                    <span v-if="u.is_admin" class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full border border-purple-500/30 font-bold select-none whitespace-nowrap">
+                      👑 Staff
+                    </span>
+                    <span v-else-if="u.is_premium" class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full border border-amber-500/30 font-bold select-none whitespace-nowrap">
+                      🌟 Premium
+                    </span>
+                    <span v-else class="text-[9px] bg-gray-500/20 text-gray-400 px-1.5 py-0.5 rounded-full border border-gray-500/30 font-bold select-none whitespace-nowrap">
+                      Free
                     </span>
                   </span>
                 </div>

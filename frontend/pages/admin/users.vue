@@ -235,18 +235,15 @@
         Errore: {{ error }}
       </div>
 
-      <div v-else class="relative overflow-x-auto shadow-xl border border-white/10 rounded-3xl">
+      <div v-else class="relative overflow-x-auto shadow-xl border border-white/10 rounded-3xl custom-scrollbar pb-2">
       <table class="w-full text-sm text-left text-gray-300">
         <thead class="text-xs text-gray-400 uppercase bg-white/5 border-b border-white/10">
           <tr>
             <th class="px-6 py-3">Username</th>
             <th class="px-6 py-3">Email</th>
             <th class="px-6 py-3">Admin</th>
+            <th class="px-6 py-3">Piano</th>
             <th class="px-6 py-3">Total</th>
-            <th class="px-6 py-3">Watching</th>
-            <th class="px-6 py-3">To watch</th>
-            <th class="px-6 py-3">Watched</th>
-            <th class="px-6 py-3">Upcoming</th>
             <th class="px-6 py-3">Avg Score</th>
             <th class="px-6 py-3">Actions</th>
           </tr>
@@ -268,11 +265,20 @@
                 {{ u.is_admin ? 'Yes' : 'No' }}
               </span>
             </td>
+            <td class="px-6 py-4">
+              <button
+                @click="togglePremiumStatus(u)"
+                :disabled="savingId === u.id"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all focus:outline-none disabled:opacity-50 whitespace-nowrap inline-flex items-center gap-1"
+                :class="u.is_premium 
+                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
+                  : 'bg-slate-800 text-slate-400 border border-white/5 hover:bg-slate-700'"
+              >
+                <span>{{ u.is_premium ? 'Premium' : 'Free' }}</span>
+                <span v-if="u.is_premium" class="text-[10px]">🌟</span>
+              </button>
+            </td>
             <td class="px-6 py-4">{{ u.stats?.total ?? 0 }}</td>
-            <td class="px-6 py-4">{{ u.stats?.watching ?? 0 }}</td>
-            <td class="px-6 py-4">{{ u.stats?.to_watch ?? 0 }}</td>
-            <td class="px-6 py-4">{{ u.stats?.watched ?? 0 }}</td>
-            <td class="px-6 py-4">{{ u.stats?.upcoming ?? 0 }}</td>
             <td class="px-6 py-4">{{ u.stats?.avg_score ?? '—' }}</td>
 
        <td class="px-6 py-4 space-x-2 flex items-center justify-start">
@@ -351,6 +357,10 @@
           <div class="flex items-center gap-2">
             <input id="is_admin" v-model="form.is_admin" type="checkbox" class="w-4 h-4 text-purple-600 bg-white/5 border border-white/10 rounded focus:ring-purple-500 focus:ring-2" />
             <label for="is_admin" class="text-sm font-medium">Administrator</label>
+          </div>
+          <div class="flex items-center gap-2 mt-1">
+            <input id="is_premium" v-model="form.is_premium" type="checkbox" class="w-4 h-4 text-purple-600 bg-white/5 border border-white/10 rounded focus:ring-purple-500 focus:ring-2" />
+            <label for="is_premium" class="text-sm font-medium">Socio Premium 🌟</label>
           </div>
 
           <div v-if="editError" class="text-sm text-red-400 font-semibold">{{ editError }}</div>
@@ -513,6 +523,7 @@ const form = reactive({
   username: '',
   password: '',
   is_admin: false,
+  is_premium: false,
 })
 
 // 🔹 Stato per backfill TMDb
@@ -630,6 +641,7 @@ function openEdit(u) {
   form.username = u.username || ''
   form.password = ''
   form.is_admin = !!u.is_admin
+  form.is_premium = !!u.is_premium
   editError.value = ''
 }
 
@@ -639,6 +651,7 @@ function closeEdit() {
   form.username = ''
   form.password = ''
   form.is_admin = false
+  form.is_premium = false
   editError.value = ''
 }
 
@@ -697,6 +710,7 @@ async function saveEdit() {
     if (form.username && form.username !== editingUser.value.username) payload.username = form.username
     if (form.password && form.password.trim().length >= 6) payload.password = form.password
     if (form.is_admin !== editingUser.value.is_admin) payload.is_admin = form.is_admin
+    if (form.is_premium !== editingUser.value.is_premium) payload.is_premium = form.is_premium
 
     if (Object.keys(payload).length === 0) {
       closeEdit()
@@ -714,6 +728,22 @@ async function saveEdit() {
     closeEdit()
   } catch (e) {
     editError.value = e?.response?._data?.detail || e?.message || 'Update failed'
+  } finally {
+    savingId.value = null
+  }
+}
+
+async function togglePremiumStatus(u) {
+  savingId.value = u.id
+  try {
+    const updated = await apiFetch(`/admin/users/${u.id}`, {
+      method: 'PUT',
+      body: { is_premium: !u.is_premium },
+    })
+    const idx = users.value.findIndex(x => x.id === u.id)
+    if (idx !== -1) users.value[idx] = { ...users.value[idx], ...updated }
+  } catch (e) {
+    alert(e?.response?._data?.detail || e?.message || 'Update failed')
   } finally {
     savingId.value = null
   }
@@ -788,6 +818,7 @@ async function runFullBackfillTmdbVotes() {
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.03);

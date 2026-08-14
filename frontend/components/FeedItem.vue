@@ -14,8 +14,17 @@
     <!-- Content -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center justify-between mb-1">
-        <h4 class="text-sm font-bold text-white">
-          {{ item.username }}
+        <h4 class="text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
+          <span>{{ item.username }}</span>
+          <span v-if="item.user_is_admin" class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full border border-purple-500/30 font-bold select-none whitespace-nowrap">
+            👑 Staff
+          </span>
+          <span v-else-if="item.user_is_premium" class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full border border-amber-500/30 font-bold select-none whitespace-nowrap">
+            🌟 Premium
+          </span>
+          <span v-else class="text-[9px] bg-gray-500/20 text-gray-400 px-1.5 py-0.5 rounded-full border border-gray-500/30 font-bold select-none whitespace-nowrap">
+            Free
+          </span>
         </h4>
         <span class="text-xs text-gray-500">
            {{ formatDate(item.created_at) }}
@@ -68,8 +77,19 @@
       <!-- Comments Section -->
       <div v-if="showComments" class="mt-3 space-y-3 pl-2 md:pl-4 border-l-2 border-white/10 animate-fade-in-up">
           <!-- Existing Comments -->
-          <div v-for="c in comments" :key="c.id" class="group/comment flex gap-2 text-sm items-start">
-              <div class="font-bold text-purple-400 text-xs whitespace-nowrap">{{ c.username }}:</div>
+          <div v-for="c in comments" :key="c.id" class="group/comment flex flex-col sm:flex-row gap-1 sm:gap-2 text-sm items-start">
+              <div class="flex items-center gap-1.5 whitespace-nowrap">
+                  <span class="font-bold text-purple-400 text-xs">{{ c.username }}:</span>
+                  <span v-if="c.is_admin" class="text-[8px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded-full border border-purple-500/30 font-bold select-none">
+                    👑 Staff
+                  </span>
+                  <span v-else-if="c.is_premium" class="text-[8px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded-full border border-amber-500/30 font-bold select-none">
+                    🌟 Premium
+                  </span>
+                  <span v-else class="text-[8px] bg-gray-500/20 text-gray-400 px-1.5 py-0.2 rounded-full border border-gray-500/30 font-bold select-none">
+                    Free
+                  </span>
+              </div>
               <div class="text-gray-300 flex-1 break-words">{{ c.content }}</div>
               
               <!-- Delete Comment Button (Admin or Author) -->

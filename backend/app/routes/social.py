@@ -21,14 +21,52 @@ async def get_feed(limit: int = 20, skip: int = 0, user=Depends(get_current_user
     """
     cursor = db["activities"].find().sort("created_at", -1).skip(skip).limit(limit)
     activities = await cursor.to_list(length=limit)
-    return [_normalize(a) for a in activities]
+    
+    user_cache = {}
+    
+    async def get_user_status(uid: str):
+        if uid in user_cache:
+            return user_cache[uid]
+        from bson import ObjectId
+        try:
+            u_doc = await db["users"].find_one({"_id": ObjectId(uid)}, {"is_admin": 1, "is_premium": 1})
+            if u_doc:
+                user_cache[uid] = {
+                    "is_admin": u_doc.get("is_admin", False),
+                    "is_premium": u_doc.get("is_premium", False)
+                }
+            else:
+                user_cache[uid] = {"is_admin": False, "is_premium": False}
+        except Exception:
+            user_cache[uid] = {"is_admin": False, "is_premium": False}
+        return user_cache[uid]
+
+    normalized_activities = []
+    for a in activities:
+        a_id = a.get("user_id")
+        if a_id:
+            status = await get_user_status(a_id)
+            a["user_is_admin"] = status["is_admin"]
+            a["user_is_premium"] = status["is_premium"]
+        
+        comments = a.get("comments", [])
+        for c in comments:
+            c_uid = c.get("user_id")
+            if c_uid:
+                c_status = await get_user_status(c_uid)
+                c["is_admin"] = c_status["is_admin"]
+                c["is_premium"] = c_status["is_premium"]
+                
+        normalized_activities.append(_normalize(a))
+        
+    return normalized_activities
 
 @router.get("/leaderboard")
 async def get_leaderboard(user=Depends(get_current_user)):
     """
     Ritorna la lista degli utenti registrati con il conteggio dei film/serie salvati.
     """
-    cursor = db["users"].find({}, {"email": 1, "username": 1, "_id": 1, "is_admin": 1})
+    cursor = db["users"].find({}, {"email": 1, "username": 1, "_id": 1, "is_admin": 1, "is_premium": 1})
     users = await cursor.to_list(length=100)
     
     leaderboard = []
@@ -40,7 +78,8 @@ async def get_leaderboard(user=Depends(get_current_user)):
             "id": u_id,
             "username": name,
             "movies_count": movies_count,
-            "is_admin": u.get("is_admin", False)
+            "is_admin": u.get("is_admin", False),
+            "is_premium": u.get("is_premium", False)
         })
     
     leaderboard.sort(key=lambda x: x["movies_count"], reverse=True)
@@ -100,6 +139,8 @@ async def get_public_profile(username: str):
         
     return {
         "username": user_doc.get("username") or user_doc["email"].split("@")[0],
+        "is_admin": user_doc.get("is_admin", False),
+        "is_premium": user_doc.get("is_premium", False),
         "total_movies": total_movies,
         "total_series": total_series,
         "watched": watched,
