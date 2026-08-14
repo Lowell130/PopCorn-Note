@@ -216,7 +216,91 @@
           </NuxtLink>
         </div>
       </div>
+    </div>
 
+    <!-- CARD INFO & LIMITAZIONI DEL SITO -->
+    <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md space-y-4">
+      <div class="flex items-center justify-between border-b border-white/5 pb-4">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2 select-none">
+          <span class="p-1.5 rounded-xl bg-amber-500/20 text-amber-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+          Guida Rapida & Politica dei Piani (Free vs Premium)
+        </h2>
+        <button 
+          @click="showAdminGuide = !showAdminGuide"
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 transition cursor-pointer select-none"
+        >
+          {{ showAdminGuide ? 'Nascondi Info' : 'Mostra Info' }}
+        </button>
+      </div>
+
+      <div v-show="showAdminGuide" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 text-left text-xs text-gray-300 leading-relaxed animate-fade-in-up">
+        <!-- Colonna 1: Player Streaming -->
+        <div class="space-y-2.5 bg-white/5 border border-white/5 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-1 select-none">
+            <span class="text-sm">🎬</span>
+            <h3 class="font-bold text-white text-sm">Player Streaming Video</h3>
+          </div>
+          <p>
+            L'integrazione del player di terze parti (iframe) consente di riprodurre film e serie TV direttamente sul sito.
+          </p>
+          <ul class="space-y-2 text-[11px] text-gray-400">
+            <li class="flex items-start gap-1.5">
+              <span class="text-emerald-400 font-bold">✔</span>
+              <span><strong>Admins & Premium:</strong> Accesso completo al player per riprodurre video.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <span class="text-red-400 font-bold">✘</span>
+              <span><strong>Utenti Free:</strong> Player bloccato. Viene mostrata una schermata frosted di blocco con pulsante di donazione (Ko-fi).</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Colonna 2: Limiti PopCorn Bot AI -->
+        <div class="space-y-2.5 bg-white/5 border border-white/5 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-1 select-none">
+            <span class="text-sm">🤖</span>
+            <h3 class="font-bold text-white text-sm">Assistente PopCorn Bot AI</h3>
+          </div>
+          <p>
+            L'assistente AI risponde a quesiti ed esegue suggerimenti cinematografici leggendo la watchlist dell'utente.
+          </p>
+          <ul class="space-y-2 text-[11px] text-gray-400">
+            <li class="flex items-start gap-1.5">
+              <span class="text-emerald-400 font-bold">✔</span>
+              <span><strong>Admins:</strong> Richieste illimitate per scopi amministrativi e di test.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <span class="text-amber-400 font-bold">⚠</span>
+              <span><strong>Free & Premium:</strong> Limite giornaliero attivo (1 richiesta/giorno) per preservare i costi delle API LLM.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Colonna 3: Statistiche & Landing Page -->
+        <div class="space-y-2.5 bg-white/5 border border-white/5 rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-1 select-none">
+            <span class="text-sm">📊</span>
+            <h3 class="font-bold text-white text-sm">Statistiche & Teaser</h3>
+          </div>
+          <p>
+            La pagina di reportistica `/stats` mostra infografiche sulle abitudini di visione degli utenti registrati.
+          </p>
+          <ul class="space-y-2 text-[11px] text-gray-400">
+            <li class="flex items-start gap-1.5">
+              <span class="text-emerald-400 font-bold">✔</span>
+              <span><strong>Utenti Loggati (Tutti):</strong> Visualizzazione delle proprie statistiche calcolate in tempo reale.</span>
+            </li>
+            <li class="flex items-start gap-1.5">
+              <span class="text-purple-400 font-bold">✦</span>
+              <span><strong>Visitatori Guest:</strong> Pagina sfocata con dati mockup e overlay di invito ad iscriversi.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- User Management Table Section -->
@@ -544,6 +628,8 @@ const generatorMessage = ref('')
 const generatorError = ref('')
 const deleteConfirmedOnce = ref(false)
 let deleteConfirmTimer = null
+
+const showAdminGuide = ref(false)
 
 const fakeUsersCount = computed(() => users.value.filter(u => u.is_fake).length)
 const realUsersCount = computed(() => users.value.filter(u => !u.is_fake).length)
