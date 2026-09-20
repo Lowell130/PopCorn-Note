@@ -59,18 +59,22 @@
     </div>
 
     <!-- Pulsante Torna su (Glassmorphic Scroll to Top) -->
-    <transition name="fade">
-      <button
-        v-if="showScrollTop"
-        @click="scrollToTop"
-        class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 backdrop-blur-md shadow-lg hover:bg-purple-500/20 hover:scale-105 transition-all outline-none"
-        aria-label="Torna su"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
-        </svg>
-      </button>
-    </transition>
+    <ClientOnly>
+      <Teleport to="body">
+        <transition name="fade">
+          <button
+            v-if="showScrollTop"
+            @click="scrollToTop"
+            class="fixed bottom-6 right-6 z-40 p-3 rounded-full bg-slate-950/80 border border-purple-500/30 text-purple-300 backdrop-blur-md shadow-lg hover:bg-purple-500/20 hover:scale-105 transition-all outline-none"
+            aria-label="Torna su"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+            </svg>
+          </button>
+        </transition>
+      </Teleport>
+    </ClientOnly>
   </footer>
 </template>
 
