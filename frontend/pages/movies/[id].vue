@@ -132,7 +132,7 @@
                         class="w-full h-full"
                         allowfullscreen
                         allow="autoplay; fullscreen; encrypted-media"
-                        referrerpolicy="no-referrer"
+                        referrerpolicy="origin"
                       ></iframe>
                     </div>
 
