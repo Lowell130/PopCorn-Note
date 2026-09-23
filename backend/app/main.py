@@ -2,6 +2,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import os
 import traceback
 
 from app.routes import auth, movies
@@ -20,22 +21,27 @@ app.router.redirect_slashes = False
 
 # Origini consentite (frontend)
 ALLOWED_ORIGINS = [
+    "https://popcornote.com",            # produzione (dominio custom)
+    "https://www.popcornote.com",        # produzione www (dominio custom)
+    "http://popcornote.com",
+    "http://www.popcornote.com",
     "https://pop-corn-note.vercel.app",  # produzione (Vercel)
     "http://localhost:3000",             # sviluppo locale
-    # Se usi preview Vercel, valuta:
-    # allow_origin_regex=r"^https:\/\/([a-z0-9-]+\.)?vercel\.app$",
+    "http://127.0.0.1:3000",            # sviluppo locale IP
 ]
+
+# Supporta eventuali domini passati da variabile d'ambiente ALLOWED_ORIGINS (es. su Cloud Run)
+env_origins = os.getenv("ALLOWED_ORIGINS")
+if env_origins:
+    ALLOWED_ORIGINS.extend([o.strip() for o in env_origins.split(",") if o.strip()])
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    # Se usi preview Vercel, commenta la riga sopra e usa:
-    # allow_origin_regex=r"^https:\/\/([a-z0-9-]+\.)?vercel\.app$",
+    allow_origin_regex=r"^https?:\/\/([a-z0-9-]+\.)?(popcornote\.com|vercel\.app)$",
     allow_credentials=True,        # necessario se usi cookie/sessione
     allow_methods=["*"],
     allow_headers=["*"],
-    # facoltativo: esponi header custom al browser
-    # expose_headers=["*"],
 )
 
 # Routers
