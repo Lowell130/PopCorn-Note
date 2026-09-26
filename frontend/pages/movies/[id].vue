@@ -131,7 +131,7 @@
                         :src="playerUrl"
                         class="w-full h-full"
                         allowfullscreen
-                        allow="autoplay; fullscreen; encrypted-media"
+                        allow="autoplay; fullscreen; encrypted-media; screen-wake-lock"
                         referrerpolicy="origin"
                       ></iframe>
                     </div>
@@ -279,7 +279,51 @@
 </template>
 
 <style scoped>
-/* Nessuno stile custom CSS necessario, tutto gestito via Tailwind */
+/* Gestione Fullscreen nativo */
+:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: black !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:fullscreen .aspect-video {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: unset !important;
+}
+
+:fullscreen iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Compatibilità WebKit (Safari/iOS) */
+:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: black !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:-webkit-full-screen .aspect-video {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: unset !important;
+}
+
+:-webkit-full-screen iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
 </style>
 
 <script setup>
@@ -416,6 +460,33 @@ function handleMouseLeave() {
 
 const playerContainer = ref(null)
 const isFullscreen = ref(false)
+let wakeLock = null
+
+async function requestWakeLock() {
+  try {
+    if (typeof navigator !== 'undefined' && 'wakeLock' in navigator && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen')
+      wakeLock.addEventListener('release', () => {
+        wakeLock = null
+      })
+    }
+  } catch (err) {
+    console.warn('Wake Lock error:', err)
+  }
+}
+
+function releaseWakeLock() {
+  if (wakeLock) {
+    wakeLock.release().catch(() => {})
+    wakeLock = null
+  }
+}
+
+function handleVisibilityChange() {
+  if (typeof document !== 'undefined' && document.visibilityState === 'visible' && isFullscreen.value) {
+    requestWakeLock()
+  }
+}
 
 function toggleFullscreen() {
   if (!playerContainer.value) {
@@ -453,7 +524,13 @@ function toggleFullscreen() {
 
 function onFullscreenChange() {
   const doc = document
-  isFullscreen.value = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement)
+  const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement)
+  isFullscreen.value = isFs
+  if (isFs) {
+    requestWakeLock()
+  } else {
+    releaseWakeLock()
+  }
 }
 
 onMounted(() => {
@@ -461,11 +538,14 @@ onMounted(() => {
     refreshToken()
   }, 9 * 60 * 1000) 
   document.addEventListener('fullscreenchange', onFullscreenChange)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onUnmounted(() => {
   if (refreshInterval) clearInterval(refreshInterval)
+  releaseWakeLock()
   document.removeEventListener('fullscreenchange', onFullscreenChange)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
 

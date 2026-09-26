@@ -210,7 +210,7 @@
                         :src="playerUrl"
                         class="w-full h-full"
                         allowfullscreen
-                        allow="autoplay; fullscreen; encrypted-media"
+                        allow="autoplay; fullscreen; encrypted-media; screen-wake-lock"
                         referrerpolicy="origin"
                       ></iframe>
                     </div>
@@ -691,6 +691,33 @@ function handleMouseLeave() {
 
 const playerContainer = ref(null)
 const isFullscreen = ref(false)
+let wakeLock = null
+
+async function requestWakeLock() {
+  try {
+    if (typeof navigator !== 'undefined' && 'wakeLock' in navigator && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen')
+      wakeLock.addEventListener('release', () => {
+        wakeLock = null
+      })
+    }
+  } catch (err) {
+    console.warn('Wake Lock error:', err)
+  }
+}
+
+function releaseWakeLock() {
+  if (wakeLock) {
+    wakeLock.release().catch(() => {})
+    wakeLock = null
+  }
+}
+
+function handleVisibilityChange() {
+  if (typeof document !== 'undefined' && document.visibilityState === 'visible' && isFullscreen.value) {
+    requestWakeLock()
+  }
+}
 
 function toggleFullscreen() {
   if (!playerContainer.value) {
@@ -728,7 +755,13 @@ function toggleFullscreen() {
 
 function onFullscreenChange() {
   const doc = document
-  isFullscreen.value = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement)
+  const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement)
+  isFullscreen.value = isFs
+  if (isFs) {
+    requestWakeLock()
+  } else {
+    releaseWakeLock()
+  }
 }
 
 /**
@@ -741,12 +774,15 @@ onMounted(() => {
   
   window.addEventListener('message', handlePlayerMessage)
   document.addEventListener('fullscreenchange', onFullscreenChange)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onUnmounted(() => {
   if (refreshInterval) clearInterval(refreshInterval)
+  releaseWakeLock()
   window.removeEventListener('message', handlePlayerMessage)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
 
