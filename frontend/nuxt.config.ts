@@ -11,10 +11,18 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'PopCornNote',
+      title: 'PopCornNote - Watchlist Intelligente per Film e Serie TV',
+      htmlAttrs: {
+        lang: 'it'
+      },
+      meta: [
+        { name: 'theme-color', content: '#020617' },
+        { name: 'author', content: 'PopCornNote' }
+      ],
       link: [
         { rel: 'icon', type: 'image/png', href: '/favicon.png' },
         { rel: 'shortcut icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', href: '/favicon.png' },
         // Font opzionale
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
@@ -25,6 +33,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
   ssr: false,
+  routeRules: {
+    '/': { prerender: true }
+  },
+  nitro: {
+    prerender: {
+      routes: ['/']
+    }
+  },
   css: ['~/assets/css/input.css'], // you'll have to create this file
   vite: {
     plugins: [

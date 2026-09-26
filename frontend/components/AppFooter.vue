@@ -44,7 +44,7 @@
       <div class="md:col-span-2 space-y-4">
         <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Info</h4>
         <p class="text-[11px] text-gray-500 leading-normal">
-          Tutti i dati e le immagini dei film sono forniti da <a href="https://www.themoviedb.org" target="_blank" class="text-sky-400 hover:underline">TMDb</a>.
+          Tutti i dati e le immagini dei film sono forniti da <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:underline">TMDb</a>.
         </p>
       </div>
     </div>
