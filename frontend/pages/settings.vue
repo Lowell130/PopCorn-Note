@@ -7,7 +7,7 @@
          Pannello
       </h2>
       <h1 class="text-4xl font-extrabold text-white tracking-tight">
-         Impostazioni
+         Profilo
       </h1>
     </div>
 

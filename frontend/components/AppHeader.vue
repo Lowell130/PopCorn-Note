@@ -36,7 +36,7 @@
             </NuxtLink>
           </template>
           <template v-else>
-            <NuxtLink to="/settings" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Impostazioni</NuxtLink>
+            <NuxtLink to="/settings" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Profilo</NuxtLink>
             <button @click="onLogout" class="px-4 py-1.5 border border-white/20 hover:bg-white/10 text-white rounded-xl text-xs font-semibold transition-all">
               Logout
             </button>
@@ -135,7 +135,7 @@
               </div>
 
               <NuxtLink to="/settings" class="group flex items-center px-3 py-3 text-base font-semibold text-gray-400 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
-                Impostazioni
+                Profilo
               </NuxtLink>
               
               <button @click="onLogout" class="w-full text-left group flex items-center px-3 py-3 text-base font-semibold text-red-400 rounded-xl hover:bg-red-500/10 transition-all">
