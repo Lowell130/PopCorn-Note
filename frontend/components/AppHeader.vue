@@ -20,20 +20,13 @@
           <NuxtLink to="/watchlist" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Watchlist</NuxtLink>
           <NuxtLink to="/news" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">News</NuxtLink>
           <NuxtLink to="/stats" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Statistiche</NuxtLink>
-          <NuxtLink to="/community" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Community</NuxtLink>
           <NuxtLink v-if="isAdmin" to="/admin/users" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider text-yellow-400 hover:!text-yellow-300" active-class="!text-purple-400">Admin</NuxtLink>
         </template>
-
-        <!-- Support Button -->
-        <SupportButton variant="solid" label="Sostienici" class="mr-2" />
 
         <!-- Auth Buttons -->
         <div class="flex items-center gap-4 ml-2 pl-4 border-l border-white/10">
           <template v-if="!isLoggedIn">
             <NuxtLink to="/login" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Accedi</NuxtLink>
-            <NuxtLink to="/register" class="px-5 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 font-semibold rounded-xl text-xs transition-all shadow-lg hover:scale-102">
-              Inizia gratis
-            </NuxtLink>
           </template>
           <template v-else>
             <NuxtLink to="/settings" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors duration-200 uppercase tracking-wider" active-class="!text-purple-400">Profilo</NuxtLink>
@@ -100,7 +93,6 @@
             <template v-if="!isLoggedIn">
               <div class="space-y-4 px-2">
                 <NuxtLink to="/login" class="text-lg font-bold text-white block hover:text-purple-400 transition-colors" @click="closeOnMobile">Accedi</NuxtLink>
-                <NuxtLink to="/register" class="text-center w-full block px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-xl text-purple-300 font-bold shadow-lg" @click="closeOnMobile">Inizia gratis</NuxtLink>
               </div>
             </template>
 
@@ -121,9 +113,6 @@
               <NuxtLink to="/stats" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
                  Statistiche
               </NuxtLink>
-              <NuxtLink to="/community" class="group flex items-center px-3 py-3 text-lg font-semibold text-gray-300 rounded-xl hover:bg-white/5 hover:text-white transition-all" @click="closeOnMobile">
-                 Community
-              </NuxtLink>
               <NuxtLink v-if="isAdmin" to="/admin/users" class="group flex items-center px-3 py-3 text-lg font-semibold text-yellow-500 rounded-xl hover:bg-yellow-500/10 transition-all" @click="closeOnMobile">
                 Admin Panel
               </NuxtLink>
@@ -141,12 +130,7 @@
               <button @click="onLogout" class="w-full text-left group flex items-center px-3 py-3 text-base font-semibold text-red-400 rounded-xl hover:bg-red-500/10 transition-all">
                 Esci
               </button>
-              
-              <div class="h-px bg-white/10 my-4 mx-3"></div>
 
-              <div class="px-3">
-                <SupportButton label="Sostienici" class="w-full justify-center" />
-              </div>
             </template>
           </div>
         </div>

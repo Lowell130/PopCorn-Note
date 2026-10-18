@@ -7,12 +7,12 @@
         Pannello di Controllo Admin
       </h1>
       <p class="text-sm text-gray-400 mt-1">
-        Gestisci gli utenti registrati, configura l'assistente AI e sincronizza i dati dei film con TMDb.
+        Gestisci gli utenti registrati e sincronizza i dati dei film con TMDb.
       </p>
     </div>
 
     <!-- Admin Tools Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 gap-6">
       
       <!-- CARD 1: Sincronizzazione TMDb -->
       <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col justify-between gap-4">
@@ -108,199 +108,7 @@
         </div>
       </div>
 
-      <!-- CARD 2: Community Simulator -->
-      <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col justify-between gap-4">
-        <div class="space-y-2">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <span class="p-1.5 rounded-xl bg-indigo-500/20 text-indigo-400">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </span>
-            Community Simulator
-          </h2>
-          <p class="text-xs text-gray-400 leading-relaxed">
-            Popola la community con utenti e attività fittizie per testare il feed e le funzioni social.
-          </p>
-        </div>
 
-        <div class="space-y-4">
-          <!-- Stats utenti -->
-          <div class="flex gap-3">
-            <div class="bg-white/5 border border-white/5 rounded-2xl px-4 py-2.5 flex-1">
-              <span class="block text-[10px] font-semibold text-gray-500 uppercase">Fake Users</span>
-              <span class="text-xl font-extrabold text-indigo-400">{{ fakeUsersCount }}</span>
-            </div>
-            <div class="bg-white/5 border border-white/5 rounded-2xl px-4 py-2.5 flex-1">
-              <span class="block text-[10px] font-semibold text-gray-500 uppercase">Real Users</span>
-              <span class="text-xl font-extrabold text-emerald-400">{{ realUsersCount }}</span>
-            </div>
-          </div>
-
-          <!-- Slider quantità -->
-          <div>
-            <label class="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Quantità da Generare</label>
-            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
-              <input type="range" v-model.number="fakeCount" min="1" max="50" class="w-full accent-indigo-500 bg-white/10 rounded-lg appearance-none cursor-pointer" />
-              <span class="text-sm font-bold text-white w-6 text-right">{{ fakeCount }}</span>
-            </div>
-          </div>
-
-          <!-- Pulsanti azioni -->
-          <div class="space-y-2">
-            <div class="flex gap-2">
-              <button
-                @click="generateFakeUsers"
-                class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-500 transition disabled:opacity-50 cursor-pointer"
-                :disabled="generatorRunning"
-              >
-                <svg v-if="generatorRunning" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"></path>
-                </svg>
-                <span>{{ generatorRunning ? 'Generazione…' : 'Genera Utenti' }}</span>
-              </button>
-
-              <button
-                @click="handleDeleteFake"
-                class="inline-flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-semibold rounded-xl transition cursor-pointer"
-                :class="deleteConfirmedOnce ? 'bg-red-700 hover:bg-red-600 text-white animate-pulse' : 'bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20'"
-                :disabled="generatorRunning"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>{{ deleteConfirmedOnce ? 'Confermi?' : 'Pulisci Fake' }}</span>
-              </button>
-            </div>
-
-            <!-- Messaggi simulator -->
-            <div v-if="generatorMessage" class="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2">
-              {{ generatorMessage }}
-            </div>
-            <div v-if="generatorError" class="text-[11px] text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-2">
-              {{ generatorError }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD 3: PopcornBot AI -->
-      <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md flex flex-col justify-between gap-4">
-        <div class="space-y-2">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <span class="p-1.5 rounded-xl bg-slate-500/20 text-slate-300">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </span>
-            Assistente AI PopcornBot
-          </h2>
-          <p class="text-xs text-gray-400 leading-relaxed">
-            Configura il comportamento, la personalità e le impostazioni dei suggerimenti dell'assistente AI.
-          </p>
-        </div>
-
-        <div class="space-y-4">
-          <div class="bg-white/5 border border-white/5 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
-            <p>• Personalità e tono personalizzati</p>
-            <p>• Supporto per suggerimenti basati sui tuoi gusti</p>
-            <p>• Risposte generate in tempo reale tramite LLM</p>
-          </div>
-
-          <NuxtLink
-            to="/admin/settings"
-            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-xl text-white bg-slate-800 hover:bg-slate-700 border border-white/10 transition shadow-md cursor-pointer"
-          >
-            <span>🍿 Impostazioni Bot AI</span>
-          </NuxtLink>
-        </div>
-      </div>
-    </div>
-
-    <!-- CARD INFO & LIMITAZIONI DEL SITO -->
-    <div class="bg-slate-900/60 border border-white/10 rounded-3xl p-6 backdrop-blur-md space-y-4">
-      <div class="flex items-center justify-between border-b border-white/5 pb-4">
-        <h2 class="text-lg font-bold text-white flex items-center gap-2 select-none">
-          <span class="p-1.5 rounded-xl bg-amber-500/20 text-amber-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </span>
-          Guida Rapida & Politica dei Piani (Free vs Premium)
-        </h2>
-        <button 
-          @click="showAdminGuide = !showAdminGuide"
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10 transition cursor-pointer select-none"
-        >
-          {{ showAdminGuide ? 'Nascondi Info' : 'Mostra Info' }}
-        </button>
-      </div>
-
-      <div v-show="showAdminGuide" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 text-left text-xs text-gray-300 leading-relaxed animate-fade-in-up">
-        <!-- Colonna 1: Player Streaming -->
-        <div class="space-y-2.5 bg-white/5 border border-white/5 rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-1 select-none">
-            <span class="text-sm">🎬</span>
-            <h3 class="font-bold text-white text-sm">Player Streaming Video</h3>
-          </div>
-          <p>
-            L'integrazione del player di terze parti (iframe) consente di riprodurre film e serie TV direttamente sul sito.
-          </p>
-          <ul class="space-y-2 text-[11px] text-gray-400">
-            <li class="flex items-start gap-1.5">
-              <span class="text-emerald-400 font-bold">✔</span>
-              <span><strong>Admins & Premium:</strong> Accesso completo al player per riprodurre video.</span>
-            </li>
-            <li class="flex items-start gap-1.5">
-              <span class="text-red-400 font-bold">✘</span>
-              <span><strong>Utenti Free:</strong> Player bloccato. Viene mostrata una schermata frosted di blocco con pulsante di donazione (Ko-fi).</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Colonna 2: Limiti PopCorn Bot AI -->
-        <div class="space-y-2.5 bg-white/5 border border-white/5 rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-1 select-none">
-            <span class="text-sm">🤖</span>
-            <h3 class="font-bold text-white text-sm">Assistente PopCorn Bot AI</h3>
-          </div>
-          <p>
-            L'assistente AI risponde a quesiti ed esegue suggerimenti cinematografici leggendo la watchlist dell'utente.
-          </p>
-          <ul class="space-y-2 text-[11px] text-gray-400">
-            <li class="flex items-start gap-1.5">
-              <span class="text-emerald-400 font-bold">✔</span>
-              <span><strong>Admins:</strong> Richieste illimitate per scopi amministrativi e di test.</span>
-            </li>
-            <li class="flex items-start gap-1.5">
-              <span class="text-amber-400 font-bold">⚠</span>
-              <span><strong>Free & Premium:</strong> Limite giornaliero attivo (1 richiesta/giorno) per preservare i costi delle API LLM.</span>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Colonna 3: Statistiche & Landing Page -->
-        <div class="space-y-2.5 bg-white/5 border border-white/5 rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-1 select-none">
-            <span class="text-sm">📊</span>
-            <h3 class="font-bold text-white text-sm">Statistiche & Teaser</h3>
-          </div>
-          <p>
-            La pagina di reportistica `/stats` mostra infografiche sulle abitudini di visione degli utenti registrati.
-          </p>
-          <ul class="space-y-2 text-[11px] text-gray-400">
-            <li class="flex items-start gap-1.5">
-              <span class="text-emerald-400 font-bold">✔</span>
-              <span><strong>Utenti Loggati (Tutti):</strong> Visualizzazione delle proprie statistiche calcolate in tempo reale.</span>
-            </li>
-            <li class="flex items-start gap-1.5">
-              <span class="text-purple-400 font-bold">✦</span>
-              <span><strong>Visitatori Guest:</strong> Pagina sfocata con dati mockup e overlay di invito ad iscriversi.</span>
-            </li>
-          </ul>
-        </div>
-      </div>
     </div>
 
     <!-- User Management Table Section -->
@@ -309,9 +117,17 @@
         <h2 class="text-xl font-bold text-white tracking-tight">
           Gestione Utenti Registrati
         </h2>
-        <span class="text-xs bg-slate-800 text-slate-300 border border-white/10 rounded-full px-3 py-1 font-semibold">
-          Totale Utenti: {{ users.length }}
-        </span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs bg-slate-800 text-slate-300 border border-white/10 rounded-full px-3 py-1 font-semibold">
+            Totale Utenti: {{ users.length }}
+          </span>
+          <button
+            @click="openCreate"
+            class="px-3 py-1.5 text-xs font-semibold rounded-xl text-purple-200 bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 transition"
+          >
+            + Nuovo utente
+          </button>
+        </div>
       </div>
 
       <div v-if="loading" class="opacity-70 text-center py-10">Caricamento in corso…</div>
@@ -326,7 +142,6 @@
             <th class="px-6 py-3">Username</th>
             <th class="px-6 py-3">Email</th>
             <th class="px-6 py-3">Admin</th>
-            <th class="px-6 py-3">Piano</th>
             <th class="px-6 py-3">Total</th>
             <th class="px-6 py-3">Avg Score</th>
             <th class="px-6 py-3">Actions</th>
@@ -341,7 +156,6 @@
           >
             <th scope="row" class="px-6 py-4 font-bold text-white whitespace-nowrap flex items-center gap-2">
               <span>{{ u.username || '—' }}</span>
-              <span v-if="u.is_fake" class="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/30 font-bold select-none uppercase tracking-wider">Fake</span>
             </th>
             <td class="px-6 py-4">{{ u.email }}</td>
             <td class="px-6 py-4">
@@ -349,34 +163,10 @@
                 {{ u.is_admin ? 'Yes' : 'No' }}
               </span>
             </td>
-            <td class="px-6 py-4">
-              <button
-                @click="togglePremiumStatus(u)"
-                :disabled="savingId === u.id"
-                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all focus:outline-none disabled:opacity-50 whitespace-nowrap inline-flex items-center gap-1"
-                :class="u.is_premium 
-                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
-                  : 'bg-slate-800 text-slate-400 border border-white/5 hover:bg-slate-700'"
-              >
-                <span>{{ u.is_premium ? 'Premium' : 'Free' }}</span>
-                <span v-if="u.is_premium" class="text-[10px]">🌟</span>
-              </button>
-            </td>
             <td class="px-6 py-4">{{ u.stats?.total ?? 0 }}</td>
             <td class="px-6 py-4">{{ u.stats?.avg_score ?? '—' }}</td>
 
        <td class="px-6 py-4 space-x-2 flex items-center justify-start">
-  <!-- View Chat AI -->
-  <button
-    class="p-2 rounded-full text-purple-400 hover:text-purple-300 hover:bg-white/5 transition-all"
-    @click="viewUserChat(u)"
-    title="Visualizza Chat AI"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-    </svg>
-  </button>
-
   <!-- Edit -->
   <button
     class="p-2 rounded-full text-gray-400 hover:text-gray-300 hover:bg-white/5 transition-all disabled:opacity-50"
@@ -416,6 +206,49 @@
     </div>
   </div>
 
+    <!-- Modal Nuovo Utente -->
+    <div
+      v-if="creating"
+      class="fixed inset-0 z-20 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeCreate"
+    >
+      <form @submit.prevent="saveCreate" class="w-full max-w-lg bg-slate-900 border border-white/10 text-white rounded-2xl shadow-2xl p-6 backdrop-blur-md">
+        <h2 class="text-lg font-bold mb-1">Nuovo utente</h2>
+        <p class="text-xs text-gray-400 mb-4">Le registrazioni pubbliche sono chiuse: gli account si creano solo da qui.</p>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Email</label>
+            <input v-model="createForm.email" type="email" required autocomplete="off" class="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Username</label>
+            <input v-model="createForm.username" type="text" required minlength="3" maxlength="30" autocomplete="off" class="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+            <input v-model="createForm.password" type="password" required minlength="8" autocomplete="new-password" class="w-full bg-white/5 border border-white/10 text-white placeholder-gray-500 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition" />
+            <p class="text-[11px] text-gray-500 mt-1">Almeno 8 caratteri, con lettere e numeri o simboli.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="create_is_admin" v-model="createForm.is_admin" type="checkbox" class="w-4 h-4 text-purple-600 bg-white/5 border border-white/10 rounded focus:ring-purple-500 focus:ring-2" />
+            <label for="create_is_admin" class="text-sm font-medium">Administrator</label>
+          </div>
+
+          <div v-if="createError" class="text-sm text-red-400 font-semibold">{{ createError }}</div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-2 border-t border-white/5 pt-4">
+          <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition" @click="closeCreate" :disabled="creatingBusy">
+            Annulla
+          </button>
+          <button type="submit" class="px-4 py-2 text-sm font-semibold rounded-xl text-green-300 bg-green-500/10 border border-green-500/20 hover:bg-green-500/20 transition disabled:opacity-50" :disabled="creatingBusy">
+            {{ creatingBusy ? 'Creazione…' : 'Crea utente' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
     <!-- Modal Edit -->
     <div
       v-if="editingUser"
@@ -442,10 +275,6 @@
             <input id="is_admin" v-model="form.is_admin" type="checkbox" class="w-4 h-4 text-purple-600 bg-white/5 border border-white/10 rounded focus:ring-purple-500 focus:ring-2" />
             <label for="is_admin" class="text-sm font-medium">Administrator</label>
           </div>
-          <div class="flex items-center gap-2 mt-1">
-            <input id="is_premium" v-model="form.is_premium" type="checkbox" class="w-4 h-4 text-purple-600 bg-white/5 border border-white/10 rounded focus:ring-purple-500 focus:ring-2" />
-            <label for="is_premium" class="text-sm font-medium">Socio Premium 🌟</label>
-          </div>
 
           <div v-if="editError" class="text-sm text-red-400 font-semibold">{{ editError }}</div>
         </div>
@@ -469,114 +298,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Modal View Chat -->
-    <div
-      v-if="viewingChatUser"
-      class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
-      @click.self="closeChatView"
-    >
-      <div class="w-full max-w-2xl h-[80vh] flex flex-col bg-slate-900 border border-white/10 text-white rounded-3xl shadow-2xl overflow-hidden backdrop-blur-md">
-        <!-- Header -->
-        <div class="px-6 py-4 border-b border-white/10 bg-slate-950/40 flex items-center justify-between shrink-0">
-          <div>
-            <h2 class="text-lg font-bold text-white flex items-center gap-2">
-              <span>🍿</span> Chat AI di {{ viewingChatUser.username || viewingChatUser.email }}
-            </h2>
-            <p class="text-xs text-gray-400 mt-0.5">Storico conversazioni con PopCorn Bot</p>
-          </div>
-          <button
-            class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors text-sm"
-            @click="closeChatView"
-          >
-            ✕
-          </button>
-        </div>
-
-        <!-- Chat messages -->
-        <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6 space-y-4 bg-slate-950/20">
-          <div v-if="loadingChat" class="flex flex-col items-center justify-center h-full text-gray-400 gap-3">
-            <div class="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
-            <p class="text-xs">Caricamento conversazione in corso...</p>
-          </div>
-          
-          <div v-else-if="chatMessages.length === 0" class="flex flex-col items-center justify-center h-full text-gray-500 gap-2">
-            <span class="text-3xl">🍿</span>
-            <p class="text-xs">Nessuna conversazione registrata per questo utente.</p>
-          </div>
-
-          <div v-else v-for="(msg, index) in chatMessages" :key="index" class="space-y-3">
-            <!-- User message -->
-            <div v-if="msg.role === 'user'" class="flex justify-end">
-              <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm rounded-2xl rounded-tr-none px-4 py-3 max-w-[85%] shadow-md break-words [overflow-wrap:anywhere]">
-                {{ msg.content }}
-              </div>
-            </div>
-
-            <!-- Bot message -->
-            <div v-else class="flex items-start gap-3">
-              <div class="w-8 h-8 rounded-xl bg-purple-600/30 border border-purple-500/30 flex items-center justify-center text-base shrink-0">
-                🍿
-              </div>
-              <div class="bg-slate-950/40 border border-white/5 text-gray-200 text-xs sm:text-sm rounded-2xl rounded-tl-none p-4 max-w-[88%] space-y-3 break-words [overflow-wrap:anywhere]">
-                <p class="whitespace-pre-line leading-relaxed break-words [overflow-wrap:anywhere]" v-html="formatMarkdown(msg.content)"></p>
-
-                <!-- Movie Recommendation Cards -->
-                <div v-if="msg.recommendations && msg.recommendations.length > 0" class="space-y-3 pt-2">
-                  <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">🎯 Titoli Consigliati:</p>
-
-                  <div
-                    v-for="(rec, rIdx) in msg.recommendations"
-                    :key="rIdx"
-                    class="bg-slate-900 border border-white/5 rounded-xl p-3 flex gap-3 items-center"
-                  >
-                    <!-- Poster image -->
-                    <img
-                      v-if="rec.poster_path"
-                      :src="getPosterUrl(rec.poster_path)"
-                      :alt="rec.title"
-                      class="w-10 h-14 object-cover rounded-lg shadow-md shrink-0 bg-slate-950 border border-white/10"
-                    />
-                    <div v-else class="w-10 h-14 bg-slate-950 rounded-lg flex items-center justify-center text-lg shrink-0 border border-white/5">
-                      🎬
-                    </div>
-
-                    <!-- Info -->
-                    <div class="flex-1 min-w-0 space-y-1">
-                      <div class="flex items-center justify-between gap-1">
-                        <h4 class="font-bold text-white text-xs truncate">{{ rec.title }}</h4>
-                        <span v-if="rec.vote_average" class="text-[10px] font-bold text-amber-400 flex items-center gap-0.5 shrink-0">
-                          ⭐ {{ Number(rec.vote_average).toFixed(1) }}
-                        </span>
-                      </div>
-
-                      <p class="text-[10px] text-gray-400">
-                        <span class="capitalize">{{ rec.kind === 'tv' ? 'Serie TV' : 'Film' }}</span>
-                        <span v-if="rec.release_year"> • {{ rec.release_year }}</span>
-                      </p>
-
-                      <p v-if="rec.reason" class="text-[10px] text-purple-300/90 line-clamp-1 italic">
-                        "{{ rec.reason }}"
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="px-6 py-4 border-t border-white/10 bg-slate-950/40 flex justify-end shrink-0">
-          <button
-            class="px-4 py-2 text-sm font-semibold rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition"
-            @click="closeChatView"
-          >
-            Chiudi
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -596,19 +317,46 @@ const editingUser = ref(null)
 const savingId = ref(null)
 const editError = ref('')
 
-// chat admin state
-const viewingChatUser = ref(null)
-const chatMessages = ref([])
-const loadingChat = ref(false)
-
 // form edit
 const form = reactive({
   email: '',
   username: '',
   password: '',
   is_admin: false,
-  is_premium: false,
 })
+
+// 🔹 Creazione nuovo utente (registrazioni pubbliche chiuse)
+const creating = ref(false)
+const creatingBusy = ref(false)
+const createError = ref('')
+const createForm = reactive({ email: '', username: '', password: '', is_admin: false })
+
+function openCreate() {
+  Object.assign(createForm, { email: '', username: '', password: '', is_admin: false })
+  createError.value = ''
+  creating.value = true
+}
+
+function closeCreate() {
+  creating.value = false
+  createForm.password = ''
+}
+
+async function saveCreate() {
+  if (creatingBusy.value) return
+  creatingBusy.value = true
+  createError.value = ''
+  try {
+    const created = await apiFetch('/admin/users', { method: 'POST', body: { ...createForm } })
+    users.value = [...users.value, created]
+    closeCreate()
+  } catch (e) {
+    const d = e?.data?.detail
+    createError.value = typeof d === 'string' ? d : 'Controlla i dati inseriti (email valida, username e password).'
+  } finally {
+    creatingBusy.value = false
+  }
+}
 
 // 🔹 Stato per backfill TMDb
 const backfillRunning = ref(false)
@@ -620,72 +368,6 @@ const backfillStats = reactive({
   lastUpdated: null,
   lastRemaining: null,
 })
-
-// 🔹 Stato per simulatore community (Fake Users)
-const fakeCount = ref(10)
-const generatorRunning = ref(false)
-const generatorMessage = ref('')
-const generatorError = ref('')
-const deleteConfirmedOnce = ref(false)
-let deleteConfirmTimer = null
-
-const showAdminGuide = ref(false)
-
-const fakeUsersCount = computed(() => users.value.filter(u => u.is_fake).length)
-const realUsersCount = computed(() => users.value.filter(u => !u.is_fake).length)
-
-async function generateFakeUsers() {
-  if (generatorRunning.value) return
-  generatorRunning.value = true
-  generatorMessage.value = ''
-  generatorError.value = ''
-  try {
-    const res = await apiFetch('/admin/fake-users/generate', {
-      method: 'POST',
-      query: { count: fakeCount.value }
-    })
-    generatorMessage.value = res.message || 'Utenti fake generati con successo!'
-    // Ricarica la lista utenti
-    await fetchUsers()
-  } catch (e) {
-    generatorError.value = e?.response?._data?.detail || e?.message || 'Errore durante la generazione'
-  } finally {
-    generatorRunning.value = false
-  }
-}
-
-async function handleDeleteFake() {
-  if (generatorRunning.value) return
-  
-  if (!deleteConfirmedOnce.value) {
-    deleteConfirmedOnce.value = true
-    // Resetta dopo 5 secondi
-    deleteConfirmTimer = setTimeout(() => {
-      deleteConfirmedOnce.value = false
-    }, 5000)
-    return
-  }
-  
-  // Esegui cancellazione reale
-  clearTimeout(deleteConfirmTimer)
-  deleteConfirmedOnce.value = false
-  generatorRunning.value = true
-  generatorMessage.value = ''
-  generatorError.value = ''
-  
-  try {
-    const res = await apiFetch('/admin/fake-users', {
-      method: 'DELETE'
-    })
-    generatorMessage.value = res.message || 'Utenti fake rimossi con successo.'
-    // Ricarica la lista utenti
-    await fetchUsers()
-  } catch (e) {
-    generatorError.value = e?.response?._data?.detail || e?.message || 'Errore durante la pulizia'
-  } finally {
-    generatorRunning.value = false
-  }
-}
 
 onMounted(async () => {
   await fetchUsers()
@@ -727,7 +409,6 @@ function openEdit(u) {
   form.username = u.username || ''
   form.password = ''
   form.is_admin = !!u.is_admin
-  form.is_premium = !!u.is_premium
   editError.value = ''
 }
 
@@ -737,48 +418,7 @@ function closeEdit() {
   form.username = ''
   form.password = ''
   form.is_admin = false
-  form.is_premium = false
   editError.value = ''
-}
-
-async function viewUserChat(u) {
-  viewingChatUser.value = u
-  loadingChat.value = true
-  chatMessages.value = []
-  try {
-    chatMessages.value = await apiFetch(`/admin/users/${u.id}/chat-history`)
-  } catch (e) {
-    console.error('Errore nel recupero della chat dell\'utente:', e)
-    alert('Impossibile caricare lo storico chat dell\'utente.')
-    closeChatView()
-  } finally {
-    loadingChat.value = false
-  }
-}
-
-function closeChatView() {
-  viewingChatUser.value = null
-  chatMessages.value = []
-}
-
-const getPosterUrl = (path) => {
-  if (!path) return null
-  if (path.startsWith('http')) return path
-  const cleanPath = path.startsWith('/') ? path : `/${path}`
-  return `https://image.tmdb.org/t/p/w500${cleanPath}`
-}
-
-const formatMarkdown = (text) => {
-  if (!text) return ''
-  let escaped = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-  let html = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>')
-  return html
 }
 
 async function saveEdit() {
@@ -794,9 +434,8 @@ async function saveEdit() {
     const payload = {}
     if (form.email && form.email !== editingUser.value.email) payload.email = form.email
     if (form.username && form.username !== editingUser.value.username) payload.username = form.username
-    if (form.password && form.password.trim().length >= 6) payload.password = form.password
+    if (form.password && form.password.trim().length >= 8) payload.password = form.password
     if (form.is_admin !== editingUser.value.is_admin) payload.is_admin = form.is_admin
-    if (form.is_premium !== editingUser.value.is_premium) payload.is_premium = form.is_premium
 
     if (Object.keys(payload).length === 0) {
       closeEdit()
@@ -814,22 +453,6 @@ async function saveEdit() {
     closeEdit()
   } catch (e) {
     editError.value = e?.response?._data?.detail || e?.message || 'Update failed'
-  } finally {
-    savingId.value = null
-  }
-}
-
-async function togglePremiumStatus(u) {
-  savingId.value = u.id
-  try {
-    const updated = await apiFetch(`/admin/users/${u.id}`, {
-      method: 'PUT',
-      body: { is_premium: !u.is_premium },
-    })
-    const idx = users.value.findIndex(x => x.id === u.id)
-    if (idx !== -1) users.value[idx] = { ...users.value[idx], ...updated }
-  } catch (e) {
-    alert(e?.response?._data?.detail || e?.message || 'Update failed')
   } finally {
     savingId.value = null
   }

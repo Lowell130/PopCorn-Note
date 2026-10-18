@@ -6,13 +6,10 @@
         <NuxtLink :to="isLoggedIn ? '/dashboard' : '/'" class="flex items-center gap-3 text-2xl font-bold text-white hover:text-purple-400 transition-colors">
           <span>🍿</span> PopCornNote
         </NuxtLink>
-        <p class="text-gray-400 leading-relaxed max-w-sm text-xs sm:text-sm">
-          PopCornNote è la tua centrale di controllo per film e serie TV. Cerca con TMDb, organizza la tua libreria per stato, analizza i tuoi gusti e condividi con una community di appassionati.
-        </p>
       </div>
 
-      <!-- Col 2: Navigation Links -->
-      <div class="md:col-span-3 space-y-4">
+      <!-- Col 2: Navigation Links (solo utenti loggati) -->
+      <div v-if="isLoggedIn" class="md:col-span-3 space-y-4">
         <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Applicativo</h4>
         <ul class="space-y-2">
           <li>
@@ -27,13 +24,10 @@
         </ul>
       </div>
 
-      <!-- Col 3: Social & Content -->
-      <div class="md:col-span-2 space-y-4">
-        <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Community</h4>
+      <!-- Col 3: Content (solo utenti loggati) -->
+      <div v-if="isLoggedIn" class="md:col-span-2 space-y-4">
+        <h4 class="text-xs font-semibold text-white uppercase tracking-wider">Contenuti</h4>
         <ul class="space-y-2">
-          <li>
-            <NuxtLink to="/community" class="hover:text-purple-400 transition-colors">Feed Globale</NuxtLink>
-          </li>
           <li>
             <NuxtLink to="/news" class="hover:text-purple-400 transition-colors">Ultime News</NuxtLink>
           </li>
@@ -52,10 +46,6 @@
     <!-- Copyright Divider line -->
     <div class="max-w-7xl mx-auto px-6 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
       <span>© {{ new Date().getFullYear() }} PopCornNote. Tutti i diritti riservati.</span>
-      <span class="flex gap-4">
-        <a href="#" class="hover:text-white transition-colors">Privacy</a>
-        <a href="#" class="hover:text-white transition-colors">Termini</a>
-      </span>
     </div>
 
     <!-- Pulsante Torna su (Glassmorphic Scroll to Top) -->

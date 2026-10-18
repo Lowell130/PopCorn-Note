@@ -10,6 +10,10 @@ from app.db import db
 from bson import ObjectId
 from datetime import datetime
 from pydantic import BaseModel, Field
+import re
+import httpx
+
+from app.config import settings
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
@@ -62,24 +66,6 @@ async def add_movie(movie: MovieCreate, user=Depends(get_current_user)):
         )
     new_movie = await db["movies"].find_one({"_id": result.inserted_id})
     
-    # --- SOCIAL ACTIVITY ---
-    try:
-        activity = {
-            "user_id": str(user["_id"]),
-            "username": user.get("username") or user["email"].split("@")[0],
-            "type": "add_movie",
-            "content": f"ha aggiunto {new_movie['title']} alla sua lista.",
-            "movie_id": str(new_movie["_id"]),
-            "movie_title": new_movie["title"],
-            "movie_poster": new_movie.get("poster_url"),
-            "movie_score": new_movie.get("score"),
-            "created_at": datetime.utcnow()
-        }
-        await db["activities"].insert_one(activity)
-    except Exception as e:
-        print(f"Social activity error: {e}")
-    # -----------------------
-
     return _normalize(new_movie)
 
 
@@ -226,107 +212,130 @@ async def movies_stats(user=Depends(get_current_user)):
 
 
 
+def _oid_or_404(movie_id: str) -> ObjectId:
+    if not ObjectId.is_valid(movie_id):
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return ObjectId(movie_id)
+
+
+async def _fetch_tmdb_item(tmdb_id: int, kind: str) -> dict | None:
+    """Scarica da TMDb i dati di un film/serie e li converte nel formato del DB."""
+    tmdb_key = settings.TMDB_API_KEY
+    if not tmdb_key:
+        return None
+    path = "tv" if kind == "tv" else "movie"
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        r = await client.get(
+            f"https://api.themoviedb.org/3/{path}/{tmdb_id}",
+            params={"api_key": tmdb_key, "language": "it-IT", "append_to_response": "credits"},
+        )
+    if r.status_code != 200:
+        return None
+    data = r.json()
+
+    poster_path = data.get("poster_path")
+    date_str = data.get("release_date") or data.get("first_air_date") or ""
+    director = None
+    cast_list = []
+    credits = data.get("credits") or {}
+    for member in credits.get("crew", []):
+        if member.get("job") == "Director":
+            director = member.get("name")
+            break
+    if not director and kind == "tv":
+        creators = data.get("created_by") or []
+        if creators:
+            director = creators[0].get("name")
+    cast_list = [c.get("name") for c in credits.get("cast", [])[:5] if c.get("name")]
+    runtime = data.get("runtime")
+    if not runtime and data.get("episode_run_time"):
+        runtime = data["episode_run_time"][0]
+
+    return {
+        "tmdb_id": tmdb_id,
+        "title": data.get("title") or data.get("name") or "Sconosciuto",
+        "kind": kind,
+        "poster_url": f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None,
+        "release_year": int(date_str[:4]) if date_str[:4].isdigit() else None,
+        "release_date": date_str if re.match(r"^\d{4}-\d{2}-\d{2}$", date_str) else None,
+        "overview": data.get("overview", ""),
+        "director": director,
+        "cast": cast_list,
+        "runtime": runtime if isinstance(runtime, int) and 0 <= runtime <= 600 else None,
+        "tmdb_vote": data.get("vote_average"),
+        "tags": [g.get("name").lower() for g in data.get("genres", []) if g.get("name")],
+    }
+
+
+async def _find_by_tmdb(user_id: str, tmdb_id: int, kind: str | None):
+    q = {"user_id": user_id, "$or": [{"tmdb_id": tmdb_id}, {"tmdb_id": str(tmdb_id)}]}
+    if kind == "tv":
+        q["kind"] = "tv"
+    elif kind == "movie":
+        q["$and"] = [{"$or": [{"kind": "movie"}, {"kind": {"$exists": False}}]}]
+    return await db["movies"].find_one(q)
+
+
 @router.get("/{movie_id}", response_model=MovieResponse)
-async def get_movie(movie_id: str, user=Depends(get_current_user)):
+async def get_movie(
+    movie_id: str,
+    user=Depends(get_current_user),
+    kind: str | None = Query(None, pattern="^(movie|tv)$"),
+):
+    """
+    Legge un titolo della collezione dell'utente (per _id o per tmdb_id).
+    Sola lettura: per importare un titolo da TMDb usare POST /movies/import/{tmdb_id}.
+    """
     user_id_str = str(user["_id"])
     m = None
-    
-    # 1. Prova a cercare per ObjectId (_id)
-    try:
-        if ObjectId.is_valid(movie_id):
-            m = await db["movies"].find_one({"_id": ObjectId(movie_id), "user_id": user_id_str})
-    except Exception:
-        pass
 
-    # 2. Se non trovato per _id, cerca per tmdb_id nella collezione utente
-    if not m:
-        try:
-            tmdb_val = int(movie_id) if movie_id.isdigit() else movie_id
-            m = await db["movies"].find_one({
-                "user_id": user_id_str,
-                "$or": [{"tmdb_id": tmdb_val}, {"tmdb_id": str(tmdb_val)}]
-            })
-        except Exception:
-            pass
+    if ObjectId.is_valid(movie_id):
+        m = await db["movies"].find_one({"_id": ObjectId(movie_id), "user_id": user_id_str})
 
-    # 3. Se non presente nel DB utente ed è un tmdb_id valido, recupera da TMDb e importa in 'to_watch'
-    if not m and (movie_id.isdigit() or len(movie_id) < 15):
-        try:
-            tmdb_key = settings.TMDB_API_KEY
-            if tmdb_key:
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    # Prova come film
-                    r = await client.get(
-                        f"https://api.themoviedb.org/3/movie/{movie_id}",
-                        params={"api_key": tmdb_key, "language": "it-IT", "append_to_response": "credits"}
-                    )
-                    kind = "movie"
-                    if r.status_code != 200:
-                        # Prova come serie TV
-                        r = await client.get(
-                            f"https://api.themoviedb.org/3/tv/{movie_id}",
-                            params={"api_key": tmdb_key, "language": "it-IT", "append_to_response": "credits"}
-                        )
-                        kind = "tv"
-
-                    if r.status_code == 200:
-                        data = r.json()
-                        title = data.get("title") or data.get("name") or "Sconosciuto"
-                        poster_path = data.get("poster_path")
-                        poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else None
-                        
-                        date_str = data.get("release_date") or data.get("first_air_date") or ""
-                        release_year = int(date_str[:4]) if date_str and date_str[:4].isdigit() else None
-                        
-                        director = None
-                        cast_list = []
-                        if "credits" in data:
-                            crew = data["credits"].get("crew", [])
-                            for member in crew:
-                                if member.get("job") == "Director":
-                                    director = member.get("name")
-                                    break
-                            cast = data["credits"].get("cast", [])
-                            cast_list = [c.get("name") for c in cast[:5] if c.get("name")]
-
-                        genres = data.get("genres", [])
-                        tags = [g.get("name").lower() for g in genres if g.get("name")]
-
-                        new_movie = {
-                            "user_id": user_id_str,
-                            "tmdb_id": int(movie_id) if movie_id.isdigit() else movie_id,
-                            "title": title,
-                            "kind": kind,
-                            "status": "to_watch",
-                            "poster_url": poster_url,
-                            "release_year": release_year,
-                            "release_date": date_str,
-                            "overview": data.get("overview", ""),
-                            "director": director,
-                            "cast": cast_list,
-                            "runtime": data.get("runtime") or (data.get("episode_run_time")[0] if data.get("episode_run_time") else None),
-                            "tmdb_vote": data.get("vote_average"),
-                            "tags": tags,
-                            "created_at": datetime.utcnow(),
-                            "updated_at": datetime.utcnow()
-                        }
-                        
-                        try:
-                            res = await db["movies"].insert_one(new_movie)
-                            new_movie["_id"] = res.inserted_id
-                            m = new_movie
-                        except Exception:
-                            # Se già esiste duplicato, recuperalo
-                            m = await db["movies"].find_one({
-                                "user_id": user_id_str,
-                                "$or": [{"tmdb_id": int(movie_id)}, {"tmdb_id": str(movie_id)}]
-                            })
-        except Exception as ex:
-            print("Errore import automatico TMDb:", ex)
+    if not m and movie_id.isdigit():
+        m = await _find_by_tmdb(user_id_str, int(movie_id), kind)
 
     if not m:
         raise HTTPException(status_code=404, detail="Film o Serie TV non trovato")
     return _normalize(m)
+
+
+@router.post("/import/{tmdb_id}", response_model=MovieResponse)
+async def import_from_tmdb(
+    tmdb_id: int,
+    user=Depends(get_current_user),
+    kind: str = Query("movie", pattern="^(movie|tv)$"),
+):
+    """
+    Importa un titolo da TMDb nella collezione dell'utente (status 'to_watch').
+    Se è già presente restituisce quello esistente (idempotente).
+    """
+    if tmdb_id < 1:
+        raise HTTPException(status_code=404, detail="Film o Serie TV non trovato")
+    user_id_str = str(user["_id"])
+
+    existing = await _find_by_tmdb(user_id_str, tmdb_id, kind)
+    if existing:
+        return _normalize(existing)
+
+    try:
+        data = await _fetch_tmdb_item(tmdb_id, kind)
+    except httpx.HTTPError:
+        raise HTTPException(status_code=502, detail="TMDb non raggiungibile, riprova più tardi")
+    if not data:
+        raise HTTPException(status_code=404, detail="Film o Serie TV non trovato su TMDb")
+
+    now = datetime.utcnow()
+    doc = {**data, "user_id": user_id_str, "status": "to_watch", "created_at": now, "updated_at": now}
+    try:
+        res = await db["movies"].insert_one(doc)
+        doc["_id"] = res.inserted_id
+    except DuplicateKeyError:
+        doc = await _find_by_tmdb(user_id_str, tmdb_id, kind)
+        if not doc:
+            raise HTTPException(status_code=409, detail="Titolo già presente")
+    return _normalize(doc)
+
 
 @router.get("/", response_model=List[MovieResponse])
 async def list_movies(
@@ -334,9 +343,9 @@ async def list_movies(
     status: str | None = Query(None, pattern="^(to_watch|watched|upcoming|watching)$"),
     q: str | None = None,
     kind: str | None = Query(None, pattern="^(movie|tv)$"),
-    limit: int = Query(100, le=1000),
-    skip: int = Query(0, ge=0),
-    sort: str = Query("created_at_desc"),
+    limit: int = Query(100, ge=1, le=500),
+    skip: int = Query(0, ge=0, le=100000),
+    sort: str = Query("created_at_desc", pattern="^(created_at_desc|title_asc|score_desc|release_date_asc)$"),
     # priorità in alto (come già fatto)
     priority_status: str | None = Query(None, pattern="^(to_watch|watched|upcoming|watching)$"),
     # 👇 NUOVO: spinge questo status in fondo
@@ -372,8 +381,10 @@ async def list_movies(
         else:
             and_clauses.append({"kind": "tv"})
 
+    q = (q or "").strip()[:100]
     if q:
-        like = {"$regex": q, "$options": "i"}
+        # escape: i caratteri speciali vengono cercati letteralmente (no errori 500 / ReDoS)
+        like = {"$regex": re.escape(q), "$options": "i"}
         and_clauses.append({"$or": [{"title": like}, {"note": like}, {"tags": like}]})
 
     if director:
@@ -449,17 +460,18 @@ async def list_movies(
 
 @router.put("/{movie_id}", response_model=MovieResponse)
 async def update_movie(movie_id: str, movie: MovieUpdate, user=Depends(get_current_user)):
-    update_doc = {
-        "$set": movie.dict(exclude_unset=True),
-        "$currentDate": {"updated_at": True},
-    }
+    oid = _oid_or_404(movie_id)
+    changes = movie.dict(exclude_unset=True)
+    update_doc = {"$currentDate": {"updated_at": True}}
+    if changes:
+        update_doc["$set"] = changes
     res = await db["movies"].update_one(
-        {"_id": ObjectId(movie_id), "user_id": str(user["_id"])},
+        {"_id": oid, "user_id": str(user["_id"])},
         update_doc
     )
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Movie not found")
-    updated = await db["movies"].find_one({"_id": ObjectId(movie_id)})
+    updated = await db["movies"].find_one({"_id": oid})
     return _normalize(updated)
 
 
@@ -470,7 +482,8 @@ async def update_progress(
     user=Depends(get_current_user),
 ):
     # verifica esistenza item dell'utente
-    m = await db["movies"].find_one({"_id": ObjectId(movie_id), "user_id": str(user["_id"])})
+    oid = _oid_or_404(movie_id)
+    m = await db["movies"].find_one({"_id": oid, "user_id": str(user["_id"])})
     if not m:
         raise HTTPException(status_code=404, detail="Movie not found")
 
@@ -488,15 +501,15 @@ async def update_progress(
         },
         "$currentDate": {"updated_at": True},
     }
-    await db["movies"].update_one({"_id": ObjectId(movie_id)}, update_doc)
-    updated = await db["movies"].find_one({"_id": ObjectId(movie_id)})
+    await db["movies"].update_one({"_id": oid}, update_doc)
+    updated = await db["movies"].find_one({"_id": oid})
     return _normalize(updated)
 
 
 @router.delete("/{movie_id}", status_code=204)
 async def delete_movie(movie_id: str, user=Depends(get_current_user)):
     # Find the movie to ensure it exists and belongs to the user
-    movie_obj_id = ObjectId(movie_id)
+    movie_obj_id = _oid_or_404(movie_id)
     user_id_str = str(user["_id"])
     
     movie_to_delete = await db["movies"].find_one({"_id": movie_obj_id, "user_id": user_id_str})
@@ -504,7 +517,7 @@ async def delete_movie(movie_id: str, user=Depends(get_current_user)):
     if not movie_to_delete:
         raise HTTPException(status_code=404, detail="Movie not found")
 
-    # Remove social activity
+    # Pulisce eventuali attività social legacy collegate al titolo
     await db["activities"].delete_many({"movie_id": movie_id})
     
     delete_result = await db["movies"].delete_one({"_id": movie_obj_id})

@@ -131,76 +131,6 @@
       </div>
     </div>
 
-    <!-- Condivisione Profilo -->
-    <div class="bg-white/5 border border-white/10 rounded-3xl p-6 mb-8 backdrop-blur-md text-white shadow-xl">
-      <h2 class="text-xl font-bold mb-2 text-white flex items-center gap-2">
-        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742l4.828-2.414m0 0a3 3 0 10-3.62-1.09l-4.829 2.414m4.829 2.414a3 3 0 11-3.62 1.09l-4.828-2.414m4.828 2.414a3 3 0 003.62-1.09" />
-        </svg>
-        Condividi la tua passione
-      </h2>
-      <p class="text-xs text-gray-400 mb-6 leading-relaxed">
-        Il tuo profilo pubblico consente a chiunque di visualizzare i film che hai completato, le tue ore di visione e i tuoi voti personali. 
-        Usa i pulsanti sottostanti per copiare il tuo link personale o generare un catalogo PDF.
-      </p>
-      
-      <div class="flex flex-col gap-4">
-        <!-- URL Display bar -->
-        <div class="flex items-center gap-2 bg-slate-950/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-gray-300 font-mono break-all">
-          {{ shareUrl }}
-        </div>
-        
-        <div class="flex flex-wrap gap-3">
-          <button
-            @click="copyShareUrl"
-            class="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs transition cursor-pointer shadow-md shadow-purple-500/5 hover:scale-102"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-7.5A2.25 2.25 0 018.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 00-2.25 2.25v6" />
-            </svg>
-            <span>{{ copied ? 'Copiato!' : 'Copia Link' }}</span>
-          </button>
-
-          <a
-            :href="shareUrl"
-            target="_blank"
-            class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded-xl text-xs transition cursor-pointer hover:scale-102"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            <span>Vedi Profilo</span>
-          </a>
-
-          <a
-            :href="shareUrl + '?print=true'"
-            target="_blank"
-            class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold rounded-xl text-xs transition cursor-pointer hover:scale-102"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            <span>Genera Catalogo PDF</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Support Card -->
-    <div class="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-3xl p-6 text-white shadow-xl backdrop-blur-md relative overflow-hidden">
-      <div class="absolute top-0 right-0 p-4 opacity-5 select-none pointer-events-none">
-        <span class="text-9xl">☕</span>
-      </div>
-      <div class="relative z-10">
-        <h2 class="text-2xl font-bold mb-2">Ti piace PopCornNote?</h2>
-        <p class="text-gray-300 mb-6 max-w-lg text-sm leading-relaxed">
-          Siamo un progetto indipendente e gratuito. Se apprezzi il nostro lavoro, considera di offrirci un caffè per mantenere i server attivi!
-        </p>
-        <SupportButton label="Offrici un caffè" class="px-5 py-2.5 bg-white text-purple-600 hover:bg-white/95 border-none font-bold rounded-xl text-sm transition cursor-pointer shadow-md" />
-      </div>
-    </div>
-
     <!-- Zona Pericolosa -->
     <div class="bg-red-500/5 border border-red-500/20 rounded-3xl p-6 text-white shadow-xl backdrop-blur-md">
       <h2 class="text-xl font-bold mb-4 text-red-400 flex items-center gap-2">
@@ -267,7 +197,7 @@
 <script setup>
 definePageMeta({ layout: 'wide' })
 
-const { user, logout } = useAuth()
+const { user, logout, token } = useAuth()
 const { apiFetch } = useApi()
 const router = useRouter()
 const toast = useToast?.()
@@ -288,20 +218,23 @@ async function changePassword() {
     return
   }
   
-  if (passwordForm.value.newPassword.length < 6) {
-    toast?.show?.('error', 'La nuova password deve essere di almeno 6 caratteri!')
+  const np = passwordForm.value.newPassword
+  if (np.length < 8 || /^\d+$/.test(np) || /^[a-zA-Z]+$/.test(np)) {
+    toast?.show?.('error', 'La nuova password deve avere almeno 8 caratteri e contenere lettere e numeri o simboli')
     return
   }
 
   changingPassword.value = true
   try {
-    await apiFetch('/auth/change-password', {
+    const res = await apiFetch('/auth/change-password', {
       method: 'POST',
       body: {
         current_password: passwordForm.value.currentPassword,
         new_password: passwordForm.value.newPassword
       }
     })
+    // il backend invalida i vecchi token: salva quello nuovo per restare connesso
+    if (res?.access_token) token.value = res.access_token
     toast?.show?.('success', 'Password modificata con successo!')
     passwordForm.value = {
       currentPassword: '',
@@ -318,26 +251,6 @@ async function changePassword() {
 }
 
 const emailPrefix = computed(() => user.value?.email ? user.value.email.split('@')[0] : '')
-
-const shareUrl = computed(() => {
-  if (typeof window === 'undefined') return ''
-  const name = user.value?.username || emailPrefix.value
-  return `${window.location.origin}/share/${encodeURIComponent(name)}`
-})
-
-const copied = ref(false)
-
-async function copyShareUrl() {
-  try {
-    await navigator.clipboard.writeText(shareUrl.value)
-    copied.value = true
-    toast?.show?.('success', 'Link del profilo copiato negli appunti!')
-    setTimeout(() => { copied.value = false }, 2000)
-  } catch (e) {
-    console.error(e)
-    toast?.show?.('error', 'Impossibile copiare il link')
-  }
-}
 
 async function deleteAccount() {
   loading.value = true

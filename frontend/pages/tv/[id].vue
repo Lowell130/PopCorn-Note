@@ -195,7 +195,7 @@
 
                <!-- Player Frame and Controls Wrapper -->
                <ClientOnly>
-                 <div v-if="isPremiumOrAdmin" class="w-full">
+                 <div class="w-full">
                   <div 
                     v-if="playerUrl" 
                     ref="playerContainer" 
@@ -269,25 +269,6 @@
                   </div>
                 </div>
 
-                <!-- Premium Locked Box -->
-                <div v-else class="aspect-video w-full flex flex-col items-center justify-center bg-slate-950/80 rounded-2xl border border-white/10 text-center p-6 backdrop-blur-md relative overflow-hidden group min-h-[200px] md:min-h-[360px]">
-                  <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 rounded-2xl opacity-70 group-hover:opacity-100 transition duration-1000"></div>
-                  
-                  <div class="relative z-10 space-y-4 max-w-md">
-                    <div class="inline-flex p-3.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25 shadow-lg shadow-purple-500/5 animate-pulse">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                    <h3 class="text-lg md:text-xl font-bold text-white tracking-tight">Riproduzione Riservata 🌟</h3>
-                    <p class="text-xs md:text-sm text-gray-400 leading-relaxed">
-                      La visione in streaming dei film e delle serie TV è riservata ai sostenitori di PopCornNote. Esegui una donazione su Ko-fi per sbloccare il player istantaneamente!
-                    </p>
-                    <div class="pt-2 flex justify-center">
-                      <SupportButton class="scale-105 hover:scale-110 transition-all duration-300" />
-                    </div>
-                  </div>
-                </div>
               </ClientOnly>
             </div>
             
@@ -440,6 +421,19 @@ const { apiFetch } = useApi()
 const toast = useToast?.()
 const savingProgress = ref(false)
 
+// Carica il titolo dalla collezione; se l'id è un ID TMDb (es. dalla watchlist)
+// e il titolo non è ancora in collezione, lo importa esplicitamente (POST).
+async function loadOrImport(id, kind) {
+  try {
+    return await apiFetch(`/movies/${id}`, { query: /^\d+$/.test(id) ? { kind } : undefined })
+  } catch (e) {
+    if ((e?.status === 404 || e?.statusCode === 404) && /^\d+$/.test(id)) {
+      return await apiFetch(`/movies/import/${id}`, { method: 'POST', query: { kind } })
+    }
+    throw e
+  }
+}
+
 function isValidObjectId(id) {
   return typeof id === 'string' && id.trim().length > 0
 }
@@ -458,7 +452,7 @@ const { data: item, pending, error } = await useAsyncData(
     if (!isValidObjectId(id)) {
       throw createError({ statusCode: 400, statusMessage: 'ID non valido.' })
     }
-    const it = await apiFetch(`/movies/${id}`)
+    const it = await loadOrImport(id, 'tv')
     if (it.kind !== 'tv') {
       throw createError({ statusCode: 400, statusMessage: 'Questo elemento non è una serie TV.' })
     }
@@ -613,7 +607,6 @@ async function loadEpisodes() {
 }
 
 const playerUrl = computed(() => {
-  if (!isPremiumOrAdmin.value) return null
   if (!initializedSeasons.value) return null
   const id = item.value?.tmdb_id
   const s = selectedSeason.value
@@ -665,11 +658,7 @@ async function markCurrentAsWatched() {
 
 
 // Heartbeat sessione
-const { refreshToken, isPremium, isAdmin } = useAuth()
-
-const isPremiumOrAdmin = computed(() => {
-  return !!(isPremium.value || isAdmin.value)
-})
+const { refreshToken } = useAuth()
 
 let refreshInterval = null
 

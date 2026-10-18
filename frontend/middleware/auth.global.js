@@ -1,7 +1,7 @@
 // middleware/auth.global.js
 export default defineNuxtRouteMiddleware((to) => {
   const token = useCookie('token')
-  const publicPaths = ['/', '/login', '/register', '/privacy', '/terms', '/news']
+  const publicPaths = ['/', '/login']
 
   // Se non autenticato e si trova su una pagina privata, reindirizza a /login
   if (!token.value && !publicPaths.includes(to.path)) {

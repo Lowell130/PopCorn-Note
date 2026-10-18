@@ -317,7 +317,7 @@ async function fetchStats() {
 }
 
 const config = useRuntimeConfig()
-const hasTmdb = computed(() => !!config.public.tmdbApiKey)
+const hasTmdb = computed(() => config.public.tmdbEnabled !== false)
 
 const movies = ref([])
 const loading = ref(false)

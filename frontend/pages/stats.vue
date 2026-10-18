@@ -11,12 +11,9 @@
         </div>
         <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">Statistiche Personali Bloccate 📊</h2>
         <p class="text-xs md:text-sm text-gray-300 leading-relaxed">
-          Crea un account per sbloccare la tua area Analytics. Potrai analizzare i tuoi registi preferiti, visualizzare la timeline delle visioni per decenni, e scoprire la tua curva di gradimento dei voti!
+          Accedi per vedere le tue statistiche.
         </p>
         <div class="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
-          <NuxtLink to="/register" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold rounded-2xl shadow-xl shadow-purple-600/20 transition transform hover:scale-105 duration-200">
-            Registrati gratis
-          </NuxtLink>
           <NuxtLink to="/login" class="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-2xl hover:bg-white/10 transition text-xs font-bold transform hover:scale-105 duration-200">
             Accedi
           </NuxtLink>

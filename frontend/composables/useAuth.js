@@ -7,18 +7,13 @@ export const useAuth = () => {
   const token = useCookie('token', {
     sameSite: 'lax',
     path: '/',           // <— importante
-    // secure: process.client && location.protocol === 'https:' // opzionale in prod
+    secure: import.meta.client && location.protocol === 'https:', // solo HTTPS in produzione
   })
 
   const { apiFetch } = useApi()
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => !!user.value?.is_admin)   // <— AGGIUNTO
-  const isPremium = computed(() => !!user.value?.is_premium)
-
-  async function register(payload) {
-    return await apiFetch('/auth/register', { method: 'POST', body: payload })
-  }
 
   async function login({ email, password }) {
     const res = await apiFetch('/auth/login', {
@@ -81,5 +76,5 @@ export const useAuth = () => {
     }
   }
 
-  return { user, token, isLoggedIn, isAdmin, isPremium, register, login, logout, init, fetchMe, refreshToken }
+  return { user, token, isLoggedIn, isAdmin, login, logout, init, fetchMe, refreshToken }
 }

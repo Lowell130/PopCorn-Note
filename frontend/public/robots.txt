@@ -1,9 +1,5 @@
+# Sito privato: nessun contenuto da indicizzare.
+# La scansione resta consentita così i motori leggono il meta "noindex"
+# e rimuovono le pagine già indicizzate.
 User-Agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /watchlist/
-Disallow: /settings/
-Disallow: /stats/
-
-Sitemap: https://www.popcornote.com/sitemap.xml

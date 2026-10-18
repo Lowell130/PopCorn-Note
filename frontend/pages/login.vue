@@ -20,6 +20,7 @@
           <input
             v-model="email"
             type="email"
+            autocomplete="email"
             placeholder="nome@esempio.com"
             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             required
@@ -31,11 +32,14 @@
           <input
             v-model="password"
             type="password"
+            autocomplete="current-password"
             placeholder="••••••••"
             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
             required
           />
         </div>
+
+        <p v-if="errorMsg" role="alert" class="text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{{ errorMsg }}</p>
 
         <div class="pt-2">
           <button
@@ -56,12 +60,6 @@
           </button>
         </div>
       </form>
-
-      <!-- Footer Link -->
-      <p class="text-xs text-gray-500 text-center mt-6">
-        Non hai ancora un account?
-        <NuxtLink to="/register" class="text-purple-400 font-semibold hover:underline">Registrati gratis</NuxtLink>
-      </p>
     </div>
   </div>
 </template>
@@ -70,17 +68,25 @@
 const email = ref("")
 const password = ref("")
 const loading = ref(false)
+const errorMsg = ref("")
+
+function apiError(e, fallback) {
+  const d = e?.data?.detail
+  if (typeof d === 'string') return d
+  if (Array.isArray(d) && d.length) return 'Controlla i dati inseriti: email non valida o campi troppo lunghi.'
+  return fallback
+}
 const { login } = useAuth()
 
 async function submit() {
   if (loading.value) return
   loading.value = true
+  errorMsg.value = ""
   try {
     await login({ email: email.value, password: password.value })
     navigateTo("/dashboard")
   } catch (e) {
-    alert("Login fallito")
-    console.error(e)
+    errorMsg.value = apiError(e, "Accesso non riuscito, riprova.")
   } finally {
     loading.value = false
   }
